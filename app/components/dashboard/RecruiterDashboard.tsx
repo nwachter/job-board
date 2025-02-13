@@ -1,8 +1,9 @@
 import React from 'react'
 import JobCard from '../general/JobCard';
 import { Search } from 'lucide-react';
+import { Offer } from '@/app/types/offer';
 
-const RecruiterDashboard = () => {
+const RecruiterDashboard : React.FC<{offers: Offer[]}> = ({offers}) => {
     return (
         <div className="flex h-full w-full">
     
@@ -44,8 +45,8 @@ const RecruiterDashboard = () => {
     
               {/* Job Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[1, 2, 3, 4, 5, 6].map((job) => (
-                  <JobCard key={job} />
+                {offers.map((offer) => (
+                  <JobCard offer={offer} />
                 ))}
               </div>
             </div>

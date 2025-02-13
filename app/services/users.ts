@@ -9,7 +9,7 @@ const api = axios.create({
     withCredentials: true 
 });
 
-export const fetchAllUsers = async () => {
+export const getUsers = async () => {
     try {
         const response = await api.get('/users');
         return response.data;

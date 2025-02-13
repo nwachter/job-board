@@ -10,7 +10,18 @@ const api = axios.create({
   withCredentials: true,
 });
 
-export const fetchAllOffers = async () => {
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+
+export const getOffers = async () => {
   try {
     const response = await api.get("/offers");
     return response.data;

@@ -1,10 +1,11 @@
 import { useState, useEffect } from "react";
 import { getOffers } from "../services/offers";
+import { Offer } from "../types/offer";
 
 export const useOffers = () => {
-    const [offers, setOffers] = useState();
-    const [error, setError] = useState();
-    const [isLoading, setIsLoading] = useState();
+    const [offers, setOffers] = useState<Offer[]>();
+    const [error, setError] = useState<string>();
+    const [isLoading, setIsLoading] = useState<boolean>();
 
     useEffect(() => {
         const fetchAllOffers = async () => {

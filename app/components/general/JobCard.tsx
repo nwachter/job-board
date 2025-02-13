@@ -1,14 +1,17 @@
+import { Application } from '@/app/types/application'
+import { Offer } from '@/app/types/offer'
 import { BookmarkPlus, Badge } from 'lucide-react'
 import React from 'react'
 
-const JobCard = () => {
+const JobCard : React.FC<{offer: Offer}> = ({offer}) => {
+
   return (
    
         <div className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
           <div className="flex justify-between items-start mb-4">
             <div>
-              <h3 className="font-semibold text-lg mb-1">Développeur Full Stack</h3>
-              <p className="text-gray-600 text-sm">Google Inc.</p>
+              <h3 className="font-semibold text-lg mb-1">{offer.title}</h3>
+              <p className="text-gray-600 text-sm">{offer.company_name}</p>
             </div>
             <button className="text-purple-600 hover:text-purple-700">
               <BookmarkPlus size={20} />
@@ -25,16 +28,16 @@ const JobCard = () => {
               </Badge>
             </div>
             <p className="text-gray-600 text-sm">
-              35 000€ - 45 000€ par an
+              {offer.salary}€ par an
             </p>
           </div>
       
           <div className="flex justify-between items-center pt-4 border-t">
-            <span className="text-sm text-gray-500">
-              12 candidatures
-            </span>
+            {offer.applications && <span className="text-sm text-gray-500">
+              {offer?.applications?.length} candidatures
+            </span>}
             <button className="text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg transition-colors">
-              Voir détails
+              Voir plus
             </button>
           </div>
         </div>

@@ -40,7 +40,7 @@ model Offer {
   company_name  String
   salary        Int
   location      String
-  admin         User     @relation("AdminOffers", fields: [admin_id], references: [id], onDelete: Cascade)
+  admin         User     @relation("AdminOffers", fields: [admin_id], references: [id])
   admin_id      Int
 
   applications  Application[]

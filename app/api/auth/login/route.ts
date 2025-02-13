@@ -2,16 +2,14 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
 import  jwt from "jsonwebtoken";
-const prisma = new PrismaClient();
+import { cookies } from "next/headers";
 
-export const GET = async (request: Request) => {
-    
- };
+const prisma = new PrismaClient();
 
 export const POST = async (request: Request) => {
     const {email, password} = await request.json();
     try {
-        const user = await prisma.user.findUnique({
+        const user = await prisma?.user?.findUnique({
             where: {
                 email: email,
             }
@@ -29,14 +27,26 @@ export const POST = async (request: Request) => {
         }
 
         //Générer le token
-        const token = jwt.sign({id: user.id, email: user.email}, process.env.JWT_SECRET || "jwt_secret", {expiresIn: "1d"});
+        const token = jwt.sign({id: user.id, email: user.email, role: user.role, username: user.username}, process.env.JWT_SECRET || "jwt_secret", {expiresIn: "1d"});
 
-        return NextResponse.json({message: "Connexion réussie !", user: {id: user.id, email, username: user.username, role: user.role}, token, status: 200});
+        const response =  NextResponse.json({message: "Connexion réussie !", user: {id: user.id, email, username: user.username, role: user.role}, token, status: 200});
+       
+        //Générer le cookie
+        (await
+            //Générer le cookie
+            cookies()).set('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'strict',
+            maxAge: 86400, //1 jour
+            path: '/', // Accessible sur le site entier
+        });
+
+        return response;
 
     } catch(error) {
         console.log(error);
         return NextResponse.json({error: "Erreur lors de la connexion...", status: 500});
 
     }
-
 };
