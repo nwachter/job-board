@@ -7,18 +7,19 @@ const api = axios.create({
     "Content-Type": "application/json",
     Accept: "application/json",
   },
-  withCredentials: true,
+  withCredentials: true, //allows to get the cookie
 });
+//credentials: "include" for Fetch to get the cookie, so now the token existe dans le cookie
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+// api.interceptors.request.use((config) => {
+//   const token = localStorage.getItem('token');
+//   if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//   }
+//   return config;
+// }, (error) => {
+//   return Promise.reject(error);
+// });
 
 
 export const getOffers = async () => {
@@ -32,12 +33,12 @@ export const getOffers = async () => {
 };
 
 
-export const getOffersByAdminId = async (admin_id : number) => {
+export const getOffersByRecruiterId = async (recruiter_id : number) => {
   try {
-    const response = await api.get(`/offers/by-admin/${admin_id}`);
+    const response = await api.get(`/offers/by-admin/${recruiter_id}`);
     return response.data;
   } catch (error) {
-    console.error(`Failed to fetch offers of admin #${admin_id}:`, error);
+    console.error(`Failed to fetch offers of admin #${recruiter_id}:`, error);
     throw error;
   }
 };

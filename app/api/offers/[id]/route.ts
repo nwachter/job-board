@@ -19,7 +19,7 @@ export async function GET(request: Request, { params }: { params: Params }) {
         id: Number(id),
       },
       include: {
-        admin: true,
+        recruiter: true,
         applications: true,
       }
     });
@@ -32,7 +32,7 @@ export async function GET(request: Request, { params }: { params: Params }) {
 
 export const PUT = async (request: Request, { params }: { params: Params }) => {
   const { id } = await params;
-  const { title, description, company_name, location, salary, admin_id } = await request.json();
+  const { title, description, company_name, location, salary, recruiter_id } = await request.json();
 
   if (!id) {
     return NextResponse.json({ error: "L'ID de l'offre est requis pour la mise à jour", status: 400 });
@@ -58,7 +58,7 @@ export const PUT = async (request: Request, { params }: { params: Params }) => {
     where: {
       id: Number(id),
     },
-    data: { title, description, company_name, location, salary, admin_id }
+    data: { title, description, company_name, location, salary, recruiter_id }
   });
 
   return NextResponse.json({ message: "L'offre a été mise à jour avec succès !", data: updatedData, status: 200 });

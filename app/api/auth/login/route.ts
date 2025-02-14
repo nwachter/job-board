@@ -33,12 +33,11 @@ export const POST = async (request: Request) => {
        
         //Générer le cookie
         (await
-            //Générer le cookie
             cookies()).set('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', 
             sameSite: 'strict',
-            maxAge: 86400, //1 jour
+            maxAge: 5*24*60*60, //1 jour
             path: '/', // Accessible sur le site entier
         });
 

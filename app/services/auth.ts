@@ -35,13 +35,13 @@ const register = async (data: Omit<User, "id" | "role">) => {
     }
 };
 
-const login = async (data : {email: string, password: string}) => {
+const login = async (data : {email: string, password: string}) : Promise<User> => {
     const { email, password } = data;
     if(!email || !password) {
         throw new Error('Il manque l\'email ou le mot de passe');
     }
     try {
-        const response = await api.post<{email: string, password: string}>('/login', { email, password });
+        const response = await api.post<User>('/login', { email, password });
         return response.data;
     } catch (error) {
         console.error('Failed to login:', error);
@@ -72,6 +72,8 @@ export const updateUser = async (id: number, data: Partial<Omit<User, "id">>) =>
 const logout = async () => {
     try {
         const response = await api.post('/logout');
+        // if(response.ok)
+        localStorage.clear();
         return response.data;
     } catch (error) {
         console.error('Failed to logout:', error);
@@ -81,7 +83,7 @@ const logout = async () => {
 
 const getUserInfo = async () => {
     try {
-        const response = await api.get('/verify');
+        const response = await api.get('/get-user-info');
         return response.data;
     } catch (error) {
         console.error('Failed to verify token and get user info:', error);

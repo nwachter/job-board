@@ -23,11 +23,11 @@
 //     const [isSignUp, setIsSignUp] = useState(true);
 //     const [inputs, setInputs] = useState([{ email: "" }, { password: "" }]);
 //     const [errors, setErrors] = useState({ email: "" }, { password: "" });
-  
+
 //     console.log();
-  
+
 //     const [alert, setAlert] = useState({ type: "", message: "" });
-  
+
 //     const alertData = {
 //       danger: {
 //         type: "error",
@@ -42,7 +42,7 @@
 //         css: "p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 transition-all",
 //       },
 //     };
-  
+
 //     const validateInput = (value : string, min : number, max : number, regex: RegExp, name: string) => {
 //       const translatedName = name === "password" ? "mot de passe" : "pseudo";
 //       if (value.length < min) {
@@ -58,50 +58,50 @@
 //       }
 //       return "";
 //     };
-  
+
 //     const handleChange = (event, fieldName, min, max, regex) => {
 //       const value = event.target.value;
 //       const error = validateInput(value, min, max, regex, fieldName);
-  
+
 //       setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: error }));
 //       setInputs((prevInputs) => ({ ...prevInputs, [fieldName]: value }));
 //     };
-  
+
 //     const handleChangeUsername = (event : React.ChangeEvent<HTMLInputElement>) => {
 //       const usernameRegex = /^[a-zA-Z0-9]+$/;
 //       handleChange(event, "username", 3, 20, usernameRegex);
 //     };
-  
+
 //     const handleChangePassword = (event : React.ChangeEvent<HTMLInputElement>) => {
 //       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
 //       handleChange(event, "password", 8, 20, passwordRegex);
 //     };
-  
+
 //     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 //       e.preventDefault();
-  
+
 //       const email = e.target.email.value;
 //       const password = e.target.password.value;
-  
+
 //       try {
 //         const data = await login(email, password); // Correct call
-  
+
 //         console.log("Data signin : ", data);
-  
+
 //         if (data && data.token) {
 //           localStorage.setItem("isConnected", "true");
 //         }
-  
+
 //         const alertType = data?.user ? "success" : "danger";
 //         setAlert({
 //           type: alertType,
 //           message: alertData[alertType].message,
 //         });
-  
+
 //         // setTimeout(() => {
 //         //   if (data?.user) {
 //         //     window.location.href = '/';
-  
+
 //         //   }
 //         // }, 4000);
 //       } catch (error) {
@@ -109,7 +109,7 @@
 //         window.alert("Server error, please try again later.");
 //       }
 //     };
-  
+
 
 
 //     //   if (!userType) {
@@ -354,6 +354,8 @@ import React, { useState } from 'react';
 import { Mail, Lock, User, Building2, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { login, register } from '../services/auth';
+import { useRouter } from 'next/navigation';
+import { FormField } from '../components/general/Form';
 
 const SignPages = () => {
     const [isSignUp, setIsSignUp] = useState(true);
@@ -361,21 +363,21 @@ const SignPages = () => {
         email: "",
         password: "",
         password_confirmation: "",
-        firstname: "",
-        lastname: "",
+        // firstname: "",
+        // lastname: "",
         username: ""
     });
     const [errors, setErrors] = useState({
         email: "",
         password: "",
         password_confirmation: "",
-        firstname: "",
-        lastname: "",
+        // firstname: "",
+        // lastname: "",
         username: ""
     });
     const [alert, setAlert] = useState({ type: "", message: "" });
 
-    const alertData : any = {
+    const alertData: any = {
         danger: {
             type: "error",
             name: "Erreur !",
@@ -389,9 +391,13 @@ const SignPages = () => {
             css: "p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 transition-all",
         },
     };
+    const router = useRouter();
 
-    const validateInput = (value : string, min : number, max : number, regex : RegExp, name : string) => {
+    const validateInput = (value: string, min: number, max: number, regex: RegExp, name: string) => {
         const translatedName = name === "password" || name === "password_confirmation" ? "mot de passe" : name;
+        if ((inputs.password !== "" && inputs.password_confirmation !== "") && ((name === "password_confirmation" && value !== inputs.password))) {
+            return "Les mots de passe ne correspondent pas";
+        }
         if (value.length < min) {
             return `Le ${translatedName} doit contenir au moins ${min} caractères`;
         }
@@ -403,20 +409,31 @@ const SignPages = () => {
                 ? `Le ${translatedName} doit contenir au moins une lettre majuscule, une lettre minuscule et un chiffre`
                 : `Le ${translatedName} ne doit pas contenir de caractères spéciaux`;
         }
+
         return "";
     };
 
-    const handleChange = (event : React.ChangeEvent<HTMLInputElement>, fieldName: string, min: number, max: number, regex: RegExp) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>, fieldName: string, min: number, max: number, regex: RegExp) => {
         const value = event.target.value;
         const error = validateInput(value, min, max, regex, fieldName);
         setErrors((prevErrors) => ({ ...prevErrors, [fieldName]: error }));
         setInputs((prevInputs) => ({ ...prevInputs, [fieldName]: value }));
     };
 
-    const handleSubmit = async (e : React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        let alertType;
         const { email, password, password_confirmation, username } = inputs;
 
+        if (password !== password_confirmation) {
+            alertType = "danger";
+            console.error("Les mots de passe ne correspondent pas");
+            setAlert({
+                type: alertType,
+                message: alertData[alertType].message,
+            })
+        }
+        console.log("Infos envoyées : ", email, password, password_confirmation, username);
 
         try {
             const data = isSignUp
@@ -425,13 +442,29 @@ const SignPages = () => {
 
             if (data && data.token) {
                 localStorage.setItem("isConnected", "true");
+                const userInfo = {
+                    id: data?.user?.id,
+                    role: data?.user?.role,
+                    username: data?.user?.username,
+                    email: data?.user?.email,        
+                }
+                localStorage.setItem("userInfo", JSON.stringify(userInfo));
+                // localStorage.setItem("token", data?.token); //Token is set in cookie in the backend
+                console.log("Successful connexion. Adding data to LS")
             }
 
-            const alertType = data?.user ? "success" : "danger";
+            alertType = data?.user ? "success" : "danger"; //testerror a modif
             setAlert({
                 type: alertType,
                 message: alertData[alertType].message,
             });
+
+            if (isSignUp === false) {
+                setTimeout(() => {
+                    router.push('/dashboard');
+                }, 4000);
+            }
+
 
         } catch (error) {
             console.error("Error:", error);
@@ -511,19 +544,19 @@ const SignPages = () => {
                                 : 'Entrez vos identifiants afin de pouvoir vous connecter'}
                         </p>
                         {alert.type && alertData[alert.type] && (
-              <div className={alertData[alert.type].css} role="alert">
-                <span className="font-semibold">
-                  {alertData[alert.type].name}
-                </span>{" "}
-                {alert.message}
-              </div>
-            )}
+                            <div className={alertData[alert.type].css} role="alert">
+                                <span className="font-semibold">
+                                    {alertData[alert.type].name}
+                                </span>{" "}
+                                {alert.message}
+                            </div>
+                        )}
                     </CardHeader>
                     <CardContent className="pt-6">
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} method="POST" className="space-y-4">
                             {isSignUp && (
                                 <div className="space-y-4">
-                                    <FormField
+                                    {/* <FormField
                                         icon={<User size={20} />}
                                         type="text"
                                         name="lastname"
@@ -538,7 +571,7 @@ const SignPages = () => {
                                         placeholder="Prénom"
                                         onChange={(e) => handleChange(e, "firstname", 2, 50, /^[a-zA-Z]+$/)}
                                         error={errors.firstname}
-                                    />
+                                    /> */}
                                     <FormField
                                         icon={<User size={20} />}
                                         type="text"
@@ -587,6 +620,7 @@ const SignPages = () => {
                                     }
                                     {' '}
                                     <button
+                                        type="button"
                                         onClick={() => setIsSignUp(!isSignUp)}
                                         className="text-purple-600 hover:text-purple-700 font-medium"
                                     >
@@ -602,25 +636,5 @@ const SignPages = () => {
     );
 };
 
-type FormFieldProps = {
-    icon: React.ReactNode;
-    error?: string;
-} & React.InputHTMLAttributes<HTMLInputElement>;
-
-const FormField: React.FC<FormFieldProps> = ({ icon, error, ...props }) => (
-    <div className="flex flex-col">
-           <div className="relative">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            {icon}
-        </div>
-        <input
-            {...props}
-            className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
-        />
-    </div> 
-    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-    </div>
-
-);
 
 export default SignPages;

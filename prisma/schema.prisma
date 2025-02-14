@@ -15,6 +15,7 @@ datasource db {
 
 enum Role {
   ADMIN
+  RECRUITER
   NORMAL
 }
 
@@ -25,12 +26,13 @@ model User {
   email       String  @unique
   password    String
   role        String  @default("user") 
+  avatar      String?
 
   // Normal Users 
   applications Application[]
 
-  // Admins
-  offers Offer[] @relation("AdminOffers")
+  // Recruiters
+  offers Offer[] @relation("RecruiterOffers")
 }
 
 model Offer {
@@ -39,9 +41,11 @@ model Offer {
   description   String
   company_name  String
   salary        Int
-  location      String
-  admin         User     @relation("AdminOffers", fields: [admin_id], references: [id])
-  admin_id      Int
+  location      Location? @relation(fields: [location_id], references: [id])
+  location_id   Int?
+  contract_type String?
+  recruiter         User     @relation("RecruiterOffers", fields: [recruiter_id], references: [id])
+  recruiter_id      Int
 
   applications  Application[]
 }
@@ -58,6 +62,16 @@ model Application {
   cv         String
 }
 
+model Location {
+  id   Int    @id @default(autoincrement())
+  city String
+  country String @default("France")
+  offers Offer[]
+}
+
+
+
 //migration :  npx prisma migrate dev --name nom_de_migration
 // npx prisma studio (localhost:5555)
 // npx prisma generate //genere le client
+

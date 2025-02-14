@@ -2,31 +2,56 @@ import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 import Error from "next/error";
+import jwt from "jsonwebtoken";
+import { DecodedToken } from "@/app/types/misc";
+import { authMiddleware, middleware } from "@/app/middleware";
 
 const prisma = new PrismaClient();
 
 /*
+model Offer {
 model Offer {
   id            Int      @id @default(autoincrement())
   title         String
   description   String
   company_name  String
   salary        Int
-  location      String
-  admin         User     @relation("AdminOffers", fields: [admin_id], references: [id], onDelete: Cascade)
-  admin_id      Int
+  location      Location? @relation(fields: [location_id], references: [id])
+  location_id   Int?
+  contract_type String?
+  recruiter         User     @relation("RecruiterOffers", fields: [recruiter_id], references: [id])
+  recruiter_id      Int
 
   applications  Application[]
+}
+
 }
 */
 export async function GET() {
   try {
+    // const offers = await prisma.offer.findMany({
+    //   include: {
+    //     recruiter: true,
+    //     applications: true,
+    //   }
+    // });
+
+    const auth = await authMiddleware(); 
+      // Check if auth is an object and has an error property
+      if (typeof auth === 'object' && auth !== null && 'error' in auth) {
+        return NextResponse.json({ error: "Token invalide. Accès non autorisé", status: 401 });
+      }
+
+      
+    // if(auth?.error as string) {
+    //   return NextResponse.json({error: "Token invalide. Accès non autorisé", status: 401});
+    // }
     const offers = await prisma.offer.findMany({
       include: {
-        admin: true,
+        recruiter: true,
         applications: true,
       }
-    });
+    })
     return NextResponse.json(offers);
 
   } catch (error) {
@@ -53,14 +78,27 @@ export async function POST(request: Request) {
 
 
     // }
-    // if (verifiedToken?.role !== "admin") {
+    // if (verifiedToken?.role !== "recruiter") {
     //   return NextResponse.json({ error: "Accès non autorisé", status: 401 });
     // }
-    const cookiesData = await cookies();
-    const token = cookiesData.get('token')?.value;
 
-    if (!token) {
-      return NextResponse.json({ message: 'Accès interdit' }, { status: 401 });
+    try {
+      const cookiesData = await cookies();
+      const token = cookiesData.get('token')?.value;
+  
+      if (!token) {
+        return NextResponse.json({ message: 'Accès interdit' }, { status: 401 });
+      }
+      let decodedToken;
+       decodedToken = jwt.verify(token, process.env.JWT_SECRET ?? "jwt_secret") as DecodedToken;
+
+       if(!decodedToken) {
+        return NextResponse.json({ error: "Accès non autorisé", status: 401 });
+
+       }
+    } catch(error) {
+      return NextResponse.json({ error: "Erreur lors de la vérification du token", status: 500 });
+
     }
 
     // const decodedToken: DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
@@ -68,25 +106,25 @@ export async function POST(request: Request) {
     //   return NextResponse.json({ error: "Accès non autorisé", status: 401 });
     // }
 
-    const { title, description, salary, location, company_name, admin_id } = await request.json();
+    const { title, description, salary, location_id, company_name, recruiter_id } = await request.json();
 
-    console.log("Received data:", { title, description, salary, location, company_name, admin_id });
+    console.log("Received data:", { title, description, salary, location, company_name, recruiter_id });
 
-    // Vérifier si l'admin existe
-    const admin = await prisma.user.findUnique({
+    // Vérifier si l'recruiter existe
+    const recruiter = await prisma.user.findUnique({
       where: {
-        id: admin_id,
+        id: recruiter_id,
       }
     });
 
-    if (!admin) {
+    if (!recruiter) {
       return NextResponse.json({ error: "Recruteur introuvable" }, { status: 404 });
     }
     else{
-      console.log("Admin found:", admin);
+      console.log("Admin found:", recruiter);
     }
 
-    if (!title || !description || !admin_id || !salary || !location || !company_name) {
+    if (!title || !description || !recruiter_id || !salary || !location_id || !company_name) {
       return NextResponse.json({ error: "Il manque des champs requis", status: 400 });
     }
     else {
@@ -98,16 +136,21 @@ export async function POST(request: Request) {
         title,
         description,
         salary,
-        location,
-        company_name,
-        admin_id,
-        admin: {
+        location: {
           connect: {
-            id: admin_id,
+            id: location_id,
+          },
+        },
+        company_name,
+        recruiter_id,
+        recruiter: {
+          connect: {
+            id: recruiter_id,
+
           },
         }
       },
-      // include: { admin: true },
+      // include: { recruiter: true },
     });
 
     console.log("Offer created:", newOffer);

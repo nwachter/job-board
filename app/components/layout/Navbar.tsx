@@ -43,7 +43,7 @@ export const Navbar = () => {
     const [isNavExpanded, setIsNavExpanded] = useState(false)
     return (
         <nav
-            className={`fixed h-full z-50 bg-white/70 transition-all duration-300 ease-in-out shadow-lg ${isNavExpanded ? 'w-64' : 'w-20'
+            className={`fixed h-full z-50 bg-white/70 transition-all rounded-r-2xl duration-300 ease-in-out shadow-lg ${isNavExpanded ? 'w-64' : 'w-20'
                 }`}
             onMouseEnter={() => setIsNavExpanded(true)}
             onMouseLeave={() => setIsNavExpanded(false)}
@@ -106,6 +106,7 @@ export const Navbar = () => {
                     isActive={activeSection === 'about'}
                     onClick={() => setActiveSection('about')}
                 />
+         
             </div>
         </nav>
     )

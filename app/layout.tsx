@@ -1,16 +1,18 @@
 "use client";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Sans, Geist, Geist_Mono, Merriweather_Sans } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/layout/Navbar";
+import TopButtons from "./components/layout/TopButtons";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const merriweatherSans = Merriweather_Sans({
+  variable: "--font-merriweather-sans",
   subsets: ["latin"],
 });
 
@@ -38,12 +40,16 @@ export default function RootLayout({
 
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen min-w-screen w-screen h-screen`}
+        className={`${dmSans.variable} ${dmSans.variable} antialiased min-h-screen min-w-screen w-screen h-screen`}
       >
         <Navbar />
-        <div className="flex h-full w-full">
-          {children}
+        <div className="flex flex-col items-end w-full h-full">
+          <TopButtons />
+          <div className="flex h-full w-full">
+            {children}
+          </div>
         </div>
+
       </body>
     </html>
   );

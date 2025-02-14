@@ -20,8 +20,24 @@ model Application {
 }
 */
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const authHeader = request.headers.get('Authorization');
+
+    if(!authHeader || !authHeader.startsWith('Bearer')) {
+      return NextResponse.json({ error: "Accès non autorisé", status: 401 });
+    }
+
+    const token = authHeader.split(' ')[1];
+    let decode;
+    const SECRET_KEY = process.env.JWT_SECRET || "jwt_secret";
+
+    try {
+      decode = jwt.verify(token, SECRET_KEY) as DecodedToken;
+    } catch (error) {
+      return NextResponse.json({ error: "Accès non autorisé", status: 401 });
+    }
+    
     const applications = await prisma.application.findMany({
       include: {
         user: true,
