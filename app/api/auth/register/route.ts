@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import  { JwtPayload } from "jsonwebtoken";
 
 export interface DecodedToken extends JwtPayload {id: string, email: string, role: string};
 
@@ -60,6 +60,7 @@ export const POST = async (request: Request) => {
         });
         return NextResponse.json({user: newUser, status: 200});
     } catch(error) {
+        console.log("Error registering user", error);
         return NextResponse.json({error: "Erreur lors de le l'inscription...", status: 500});
     }
 

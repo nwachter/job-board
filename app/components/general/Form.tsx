@@ -1,14 +1,16 @@
-import { Offer } from '@/app/types/offer';
+import { FormInputs } from '@/app/jobs/new/page';
+
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
-import { User, Mail, ArrowRight, Lock } from 'lucide-react';
+import {  ArrowRight } from 'lucide-react';
 import React from 'react'
 
 type FormFieldProps = {
     icon: React.ReactNode;
     error?: string;
+    setInputs: React.Dispatch<React.SetStateAction<FormInputs>>
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
-export const FormField: React.FC<FormFieldProps> = ({ icon, error, ...props }) => (
+export const FormField: React.FC<FormFieldProps> = ({ icon, error, setInputs, ...props }) => (
     <div className="flex flex-col">
         <div className="relative">
             <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
@@ -16,6 +18,7 @@ export const FormField: React.FC<FormFieldProps> = ({ icon, error, ...props }) =
             </div>
             <input
                 {...props}
+                onChange={e => setInputs(prev => ({...prev, [e.target.name]: e.target.files ? e.target.files : e.target.value}))}
                 className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
             />
         </div>
@@ -23,13 +26,13 @@ export const FormField: React.FC<FormFieldProps> = ({ icon, error, ...props }) =
     </div>
 );
 
-type Fields = { name: string, type: string, placeholder: string, icon: any, value: string }[];
+type Fields = { name: string, type: string, placeholder: string, icon: React.ReactNode, value: string | FileList }[];
 type FormProps = {
     title: string;
     description: string;
     fields: Fields;
     handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-    setInputs?: React.Dispatch<React.SetStateAction<Omit<Offer, "id" | "recruiter_id">>>;
+    setInputs: React.Dispatch<React.SetStateAction<FormInputs>>;
 };
 
 export const Form : React.FC<FormProps> = ({title, description, fields, handleSubmit, setInputs}) => {
@@ -56,12 +59,14 @@ export const Form : React.FC<FormProps> = ({title, description, fields, handleSu
         <CardContent className="pt-6">
             <form onSubmit={handleSubmit} method="POST" className="space-y-4">
                
-                {fields.map(( {name, type, icon, placeholder}) => (
+                {fields.map(( {name, type, icon, placeholder}, i) => (
                     <FormField
+                    key={`field-${i}`}
                     icon={icon}
                     type={type}
                     name={name}
                     placeholder={placeholder}
+                    setInputs={setInputs}
                 />
                 ))}
      

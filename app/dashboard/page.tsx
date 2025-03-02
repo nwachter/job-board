@@ -7,44 +7,32 @@
 // }
 
 import React, { useEffect, useState } from 'react';
-import { 
-  Search, 
-  BookmarkPlus,
-  Badge
-} from 'lucide-react';
-import Navbar from '../components/layout/Navbar';
-import JobCard from '../components/general/JobCard';
+
 import RecruiterDashboard from '../components/dashboard/RecruiterDashboard';
 import UserDashboard from '../components/dashboard/UserDashboard';
 import { useOffers } from '../hooks/useOffers';
-import { getUserInfo } from '../hooks/useUserInfo';
+import { useUserInfo } from '../hooks/useUserInfo';
 
 
 const Dashboard = () => {
   const [role, setRole] = useState('user');
-  const [offersData, setOffersData] = useState([]);
-  const userInfo = getUserInfo();
+  // const [offersData, setOffersData] = useState<Offer[]>([]);
+  const {data: userInfo} = useUserInfo();
 
-  const {data: offers} = useOffers();
-
-  useEffect(() => {
-    console.log("offers : ", offers, "role : ",  role);
-    setRole(userInfo?.role);
-  }, [])
+  const {data: offers, contractTypes: contractTypes, applicationsNumber: applicationsNumber} = useOffers();
 
   useEffect(() => {
-   
-  
-  }, [offers])
-  
+    setRole(userInfo?.role ?? 'user');
+  }, [userInfo])
+
   
 
   return (
-    <div className="flex h-full w-full">
+    <div className="h-full w-full">
       {
         role === "recruiter" ?
-        <RecruiterDashboard offers={offers ?? []} />
-        : <UserDashboard offers={offers ?? []} />
+        <RecruiterDashboard offers={offers ?? []} contractTypes={contractTypes} applicationsNumber={applicationsNumber}/>
+        : <UserDashboard offers={offers ?? []} contractTypes={contractTypes} />
       }
     </div>
   );

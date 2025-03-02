@@ -3,6 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { DecodedToken } from "@/app/types/misc";
+import { authMiddleware } from "@/app/middleware";
 
 const prisma = new PrismaClient();
 
@@ -20,23 +21,31 @@ model Application {
 }
 */
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const authHeader = request.headers.get('Authorization');
+    // const authHeader = request.headers.get('Authorization');
 
-    if(!authHeader || !authHeader.startsWith('Bearer')) {
-      return NextResponse.json({ error: "Accès non autorisé", status: 401 });
-    }
+    // if(!authHeader || !authHeader.startsWith('Bearer')) {
+    //   return NextResponse.json({ error: "Accès non autorisé", status: 401 });
+    // }
 
-    const token = authHeader.split(' ')[1];
-    let decode;
-    const SECRET_KEY = process.env.JWT_SECRET || "jwt_secret";
+    // const token = authHeader.split(' ')[1];
+    // let decode;
+    // const SECRET_KEY = process.env.JWT_SECRET || "jwt_secret";
 
-    try {
-      decode = jwt.verify(token, SECRET_KEY) as DecodedToken;
-    } catch (error) {
-      return NextResponse.json({ error: "Accès non autorisé", status: 401 });
-    }
+    // try {
+    //   decode = jwt.verify(token, SECRET_KEY) as DecodedToken;
+    // } catch (error) {
+    //   return NextResponse.json({ error: "Accès non autorisé", status: 401 });
+    // }
+    //  let auth;
+ try {
+       await authMiddleware();
+ } catch(error) {
+    console.error("Erreur lors de la vérification du token", error);
+    return NextResponse.json({ error: "Erreur lors de la vérification du token (applications)", status: 401 });
+ }
+
     
     const applications = await prisma.application.findMany({
       include: {
@@ -44,9 +53,10 @@ export async function GET(request: Request) {
         offer: true,
       }
     });
-    return NextResponse.json(applications);
+    return NextResponse.json({data:applications});
 
   } catch (error) {
+    console.error("Erreur lors de la recherche des candidatures : ", error);
     return NextResponse.json({ error: "Erreur lors de la recherche des candidatures...", status: 500 });
   }
 }
@@ -65,7 +75,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Accès non autorisé", status: 401 });
     }
 
-    const { firstname, lastname, email, offer_id, user_id, cv } = await request.json();
+    const { firstname, lastname, email, offer_id, user_id, cv, content } = await request.json();
 
     // Vérifier si l'user existe
     const user = await prisma.user.findUnique({
@@ -87,7 +97,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "L'offre liée à la candidature est introuvable" }, { status: 404 });
     }
 
-    if (!firstname || !lastname || !email || !offer_id || !user_id || !cv) {
+    if (!firstname || !lastname || !email || !offer_id || !user_id || !cv || !content) {
       return NextResponse.json({ error: "Il manque des champs requis", status: 400 });
     }
 
@@ -95,27 +105,29 @@ export async function POST(request: Request) {
       data: {
         firstname,
         lastname,
+        content,
         email,
         offer_id,
         user_id,
         cv,
-        user: {
-          connect: {
-            id: user_id,
-          },
-        },
-        offer: {
-          connect: {
-            id: offer_id,
-          },
-        }
+        // user: {
+        //   connect: {
+        //     id: user_id,
+        //   },
+        // },
+        // offer: {
+        //   connect: {
+        //     id: offer_id,
+        //   },
+        // }
       },
-      include: { user: true, offer: true },
+      // include: { user: true, offer: true },
     });
 
     return NextResponse.json({ message: "Candidature créée !", data: newApplication, status: 200 });
 
   } catch (error) {
+    console.error("Erreur lors de la création de la candidature : ", error);
     return NextResponse.json({ error: "Erreur lors de la création de la candidature !", status: 500 });
   }
 }

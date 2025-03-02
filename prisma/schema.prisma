@@ -41,9 +41,9 @@ model Offer {
   description   String
   company_name  String
   salary        Int
-  location      Location? @relation(fields: [location_id], references: [id])
-  location_id   Int?
-  contract_type String?
+  location      Location @relation(fields: [location_id], references: [id])
+  location_id   Int
+  contract_type String
   recruiter         User     @relation("RecruiterOffers", fields: [recruiter_id], references: [id])
   recruiter_id      Int
 
@@ -52,6 +52,7 @@ model Offer {
 
 model Application {
   id         Int     @id @default(autoincrement())
+  content    String
   firstname  String
   lastname   String
   email      String

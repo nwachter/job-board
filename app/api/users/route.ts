@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from '@prisma/client'
-import { cookies } from "next/headers";
-import { DecodedToken } from "@/app/types/misc";
-import jwt from "jsonwebtoken";
+
 
 const prisma = new PrismaClient()
 

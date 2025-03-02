@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { login, logout, register } from "../services/auth";
-import { Offer } from "../types/offer";
+import { login, logout } from "../services/auth";
 import { User } from "../types/user";
 
 export const useLogin = (data: {email: string, password: string}) => {

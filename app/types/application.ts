@@ -3,6 +3,7 @@ import { User } from "./user";
 
 export type Application = {
     id: number;
+    content: string;
     firstname: string;
     lastname: string;
     email: string;

@@ -43,9 +43,9 @@ export default function RootLayout({
         className={`${dmSans.variable} ${dmSans.variable} antialiased min-h-screen min-w-screen w-screen h-screen`}
       >
         <Navbar />
-        <div className="flex flex-col items-end w-full h-full">
+        <div className="grid grid-cols-1 min-w-full min-h-full w-full h-full">
           <TopButtons />
-          <div className="flex h-full w-full">
+          <div className="h-full w-full">
             {children}
           </div>
         </div>

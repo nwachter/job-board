@@ -7,7 +7,7 @@ export type Offer = {
     title: string;
     description: string;
     company_name: string;
-    location_id: string;
+    location_id: number;
     location?: Location;
     salary: number;
     contract_type: string;

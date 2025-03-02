@@ -1,116 +1,108 @@
 "use client";
-import Form from '@/app/components/general/Form'
-import { getUserInfo } from '@/app/hooks/useUserInfo';
+import Form from '@/app/components/general/Form';
+import { useUserInfo } from '@/app/hooks/useUserInfo';
 import { createOffer } from '@/app/services/offers';
-import { Offer } from '@/app/types/offer';
-import React, { useState } from 'react'
+import { createLocation } from '@/app/services/locations';
+import React, { useEffect, useState } from 'react';
 import { Currency, FileText, MapPin, Building2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+
+// export type OfferFormInputs = {
+//     title: string;
+//     description: string;
+//     company_name: string;
+//     location_id: string;
+//     salary: number;
+//     ²contract_type: string;
+//     city: string;
+//     country: string;
+//   };
+
+  export type FormInputs = {
+    [key: string]: string | number | FileList;
+  }
 const NewJobPage = () => {
-     const [inputs, setInputs] = useState<Omit<Offer, "id" | "recruiter_id">>({
-        title: "",
-        description: "",
-        company_name: "",
-        location_id: "",
-        salary: 0,
-        contract_type: ""
-        });
+  const [inputs, setInputs] = useState<FormInputs>({
+    title: "",
+    description: "",
+    company_name: "",
+    location_id: "",
+    salary: 0,
+    contract_type: "",
+    city: "",
+    country: ""
+  });
 
-        const recruiterId = getUserInfo()?.id ?? null;
-        /*
-        model Offer {
-  id            Int      @id @default(autoincrement())
-  title         String
-  description   String
-  company_name  String
-  salary        Int
-  location      Location? @relation(fields: [location_id], references: [id])
-  location_id   Int?
-  contract_type String?
-  recruiter         User     @relation("RecruiterOffers", fields: [recruiter_id], references: [id])
-  recruiter_id      Int
+  const { data: userInfo } = useUserInfo();
+  const recruiterId = userInfo?.id ?? "";
+  // const router = useRouter();
 
-  applications  Application[]
-}
-        */
+  useEffect(() => {
+    console.log("Inputs : ", inputs);
+  }, [inputs])
 
-//handleChange to get the selected Location
+  const router = useRouter();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { title, description, company_name, city, country, salary, contract_type } = inputs;
 
-    const validateInput = (value: string, min: number, max: number, regex: RegExp, name: string) => {
-        const translatedName = name === "password" || name === "password_confirmation" ? "mot de passe" : name;
-        if ((inputs.location_id !== "")) {
-            return "Les mots de passe ne correspondent pas";
+    try {
+      const locationData = { city : String(city), country: String(country) };
+      const {data: createdLocation} = await createLocation(locationData);
+   // Vérifiez que createdLocation contient bien l'ID
+   if (!createdLocation || !createdLocation.id) {
+    throw new Error("Failed to create location or location ID is missing");
+  }
+
+  const locationId = createdLocation.id;
+  console.log("Created location ID:", locationId);
+
+      console.log("Created id location:", locationId);
+
+      if (locationId) {
+        const offerData = {
+          title: String(title),
+          description: String(title),
+          company_name: String(company_name),
+          location_id: Number(locationId),
+          salary : Number(salary),
+          contract_type: String(contract_type),
+          recruiter_id: Number(recruiterId)
+        };
+        const offer = await createOffer(offerData);
+
+        if (offer) {
+          console.log("Created offer:", offer);
+          alert("Offre créee avec succès!")
+          // router.push("/dashboard");
         }
-        if (value.length < min) {
-            return `Le ${translatedName} doit contenir au moins ${min} caractères`;
-        }
-        if (value.length > max) {
-            return `Le ${translatedName} doit contenir au plus ${max} caractères`;
-        }
-        if (!regex.test(value)) {
-            return name === "password"
-                ? `Le ${translatedName} doit contenir au moins une lettre majuscule, une lettre minuscule et un chiffre`
-                : `Le ${translatedName} ne doit pas contenir de caractères spéciaux`;
-        }
 
-        return "";
-    };
-
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>, fieldName: string, min: number, max: number, regex: RegExp) => {
-        const value = event.target.value;
-        const error = validateInput(value, min, max, regex, fieldName);
-        setInputs((prevInputs) => ({ ...prevInputs, [fieldName]: value }));
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        let alertType;
-        //first post the location
-        //then post the offer
-        const { title, description, company_name, location_id, salary, contract_type } = inputs;   
-        try {
-            const data = await createOffer({ title, description, company_name, location_id, salary, contract_type, recruiter_id: recruiterId });
-
-            if (data && data.token) {
-                localStorage.setItem("isConnected", "true");
-                const userInfo = {
-                    id: data?.user?.id,
-                    role: data?.user?.role,
-                    username: data?.user?.username,
-                    email: data?.user?.email,        
-                }
-                localStorage.setItem("userInfo", JSON.stringify(userInfo));
-                // localStorage.setItem("token", data?.token); //Mtn dans le cookie et passé avec credentials
-                console.log("Successful connexion. Adding data to LS")
-            }
-
-            // alertType = data?.user ? "success" : "danger"; //testerror a modif
-            // setAlert({
-            //     type: alertType,
-            //     message: alertData[alertType].message,
-            // });
-
-
-        } catch (error) {
-            console.error("Error:", error);
-            window.alert("Server error, please try again later.");
-        }
-    };
-
-   
+        setTimeout(() => {
+         router.push('/dashboard')
+          
+        }, 1500);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      window.alert("Server error, please try again later.");
+    }
+  };
   return (
     <div className='h-full w-full'>
             <Form 
                 title={'Créer une offre d\'emploi'} 
                 description={'Remplissez les champs suivants pour créer une offre d\'emploi'} 
                 fields={[
-                    { name: 'title', type: 'text', placeholder: 'Titre de l\'offre', icon: <Building2 />, value: inputs.title},
-                    { name: 'description', type: 'text', placeholder: 'Description de l\'offre', icon: <FileText />, value: inputs.description},
-                    { name: 'company_name', type: 'text', placeholder: 'Nom de l\'entreprise', icon: <Building2 size={20} />, value: inputs.company_name},
-                    { name: 'location_id', type: 'text', placeholder: 'Localisation', icon: <MapPin size={20} />, value: inputs.location_id ?? ''},
-                    { name: 'salary', type: 'number', placeholder: 'Salaire', icon: <Currency size={20} />, value: inputs.salary.toString()},
-                    { name: 'contract_type', type: 'text', placeholder: 'Type de contrat', icon: <FileText size={20} />, value: inputs.contract_type}
-                ]} 
-                handleSubmit={handleSubmit} setInputs={setInputs}
+                    { name: 'title', type: 'text', placeholder: 'Titre de l\'offre', icon: <Building2 />, value: String(inputs.title) },
+                    { name: 'description', type: 'text', placeholder: 'Description de l\'offre', icon: <FileText />, value: String(inputs.description) },
+                    { name: 'company_name', type: 'text', placeholder: 'Nom de l\'entreprise', icon: <Building2 size={20} />, value: String(inputs.company_name) },
+                    { name: 'city', type: 'text', placeholder: 'Ville', icon: <MapPin size={20} />, value: String(inputs.city) },
+                    { name: 'country', type: 'text', placeholder: 'Pays', icon: <MapPin size={20} />, value: String(inputs.country) },
+                    { name: 'salary', type: 'number', placeholder: 'Salaire', icon: <Currency size={20} />, value: inputs.salary.toString() },
+                    { name: 'contract_type', type: 'text', placeholder: 'Type de contrat', icon: <FileText size={20} />, value: String(inputs.contract_type) }
+                  ]}
+                handleSubmit={handleSubmit}
+                setInputs={setInputs}
             />
     </div>
   )

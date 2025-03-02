@@ -12,15 +12,15 @@ const api = axios.create({
     withCredentials: true  //Ajouter après url des get si besoin a la place
 });
 
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-}, (error) => {
-    return Promise.reject(error);
-});
+// api.interceptors.request.use((config) => {
+//     const token = localStorage.getItem('token');
+//     if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+// }, (error) => {
+//     return Promise.reject(error);
+// });
 
 
 const register = async (data: Omit<User, "id" | "role">) => {
@@ -81,7 +81,7 @@ const logout = async () => {
     }
 };
 
-const getUserInfo = async () => {
+const getUserInfo = async () : Promise<{message: string, user: Omit<User, "password">}> => {
     try {
         const response = await api.get('/get-user-info');
         return response.data;

@@ -5,6 +5,7 @@ export type User = {
     username: string;
     email: string;
     role: string;
+    avatar: string;
     password: string;
     applications?: Application[];
     createdAt?: Date;

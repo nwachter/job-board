@@ -1,17 +1,15 @@
 "use client";
 import React, { useState } from 'react';
 import {
-    Search,
+
     Briefcase,
     Users,
     Building2,
     Info,
     FileText,
-    Menu,
-    ChevronRight,
-    BookmarkPlus,
-    Badge
 } from 'lucide-react';
+import { useUserInfo } from '@/app/hooks/useUserInfo';
+import { useRouter } from 'next/navigation';
 
 type NavItemProps = {
     icon: React.ReactNode;
@@ -41,6 +39,8 @@ ${isActive ? 'bg-purple-50 text-purple-600' : 'text-gray-600 hover:bg-gray-50'}
 export const Navbar = () => {
     const [activeSection, setActiveSection] = useState<string | null>(null)
     const [isNavExpanded, setIsNavExpanded] = useState(false)
+ const router = useRouter();
+    const {data: userInfo} = useUserInfo();
     return (
         <nav
             className={`fixed h-full z-50 bg-white/70 transition-all rounded-r-2xl duration-300 ease-in-out shadow-lg ${isNavExpanded ? 'w-64' : 'w-20'
@@ -61,16 +61,20 @@ export const Navbar = () => {
                     title="Dashboard"
                     isExpanded={isNavExpanded}
                     isActive={activeSection === 'dashboard'}
-                    onClick={() => setActiveSection('dashboard')}
+                    onClick={() => {
+                        router.push('/dashboard')
+                        setActiveSection('dashboard')}}
                     
                 />
-                 {/* <NavItem
+                 {!userInfo && <NavItem
                     icon={<Briefcase />}
                     title="Jobs"
                     isExpanded={isNavExpanded}
                     isActive={activeSection === 'jobs'}
-                    onClick={() => setActiveSection('jobs')} //pour les non connectés
-                /> */}
+                    onClick={() => {
+                        router.push('/jobs')
+                        setActiveSection('jobs')}} //pour les non connectés
+                />}
                          {/* <NavItem
                     icon={<Briefcase />}
                     title="Dashboard"
@@ -78,20 +82,22 @@ export const Navbar = () => {
                     isActive={activeSection === 'dashboard'}
                     onClick={() => setActiveSection('dashboard')} //pour les admins et users
                 /> */}
-                <NavItem
+                {userInfo?.role === 'recruiter' && <NavItem
                     icon={<Users />}
-                    title="Candidats"
+                    title="Candidatures"
                     isExpanded={isNavExpanded}
                     isActive={activeSection === 'candidats'}
-                    onClick={() => setActiveSection('candidats')}
-                />
-                <NavItem
+                    onClick={() => {
+                        router.push('/dashboard/applications')
+                        setActiveSection('candidatures')}}
+                />}
+                {userInfo?.role === 'user' && <NavItem
                     icon={<Building2 />}
                     title="Entreprises"
                     isExpanded={isNavExpanded}
                     isActive={activeSection === 'entreprises'}
                     onClick={() => setActiveSection('entreprises')}
-                />
+                />}
                 <NavItem
                     icon={<FileText />}
                     title="Blog"

@@ -27,9 +27,9 @@ export const POST = async (request: Request) => {
         }
 
         //Générer le token
-        const token = jwt.sign({id: user.id, email: user.email, role: user.role, username: user.username}, process.env.JWT_SECRET || "jwt_secret", {expiresIn: "1d"});
+        const token = jwt.sign({id: user.id, email: user.email, role: user.role, username: user.username, avatar: user.avatar}, process.env.JWT_SECRET || "jwt_secret", {expiresIn: "1d"});
 
-        const response =  NextResponse.json({message: "Connexion réussie !", user: {id: user.id, email, username: user.username, role: user.role}, token, status: 200});
+        const response =  NextResponse.json({message: "Connexion réussie !", user: {id: user.id, email, username: user.username, role: user.role, avatar: user.avatar}, token, status: 200});
        
         //Générer le cookie
         (await

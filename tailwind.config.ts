@@ -43,8 +43,27 @@ export default {
   			aero: {
   				DEFAULT: '#5BC0EB'
   			},
+			  'electric-indigo': {
+				DEFAULT: '#5BC0EB' 
+			},
+			'electric-purple': {
+				DEFAULT: '#672BFF' //figma job
+			},
+			'rich-black': {
+				DEFAULT: "#001514" //figma job
+			},
+			'eggplant': {
+				DEFAULT: "#4B3B47" //figma job
+			},
+			'chocolate-cosmos': {
+				DEFAULT: "#66101F" //figma job
+			},
+			'cream': {
+				DEFAULT: "#FFFDB1", //figma job
+			},
   			mint: {
-  				DEFAULT: '#09BC8A'
+  				DEFAULT: '#09BC8A',
+				200: "#CDF9E8"  //Mint green
   			},
   			'custom-purple': {
   				'50': '#faf5ff',

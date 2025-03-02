@@ -10,15 +10,15 @@ const api = axios.create({
   withCredentials: true,
 });
 
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-}, (error) => {
-    return Promise.reject(error);
-});
+// api.interceptors.request.use((config) => {
+//     const token = localStorage.getItem('token');
+//     if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+// }, (error) => {
+//     return Promise.reject(error);
+// });
 
 
 export const getApplications = async () => {
@@ -40,6 +40,16 @@ export const getApplicationById = async (id: number) => {
     throw error;
   }
 };
+
+export const searchApplications = async (searchQuery: string) => {
+  try {
+    const response = await api.post("/applications/search", { searchQuery });
+    return response.data;
+  } catch (error) {
+    console.error("Échec de la recherche des offres :", error);
+    throw error;
+  }
+}
 
 export const createApplication = async (data: Omit<Application, "id">) => {
   try {

@@ -54,6 +54,16 @@ export const getOfferById = async (id : number) => {
   }
 };
 
+export const searchOffers = async (searchQuery: string, contractType?: string, locationId?: number) => {
+  try {
+    const response = await api.post("/offers/search", { searchQuery, contractType, locationId });
+    return response.data;
+  } catch (error) {
+    console.error("Échec de la recherche des offres :", error);
+    throw error;
+  }
+}
+
 export const createOffer = async (data : Omit<Offer, "id">) => {
   try {
 
