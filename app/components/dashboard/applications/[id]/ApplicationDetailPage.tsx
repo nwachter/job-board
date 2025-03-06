@@ -4,10 +4,12 @@ import { useApplication } from '@/app/hooks/useApplication'
 import React, { useEffect } from 'react'
 
 export const ApplicationDetailDashboardPage : React.FC<{params : {
-    id: any;
+    id: string;
 }}> =  ({params}) => {
     const { id } = params;
-    const { data: application, isLoading, error } = useApplication(Number(id));
+    const { data: application, isLoading, 
+      // error   //testerror : a compléter
+     } = useApplication(Number(id));
   
     useEffect(() => {
       console.log("id : ", id, "application: ", application);

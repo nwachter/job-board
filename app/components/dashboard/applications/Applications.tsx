@@ -15,7 +15,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
   const [error, setError] = useState<string | null>(null);
   const [applicationsList, setApplicationsList] = useState<Application[]>(applications);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [contractType, setContractType] = useState<string>('');
+  // const [contractType, setContractType] = useState<string>('');
   const [locationId, setLocationId] = useState<number | undefined>(undefined);
 
 
@@ -32,9 +32,9 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
   };
 
   useEffect(() => {
-    let updatedApplications = applicationsList && applicationsList.length > 0 ? applicationsList : applications;
+    const updatedApplications = applicationsList && applicationsList.length > 0 ? applicationsList : applications;
     setApplicationsList(updatedApplications);
-  }, [applications])
+  }, [applications, applicationsList])
 
 
   if (error) return <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 transition-all">{error}</div>;
@@ -73,7 +73,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
                   <option key={`type-${i}`} value={type}>{type}</option>
                 ))}
               </select> */}
-              <select onChange={(e) => setLocationId(Number(e.target.value))} defaultValue="" className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
+              <select onChange={(e) => setLocationId(Number(e.target.value))} defaultValue="" value={locationId} className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
                 <option disabled value="">Localisation</option>
                 {locations?.map((location) => (
                   <option key={location.id} value={location.id}>{location.city}, {location.country}</option>

@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { cookies } from 'next/headers';
-import middleware from '@/app/middleware';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
-export const GET = async (request: NextRequest) => {
+export const GET = async () => {
     try {
         const SECRET_KEY = process.env.JWT_SECRET ?? '';
         const tokenCookie = (await cookies()).get('token');

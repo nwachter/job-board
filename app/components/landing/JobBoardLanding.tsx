@@ -13,7 +13,7 @@ const JobBoardLanding = () => {
     if(userInfo) {
       router.push("/dashboard");
     }
-  }, [userInfo])
+  }, [userInfo, router])
   
 
   return (

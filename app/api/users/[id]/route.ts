@@ -11,7 +11,9 @@ type Params = {
   id: string,
 }
 
-export async function GET(request: Request, { params }: { params: Params }) {
+export async function GET(
+  // request: Request, { params }: { params: Params }
+) {
     try {
         const users = await prisma.user.findMany({
             include: {
@@ -22,7 +24,7 @@ export async function GET(request: Request, { params }: { params: Params }) {
         return NextResponse.json({message: "Utilisateurs récupérés avec succès", data: users});
 
     } catch(error) {
-        return NextResponse.json({error: "Erreur lors de la recherche des utilisateurs...", status: 500});
+        return NextResponse.json({error: `Erreur lors de la recherche des utilisateurs : ${error}`, status: 500});
     }
 }
   
@@ -81,7 +83,7 @@ return NextResponse.json({ message: "L'utilisateur a été mis à jour avec succ
       return NextResponse.json({ message: "Utilisateur supprimé !", data: null });
   
     } catch (error) {
-      return NextResponse.json({ error: "Erreur lors de la suppression de l'utilisateur !", status: 500 });
+      return NextResponse.json({ error: `Erreur lors de la suppression de l'utilisateur : ${error}`, status: 500 });
     }
   }
   
@@ -99,7 +101,11 @@ return NextResponse.json({ message: "L'utilisateur a été mis à jour avec succ
       const decodedToken: DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
       // if (decodedToken?.role !== "admin") {
       //   return NextResponse.json({ error: "Accès non autorisé", status: 401 });
-      // }
+      // } 
+      if(!decodedToken) {
+           return NextResponse.json({ error: "Accès non autorisé", status: 401 });
+
+      }
   
       const { username, email, password, role } = await request.json();
   
@@ -132,6 +138,6 @@ return NextResponse.json({ message: "L'utilisateur a été mis à jour avec succ
       return NextResponse.json({ message: "Utilisateur mis à jour !", data: updatedUser });
   
     } catch (error) {
-      return NextResponse.json({ error: "Erreur lors de la mise à jour de l'utilisateur !", status: 500 });
+      return NextResponse.json({ error: `Erreur lors de la mise à jour de l'utilisateur : ${error}`, status: 500 });
     }
   }

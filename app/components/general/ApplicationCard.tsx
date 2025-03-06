@@ -4,9 +4,11 @@ import { BookmarkPlus,
 } from 'lucide-react'
 import { Badge } from "@/components/ui/badge"
 
-import React from 'react'
 
-const ApplicationCard : React.FC<{application: Application, router?: any}> = ({application, router}) => {
+import React from 'react'
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
+
+const ApplicationCard : React.FC<{application: Application, router?: AppRouterInstance}> = ({application, router}) => {
 
   return (
    

@@ -2,9 +2,8 @@
 import Form from '@/app/components/general/Form';
 import { useUserInfo } from '@/app/hooks/useUserInfo';
 import { createApplication } from '@/app/services/applications';
-import { createLocation } from '@/app/services/locations';
 import React, { useEffect, useState } from 'react';
-import { Currency, FileText, MapPin, Building2, User } from 'lucide-react';
+import {  FileText, MapPin, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { FormInputs } from '@/app/jobs/new/page';
 import { uploadPdfFile } from '@/app/services/upload';
@@ -30,7 +29,7 @@ const NewApplication: React.FC<NewApplicationProps> = ({ offer_id }) => {
   });
 
   const { data: userInfo } = useUserInfo();
-  const recruiterId = userInfo?.id ?? "";
+  // const recruiterId = userInfo?.id ?? "";
   // const router = useRouter();
 
   useEffect(() => {

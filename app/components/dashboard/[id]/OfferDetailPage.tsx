@@ -5,11 +5,11 @@ import React, { useEffect, useState } from 'react'
 import NewApplication from './NewApplication'
 
 const OfferDetailDashboardPage : React.FC<{params : {
-    id: any;
+    id: string;
 }}> =  ({params}) => {
     const { id } = params;
     const { data: offer, isLoading, error } = useOffer(Number(id));
-    const [isApplicationOpen, setIsApplicationOpen] = useState(false);
+    const [isApplicationOpen, setIsApplicationOpen] = useState<boolean>(false);
 
     useEffect(() => {
       console.log("id : ", id, "offer: ", offer);

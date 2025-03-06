@@ -6,7 +6,7 @@ import { Offer } from '@/app/types/offer';
 
 interface OfferDetailProps {
   offer: Partial<Offer>;
-  setIsApplicationOpen : any;
+  setIsApplicationOpen :  React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const OfferDetail: React.FC<OfferDetailProps> = ({ offer, setIsApplicationOpen }) => {

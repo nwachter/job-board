@@ -32,8 +32,8 @@ const FixedNavbar = () => {
         <h1 className="text-xl font-bold mb-6">JobBoard</h1>
         
         <div className="flex flex-col space-y-4">
-          {navItems.map((item) => (
-            <div className={activeSection === item.id ? "flex flex-col gap-6" : ""}>
+          {navItems.map((item, i) => (
+            <div key={`nav-item-${i}`} className={activeSection === item.id ? "flex flex-col gap-6" : ""}>
             <div
               key={item.id}
               className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer

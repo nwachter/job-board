@@ -35,9 +35,9 @@ const Jobs: React.FC<JobsProps> = ({ offers, contractTypes }) => {
 
 
   useEffect(() => {
-    let updatedOffers = offersList && offersList.length > 0 ? offersList : offers;
+    const updatedOffers = offersList && offersList.length > 0 ? offersList : offers;
     setOffersList(updatedOffers);
-  }, [offers])
+  }, [offers, offersList])
 
   if (error) return <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 transition-all">{error}</div>;
   if (isLoadingLocations) return (

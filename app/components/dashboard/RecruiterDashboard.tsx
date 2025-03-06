@@ -43,9 +43,9 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ offers, contrac
   };
 
   useEffect(() => {
-    let updatedOffers = offersList && offersList.length > 0 ? offersList : offers;
+    const updatedOffers = offersList && offersList.length > 0 ? offersList : offers;
     setOffersList(updatedOffers);
-  }, [offers])
+  }, [offers, offersList])
 
   useEffect(() => {
     const updatedStats = [{
