@@ -25,6 +25,11 @@ export async function GET(request: Request, { params }: { params: { id: string }
 //  const { id } = await params;
     const applicationId = parseInt(params.id, 10);
 
+    const body = await request.json(); 
+    if(body) {
+      console.log("Requete avec body :", body);
+    }
+
     if (isNaN(applicationId)) {
       return NextResponse.json({ error: "ID de candidature invalide" }, { status: 400 });
     }
