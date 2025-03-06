@@ -34,7 +34,9 @@ export async function GET(request: Request,
   }
 }
 
-export const PUT = async (request: Request, { params }: { params: Params }) => {
+export const PUT = async (request: Request, 
+  { params }: { params: Promise<{ id: string }> }
+) => {
   const { id } = await params;
   const { title, description, company_name, location, salary, recruiter_id } = await request.json();
 
