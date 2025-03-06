@@ -3,14 +3,14 @@ import { login, logout } from "../services/auth";
 import { User } from "../types/user";
 import { uploadPdfFile } from "../services/upload";
 
-export const useUpload = (data: File) => {
+export const useUpload = (data: FileList) => {
     const [fileLink, setFileLink] = useState()
     const [error, setError] = useState<string>("");
     const [isLoading, setIsLoading] = useState<boolean>(true);
 
 
     useEffect(() => {
-        const uploadFile = async (data: File) => {
+        const uploadFile = async (data: FileList) => {
             try {
                 const fileLink = await uploadPdfFile(data);
                 setFileLink(fileLink)
