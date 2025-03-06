@@ -20,15 +20,12 @@ model Application {
 }
 */
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: 
+  { params: Promise<{ id: string }> }) {   //BIGtesterror : maybe must add Promise everywhere we have params...
   try {
-//  const { id } = await params;
-    const applicationId = parseInt(params.id, 10);
-
-    const body = await request.json(); 
-    if(body) {
-      console.log("Requete avec body :", body);
-    }
+   const { id } = await params;
+    // const applicationId = parseInt(params.id, 10);
+    const applicationId = parseInt(id, 10);
 
     if (isNaN(applicationId)) {
       return NextResponse.json({ error: "ID de candidature invalide" }, { status: 400 });
@@ -110,7 +107,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ message: "Candidature mise à jour !", data: updatedApplication });
 
   } catch (error) {
-    return NextResponse.json({ error: `Erreur lors de la mise à jour de la candidature : ${error}`, status: 500 });
+    return NextResponse.json({ error: `Erreur lors de la mise à jour de la candidature : ${error}`}, {status: 500 });
   }
 }
 
@@ -149,6 +146,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ message: "Candidature supprimée !" });
 
   } catch (error) {
-    return NextResponse.json({ error: `Erreur lors de la suppression de la candidature : ${error}`, status: 500 });
+    return NextResponse.json({ error: `Erreur lors de la suppression de la candidature : ${error}`}, {status: 500 });
   }
 }
