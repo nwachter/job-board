@@ -20,8 +20,9 @@ model Application {
 }
 */
 
-export async function GET(request: Request, { params }: 
-  { params: Promise<{ id: string }> }) {   //BIGtesterror : maybe must add Promise everywhere we have params...
+export async function GET(request: Request, 
+  { params }: { params: Promise<{ id: string }> }
+) {   //BIGtesterror : maybe must add Promise everywhere we have params...
   try {
    const { id } = await params;
     // const applicationId = parseInt(params.id, 10);

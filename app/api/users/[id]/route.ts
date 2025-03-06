@@ -28,7 +28,9 @@ export async function GET(
     }
 }
   
-  export const PATCH = async (request: Request, {params}: {params: Params}) => {
+  export const PATCH = async (request: Request,
+    { params }: { params: Promise<{ id: string }> }
+    ) => {
     const {id} = await params;
     const {username, email, role} = await request.json();
 
@@ -87,7 +89,9 @@ return NextResponse.json({ message: "L'utilisateur a été mis à jour avec succ
     }
   }
   
-  export async function PUT(request: Request, { params }: { params: Params }) {
+  export async function PUT(request: Request, 
+    { params }: { params: Promise<{ id: string }> }
+  ) {
     const { id } = await params;
     try {
       const cookiesData = await cookies();

@@ -11,7 +11,9 @@ type Params = {
   id: string,
 }
 
-export async function GET(request: Request, { params }: { params: Params }) {
+export async function GET(request: Request,
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
     const { id } = await params;
 
@@ -65,7 +67,9 @@ export const PUT = async (request: Request, { params }: { params: Params }) => {
 
 };
 
-export const DELETE = async (request: Request, { params }: { params: Params }) => {
+export const DELETE = async (request: Request,
+  { params }: { params: Promise<{ id: string }> }
+  ) => {
   try {
     const { id } = await params;
 
