@@ -1,9 +1,9 @@
 import ApplicationDetailPage from '@/app/components/dashboard/applications/[id]/ApplicationDetailPage';
 
 interface ApplicationDetailDashboardPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }> //testerrorPromise
 }
 
 const ApplicationDetailDashboardPage: React.FC<ApplicationDetailDashboardPageProps> = async ({ params }) => {
