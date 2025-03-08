@@ -43,7 +43,7 @@ const Jobs: React.FC<JobsProps> = ({ offers, contractTypes }) => {
   if (isLoadingLocations) return (
     <div className="flex items-center justify-center h-full">
       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
-      <span className="ml-2">Chargement...</span>
+      <span className="ml-2">Chargement des offres...</span>
     </div>
   );
   return (

@@ -33,6 +33,8 @@ model User {
 
   // Recruiters
   offers Offer[] @relation("RecruiterOffers")
+
+  @@map("user")
 }
 
 model Offer {
@@ -48,6 +50,8 @@ model Offer {
   recruiter_id      Int
 
   applications  Application[]
+
+  @@map("offer")
 }
 
 model Application {
@@ -61,6 +65,8 @@ model Application {
   user       User    @relation(fields: [user_id], references: [id])
   user_id    Int
   cv         String
+
+  @@map("application")
 }
 
 model Location {
@@ -68,6 +74,8 @@ model Location {
   city String
   country String @default("France")
   offers Offer[]
+
+  @@map("location")
 }
 
 
