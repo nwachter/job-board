@@ -1,8 +1,8 @@
 import { authMiddleware } from '@/app/middleware';
 import { cookies } from 'next/headers';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export const POST = async () => {
+export const POST = async (req: NextRequest) => {
     // const response = NextResponse.json({ message: 'Logged out' }, { status: 200 });
 
     const auth = authMiddleware();
@@ -18,7 +18,7 @@ export const POST = async () => {
         path: '/',
     });
 
-    NextResponse.redirect(new URL('/', 'http://localhost:3000'));
+    NextResponse.redirect(new URL('/', `${req.nextUrl.origin}`));
 
     return NextResponse.json({ message: 'Logged out' }, { status: 200 });
 };

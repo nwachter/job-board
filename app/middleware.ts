@@ -63,8 +63,9 @@ export default async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const jwtCookie = req.cookies.get("token");
-  const userInfoCookie = req.cookies.get("userInfo");
+  // const jwtCookie = req.cookies.get("token");
+  const jwtCookie = (await cookies()).get('token');
+  const userInfoCookie = (await cookies()).get('jobboard_user_info');
 
   if (
      !jwtCookie ||
@@ -75,16 +76,21 @@ export default async function middleware(req: NextRequest) {
 
   try {
     // Send the JWT to your backend for verification
-    const authResponse = await fetch(`localhost:3000/auth/jwt-verify`, {
+    const authResponse = await fetch(`${req.nextUrl.origin}/api/auth/jwt-verify`, {
       method: "GET",
       headers: {
-        Cookie: `jwt=${jwtCookie?.value}`,
+        Cookie: `token=${jwtCookie?.value}`, // testerror jwt au lieu de token
       },
       credentials: "include",
     });
+    const decodedToken = jwt.verify(jwtCookie?.value || '', SECRET_KEY);
+    if(req && decodedToken) {
+      req.headers.set('Authorization', `Bearer ${jwtCookie?.value}`);
+
+    }
 
     if (!authResponse.ok) {
-      throw new Error("Authentication failed");
+      throw new Error("Authentication failed  (middle)");
     }
 
     const authData = await authResponse.json();
@@ -96,14 +102,14 @@ export default async function middleware(req: NextRequest) {
     // User is authenticated, check role-based access
     return handleAuthenticatedUser(req, userInfoCookie.value);
   } catch (error) {
-    console.error("Error checking authentication:", error);
+    console.error("Error checking authentication (middle):", error);
     return handleUnauthenticatedUser(req);
   }
 }
 
 function handleUnauthenticatedUser(req: NextRequest) {
   // Redirect to login page or show an error
-  return NextResponse.redirect(new URL("/", req.url));
+  return NextResponse.redirect(new URL("/sign", req.url));
 }
 
 function handleAuthenticatedUser(req: NextRequest, userInfoString: string) {
@@ -111,8 +117,8 @@ function handleAuthenticatedUser(req: NextRequest, userInfoString: string) {
   try {
     userInfo = JSON.parse(userInfoString);
   } catch (error) {
-    console.error("Error parsing user_info cookie:", error);
-    return NextResponse.redirect(new URL("/", req.url));
+    console.error("Error parsing jobboard_user_info cookie: (handleAuth)", error);
+    return NextResponse.redirect(new URL("/sign", req.url));
   }
 
   const path = req.nextUrl.pathname;

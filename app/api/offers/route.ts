@@ -1,5 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import middleware from "@/app/middleware";
 
 const prisma = new PrismaClient();
 
@@ -22,28 +23,42 @@ model Offer {
 
 }
 */
-export async function GET(
-  // request: Request
-) {
+export async function GET(request: NextRequest) {
   try {
+    try {
+      const auth = await middleware(request);
+      if (!auth) {
+        return NextResponse.json({
+          error: "Accès non autorisé (g-off)",
+          status: 401,
+        });
+      }
+    } catch (error) {
+      console.log("Error verifying token (g-off)", error);
+      return NextResponse.json({
+        error: "Erreur lors de la vérification du token (g-off)",
+        status: 500,
+      });
+    }
 
     const offers = await prisma.offer.findMany({
       include: {
         recruiter: true,
         applications: true,
-      }
-    })
+      },
+    });
     return NextResponse.json(offers);
-
   } catch (error) {
-    console.log("Error fetching offers", error);
-    return NextResponse.json({ error: "Erreur lors de la recherche des offres...", status: 500 });
+    console.log("Error fetching offers (g-off)", error);
+    return NextResponse.json({
+      error: "Erreur lors de la recherche des offres... (g-off)",
+      status: 500,
+    });
   }
 }
 
 export async function POST(request: Request) {
   try {
-
     // try {
 
     //   const auth = await authMiddleware();
@@ -56,33 +71,58 @@ export async function POST(request: Request) {
 
     // }
 
-
-
-    const { title, description, salary, location_id, company_name, contract_type, recruiter_id } = await request.json();
+    const {
+      title,
+      description,
+      salary,
+      location_id,
+      company_name,
+      contract_type,
+      recruiter_id,
+    } = await request.json();
     console.log("Received recruiter_id:", recruiter_id);
     console.log("Received location_id:", location_id);
 
-
-    if (!title || !description || !recruiter_id || !salary || !location_id || !contract_type || !company_name) {
-      return NextResponse.json({ error: "Il manque des champs requis", status: 400 });
-    }
-    else {
+    if (
+      !title ||
+      !description ||
+      !recruiter_id ||
+      !salary ||
+      !location_id ||
+      !contract_type ||
+      !company_name
+    ) {
+      return NextResponse.json({
+        error: "Il manque des champs requis",
+        status: 400,
+      });
+    } else {
       console.log("All required fields are present");
     }
 
-    console.log("Received data:", { title, description, salary, contract_type, location_id, company_name, recruiter_id });
+    console.log("Received data:", {
+      title,
+      description,
+      salary,
+      contract_type,
+      location_id,
+      company_name,
+      recruiter_id,
+    });
 
     // Vérifier si l'recruiter existe
     const recruiter = await prisma.user.findUnique({
       where: {
         id: recruiter_id,
-      }
+      },
     });
 
     if (!recruiter) {
-      return NextResponse.json({ error: "Recruteur introuvable" }, { status: 404 });
-    }
-    else {
+      return NextResponse.json(
+        { error: "Recruteur introuvable" },
+        { status: 404 }
+      );
+    } else {
       console.log("Recruiter found:", recruiter);
     }
 
@@ -91,15 +131,17 @@ export async function POST(request: Request) {
     const location = await prisma.location.findUnique({
       where: {
         id: location_id,
-      }
+      },
     });
 
     if (!location) {
-      return NextResponse.json({ error: "Emplacement introuvable" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Emplacement introuvable" },
+        { status: 404 }
+      );
     } else {
       console.log("Location found:", location);
     }
-
 
     const newOffer = await prisma.offer.create({
       data: {
@@ -116,11 +158,16 @@ export async function POST(request: Request) {
 
     console.log("Offer created:", newOffer);
 
-    return NextResponse.json({ message: "Offre créée !", data: newOffer, status: 201 });
-
+    return NextResponse.json({
+      message: "Offre créée !",
+      data: newOffer,
+      status: 201,
+    });
   } catch (e) {
     console.error("Error creating offer:", e); // Log the full error
-    return NextResponse.json({ error: "Erreur lors de la création de l'offre !", status: 500 });
-
+    return NextResponse.json({
+      error: "Erreur lors de la création de l'offre !",
+      status: 500,
+    });
   }
 }

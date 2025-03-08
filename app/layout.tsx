@@ -43,8 +43,10 @@ export default function RootLayout({
         className={`${dmSans.variable} ${dmSans.variable} antialiased min-h-screen min-w-screen w-screen h-screen`}
       >
         <Navbar />
-        <div className="grid grid-cols-1 min-w-full min-h-full w-full h-full">
+        <div className="grid grid-cols-1 min-w-screen min-h-screen w-full h-full">
+          <div className="w-full h-fit px-8">
           <TopButtons />
+          </div>
           <div className="h-full w-full">
             {children}
           </div>
