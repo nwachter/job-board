@@ -6,7 +6,7 @@ import UserDashboard from "../components/dashboard/UserDashboard";
 import { useOffers } from "../hooks/useOffers";
 import { useUserInfo } from "../hooks/useUserInfo";
 
-export const Dashboard : React.FC = () => {
+export default function DashboardPage() {
   // Don't set default state here, wait for data
   const [role, setRole] = useState<string | null>(null);
   const {data: userInfo, isLoading: isUserLoading, error: userError} = useUserInfo();
@@ -54,5 +54,3 @@ export const Dashboard : React.FC = () => {
     </div>
   );
 };
-
-export default Dashboard;
