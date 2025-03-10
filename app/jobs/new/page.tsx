@@ -1,6 +1,6 @@
 "use client";
 import Form from '@/app/components/general/Form';
-import { useUserInfo } from '@/app/hooks/useUserInfo';
+import { useGetUserInfo } from '@/app/hooks/useUserInfo';
 import { createOffer } from '@/app/services/offers';
 import { createLocation } from '@/app/services/locations';
 import React, { useEffect, useState } from 'react';
@@ -33,7 +33,7 @@ const NewJobPage = () => {
     country: ""
   });
 
-  const { data: userInfo } = useUserInfo();
+  const { data: userInfo } = useGetUserInfo();
   const recruiterId = userInfo?.id ?? "";
   // const router = useRouter();
 

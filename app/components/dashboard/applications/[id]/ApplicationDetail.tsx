@@ -11,7 +11,7 @@ interface ApplicationDetailProps {
 const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) => {
  const router = useRouter();
   return (
-    <div className="flex w-full h-full flex-col items-center justify-center  bg-gradient-to-b  text-white">
+    <div className="flex w-full h-full flex-col items-center justify-center  text-white">
       <div className="max-w-4xl w-full p-6 sm:min-h-96 bg-white text-black rounded-xl shadow-lg">
         <button
           onClick={() => router.back()}

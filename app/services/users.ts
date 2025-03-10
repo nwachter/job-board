@@ -9,6 +9,15 @@ const api = axios.create({
     withCredentials: true 
 });
 
+api.interceptors.request.use( //testerror
+    config => {
+      console.log('Making request to:', config.url); // Log the request URL 
+      return config;
+    },
+    error => Promise.reject(error)
+  );
+  
+
 export const getUsers = async () => {
     try {
         const response = await api.get('/users');

@@ -1,6 +1,6 @@
 "use client";
 import Form from '@/app/components/general/Form';
-import { useUserInfo } from '@/app/hooks/useUserInfo';
+import { useGetUserInfo } from '@/app/hooks/useUserInfo';
 import { createApplication } from '@/app/services/applications';
 import { createLocation } from '@/app/services/locations';
 import React, { useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ const NewApplication: React.FC<NewApplicationProps> = ({ offer_id }) => {
     cv: null as unknown as FileList
   });
 
-  const { data: userInfo } = useUserInfo();
+  const { data: userInfo } = useGetUserInfo();
   const recruiterId = userInfo?.id ?? "";
   // const router = useRouter();
 

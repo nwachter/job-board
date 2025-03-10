@@ -1,4 +1,3 @@
-
 "use client";
 // import JobBoardLanding from '@/app/components/JobBoardLanding';
 
@@ -6,39 +5,57 @@
 //   return <JobBoardLanding />;
 // }
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 
-import RecruiterDashboard from '../components/dashboard/RecruiterDashboard';
-import UserDashboard from '../components/dashboard/UserDashboard';
-import { useOffers } from '../hooks/useOffers';
-import { useUserInfo } from '../hooks/useUserInfo';
+import RecruiterDashboard from "../components/dashboard/RecruiterDashboard";
+import UserDashboard from "../components/dashboard/UserDashboard";
+import { useGetOffers } from "../hooks/useOffers";
+import { useGetUserInfo } from "../hooks/useUserInfo";
 
+import { Offer } from "../types/offer";
 
 const Dashboard = () => {
-  const [role, setRole] = useState('user');
+  const [role, setRole] = useState("user");
   // const [offersData, setOffersData] = useState<Offer[]>([]);
-  const {data: userInfo} = useUserInfo();
+  const { data: userInfo, isLoading: isLoadingUserInfo, isError: isErrorUserInfo, error: errorUserInfo } = useGetUserInfo();
 
-  const {data: offers, contractTypes: contractTypes, applicationsNumber: applicationsNumber} = useOffers();
+  const {
+    data: offersData,
+    isLoading: isLoadingOffers,
+    isError: isErrorOffers,
+    error: errorOffers,
+  } = useGetOffers();
+
+  const offers = offersData ?? [];
+  const contractTypes: string[] =
+    offers?.length > 0
+      ? Array.from(new Set(offers.map((offer: Offer) => offer.contract_type)))
+      : [];
+
+  const applicationsNumber: number =
+    offers?.reduce(
+      (acc: number, offer: Offer) =>
+        acc + (offer?.applications ? offer?.applications.length : 0),
+      0
+    ) || 0;
 
   useEffect(() => {
-    setRole(userInfo?.role ?? 'user');
-  }, [userInfo])
-
-  
+    setRole(userInfo?.role ?? "user");
+  }, [userInfo]);
 
   return (
     <div className="h-full w-full">
-      {
-        role === "recruiter" ?
-        <RecruiterDashboard offers={offers ?? []} contractTypes={contractTypes} applicationsNumber={applicationsNumber}/>
-        : <UserDashboard offers={offers ?? []} contractTypes={contractTypes} />
-      }
+      {role === "recruiter" ? (
+        <RecruiterDashboard
+          offers={offers ?? []}
+          contractTypes={contractTypes}
+          applicationsNumber={applicationsNumber}
+        />
+      ) : (
+        <UserDashboard offers={offers ?? []} contractTypes={contractTypes} />
+      )}
     </div>
   );
 };
-
-
-
 
 export default Dashboard;

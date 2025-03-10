@@ -2,17 +2,19 @@
 import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useUserInfo } from '@/app/hooks/useUserInfo';
+import { useGetUserInfo } from '@/app/hooks/useUserInfo';
 
 const JobBoardLanding = () => {
 
   const router = useRouter();
-  const {data: userInfo } = useUserInfo();
+  const {data: userInfo } = useGetUserInfo();
 
   useEffect(() => {
     if(userInfo) {
+    
       router.push("/dashboard");
     }
+
   }, [userInfo])
   
 
@@ -20,7 +22,7 @@ const JobBoardLanding = () => {
     <div className="w-full h-full">
    
       <div className="flex-1 h-full w-full relative overflow-hidden">
-        <div className="absolute inset-0 old:bg-gradient-to-br from-pink-200 via-purple-300 to-cyan-200" />
+        <div className="absolute inset-0" />
 
         <div className="relative h-full font-merriweather-sans flex flex-col items-center justify-center px-4 text-center">
           <h1 className="text-5xl font-bold text-white mb-4 max-w-2xl">

@@ -32,6 +32,7 @@ export const authMiddleware = async (request?: Request) => {
       return NextResponse.json({ message: 'Accès interdit' }, { status: 401 });
     }
     const decodedToken = jwt.verify(token || '', SECRET_KEY);
+
     if(request && decodedToken) {
       request.headers.set('Authorization', `Bearer ${token}`);
 
@@ -39,9 +40,8 @@ export const authMiddleware = async (request?: Request) => {
     return decodedToken
 
   } catch (error) {
-
-    console.log(error)
-    return { error }
+    console.log('Erreur de décodage du token', error); // Log de l'erreur pour plus de détails
+    return { error: 'Token invalide ou expiré' };
   }
 }
 

@@ -76,7 +76,9 @@ export const createOffer = async (data : Omit<Offer, "id">) => {
   }
 };
 
-export const updateOffer = async (id: number, data: Omit<Offer, "id">) => {
+export const updateOffer = async (id: number, data: Partial<Offer>
+  // Omit<Offer, "id"> 
+  ) => {
   try {
     const response = await api.patch(`/offers/${id}`, data); //Attention, avant : put
     return response.data;

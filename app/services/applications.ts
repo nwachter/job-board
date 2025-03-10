@@ -61,7 +61,7 @@ export const createApplication = async (data: Omit<Application, "id">) => {
   }
 };
 
-export const updateApplication = async (id: number, data: Omit<Application, "id">) => {
+export const updateApplication = async (id: number, data: Partial<Application>) => {
   try {
     const response = await api.put(`/applications/${id}`, data);
     return response.data;

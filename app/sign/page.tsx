@@ -5,8 +5,8 @@
 import React, { useEffect, useState } from 'react';
 import { Mail, Lock, User, Building2, ArrowRight } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { login, register } from '../services/auth';
 import { useRouter } from 'next/navigation';
+import { useLogin, useRegister } from '../hooks/useAuth';
 
 type FormFieldProps = {
     icon: React.ReactNode;
@@ -38,6 +38,10 @@ export const FormField: React.FC<FormFieldProps> = ({ icon, error, setInputs, ..
 
 
 const SignPages = () => {
+
+ const { mutateAsync: login } = useLogin();
+ const { mutateAsync: register } = useRegister();
+
     const [isSignUp, setIsSignUp] = useState(true);
     const [inputs, setInputs] = useState({
         email: "",
@@ -77,7 +81,9 @@ const SignPages = () => {
 
     
     useEffect(() => {
-        if (window.location.origin === "http://localhost:3000") {
+        const url = new URL(window.location.href);
+        const appRootUrl = `${url.protocol}//${url.host}`;
+        if (window.location.origin === appRootUrl) {
             setMessage("Prêt à trouver l'employé de vos rêves ?");
         } else {
             setMessage("Prêt à trouver le job de vos rêves ?");
@@ -113,6 +119,7 @@ const SignPages = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        let updatedAlert = alert;
         let alertType;
         const { email, password, password_confirmation, username } = inputs;
         const dataToSend = {
@@ -125,36 +132,44 @@ const SignPages = () => {
         if (password !== password_confirmation && isSignUp === true) {
             alertType = "danger";
             console.error("Les mots de passe ne correspondent pas");
-            setAlert({
+            updatedAlert = {
                 type: alertType,
                 message: alertData[alertType].message,
-            })
+            };
+               // setAlert(updatedAlert)
         }
+     
         console.log("Infos envoyées : ", email, password, password_confirmation, username);
 
         try {
             const data = isSignUp
-                ? await register(dataToSend) //last/first name est juste pour les candidatures
+                ? await register({data: dataToSend}) //last/first name est juste pour les candidatures
                 : await login({ email, password });
 
-            if (data && data.token) {
-                localStorage.setItem("isConnected", "true");
+            if (!isSignUp && data?.user) {
                 const userInfo = {
                     id: data?.user?.id,
                     role: data?.user?.role,
                     username: data?.user?.username,
                     email: data?.user?.email,        
                 }
-                localStorage.setItem("userInfo", JSON.stringify(userInfo));
+                // const userInfo = {
+                //     id: data?.user?.id,
+                //     role: data?.user?.role,
+                //     username: data?.user?.username,
+                //     email: data?.user?.email,        
+                // }
+                localStorage.setItem("jobboard_user_info", JSON.stringify(userInfo));
                 // localStorage.setItem("token", data?.token); //Token is set in cookie in the backend
                 console.log("Successful connexion. Adding data to LS")
             }
 
             alertType = data?.user ? "success" : "danger"; //testerror a modif
-            setAlert({
-                type: alertType,
-                message: alertData[alertType].message,
-            });
+          updatedAlert = {
+            type: alertType,
+            message: alertData[alertType].message,
+          };
+    
 
             if (isSignUp === false) {
                 setTimeout(() => {
@@ -162,7 +177,7 @@ const SignPages = () => {
                 }, 2000);
             }
 
-
+            setAlert(updatedAlert);
         } catch (error) {
             console.error("Error:", error);
             window.alert("Server error, please try again later.");
@@ -253,22 +268,7 @@ const SignPages = () => {
                         <form onSubmit={handleSubmit} method="POST" className="space-y-4">
                             {isSignUp && (
                                 <div className="space-y-4">
-                                    {/* <FormField
-                                        icon={<User size={20} />}
-                                        type="text"
-                                        name="lastname"
-                                        placeholder="Nom"
-                                        onChange={(e) => handleChange(e, "lastname", 2, 50, /^[a-zA-Z]+$/)}
-                                        error={errors.lastname}
-                                    />
-                                    <FormField
-                                        icon={<User size={20} />}
-                                        type="text"
-                                        name="firstname"
-                                        placeholder="Prénom"
-                                        onChange={(e) => handleChange(e, "firstname", 2, 50, /^[a-zA-Z]+$/)}
-                                        error={errors.firstname}
-                                    /> */}
+                
                                     <FormField
                                         icon={<User size={20} />}
                                         type="text"

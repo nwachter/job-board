@@ -1,5 +1,5 @@
 "use client";
-import {  useUserInfo } from '@/app/hooks/useUserInfo';
+import { useGetUserInfo } from '@/app/hooks/useUserInfo';
 import { logout } from '@/app/services/auth';
 import { StopIcon } from '@radix-ui/react-icons';
 import { User } from 'lucide-react';
@@ -11,7 +11,7 @@ import React, { useEffect } from 'react'
 const TopButtons = () => {
   const page = usePathname().split('/')[1];
 
-  const { data: userInfo } = useUserInfo();
+  const { data: userInfo } = useGetUserInfo();
 
   // useEffect(() => {
   //   const fetchAllUserInfo = async () => {
@@ -58,7 +58,7 @@ const TopButtons = () => {
   return (
     <div className="z-50 p-4 flex items-center justify-end gap-4">
         {/* {userInfo?.avatar ? <Image src={userInfo?.avatar} alt="User avatar" width={24} height={24} className="rounded-full text-gray-600" /> : <User className="w-6 h-6 text-gray-600" />} */}
-        {userInfo?.avatar ? <Image src={userInfo?.avatar} width={40} height={40} alt="User avatar" className="rounded-full text-gray-600 w-10 h-10 bg-cover bg-center border-2 shadow-md hover:filter hover:brightness-125 active:filter active:brightness-90 transition-all duration-300 border-[#e2007c]" /> : <User className="w-6 h-6 text-gray-600" />}
+        <Link href="/profile">{userInfo?.avatar ? <Image src={userInfo?.avatar} width={40} height={40} alt="User avatar" className="rounded-full text-gray-600 w-10 h-10 bg-cover bg-center border-2 shadow-md hover:filter hover:brightness-125 active:filter active:brightness-90 transition-all duration-300 border-[#e2007c]" /> : <User className="w-6 h-6 text-gray-600" />}</Link>
      
       {userInfo !== null && <StopIcon onClick={handleLogout} className=' hover:brightness-125 hover:filter hover:shadow-md transition-all duration-300 w-6 h-6 bg-[#e2007c]' />}
      {!userInfo && <Link href="/sign"><button className="bg-indigo-600 text-white px-6 py-2 rounded-lg">S&apos;inscrire

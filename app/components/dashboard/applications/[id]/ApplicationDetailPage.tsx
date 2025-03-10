@@ -1,13 +1,13 @@
 "use client"
 import ApplicationDetail from '@/app/components/dashboard/applications/[id]/ApplicationDetail'
-import { useApplication } from '@/app/hooks/useApplication'
+import { useGetApplicationById, useGetApplications } from '@/app/hooks/useApplication'
 import React, { useEffect } from 'react'
 
 export const ApplicationDetailDashboardPage : React.FC<{params : {
     id: any;
 }}> =  ({params}) => {
     const { id } = params;
-    const { data: application, isLoading, error } = useApplication(Number(id));
+    const { data: application, isLoading, error } = useGetApplicationById(Number(id));
   
     useEffect(() => {
       console.log("id : ", id, "application: ", application);
