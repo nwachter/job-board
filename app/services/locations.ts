@@ -50,7 +50,7 @@ export const createLocation = async (data: Omit<Location, "id">) => {
   }
 };
 
-export const updateLocation = async (id: number, data: Omit<Location, "id">) => {
+export const updateLocation = async (id: number, data: Partial<Location>) => {
   try {
     const response = await api.put(`/locations/${id}`, data);
     return response.data;

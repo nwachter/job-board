@@ -13,12 +13,14 @@ import { useGetOffers } from "../hooks/useOffers";
 import { useGetUserInfo } from "../hooks/useUserInfo";
 
 import { Offer } from "../types/offer";
+import { useGetLocations } from "../hooks/useLocations";
 
 const Dashboard = () => {
   const [role, setRole] = useState("user");
   // const [offersData, setOffersData] = useState<Offer[]>([]);
   const { data: userInfo, isLoading: isLoadingUserInfo, isError: isErrorUserInfo, error: errorUserInfo } = useGetUserInfo();
 
+    const { data: locations, isLoading: isLoadingLocations, error: errorLocations, isError: isErrorLocations } = useGetLocations();
   const {
     data: offersData,
     isLoading: isLoadingOffers,
@@ -50,9 +52,15 @@ const Dashboard = () => {
           offers={offers ?? []}
           contractTypes={contractTypes}
           applicationsNumber={applicationsNumber}
+          locations={locations ?? []}
+          isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
+          isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
+          error={errorLocations ?? errorOffers ?? errorUserInfo}
         />
       ) : (
-        <UserDashboard offers={offers ?? []} contractTypes={contractTypes} />
+        <UserDashboard offers={offers ?? []} contractTypes={contractTypes} locations={locations ?? []}           isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
+        isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
+        error={errorLocations ?? errorOffers ?? errorUserInfo} />
       )}
     </div>
   );

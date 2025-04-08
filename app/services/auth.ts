@@ -19,7 +19,9 @@ const api = axios.create({
 // }, (error) => {
 //     return Promise.reject(error);
 // });
-
+export type RegisterType = {
+  user: User;
+}
 const register = async (
   data: Omit<
     User,
@@ -30,9 +32,9 @@ const register = async (
     | "createdAt"
     | "updatedAt"
   >
-): Promise<{user: User}> => {
+): Promise<RegisterType> => {
   try {
-    const response = await api.post<{user: User}>("/register", data);
+    const response = await api.post<RegisterType>("/register", data);
     console.log("Registered ! Info : ", response.data);
 
     return response.data;

@@ -18,10 +18,11 @@ import {
   ChevronUp,
   Eye,
   MapPin,
+  History,
 } from "lucide-react"
 import { useGetApplications, useDeleteApplication, useUpdateApplication } from "@/app/hooks/useApplication"
 import { useGetOffers } from "@/app/hooks/useOffers"
-import type { Application } from "@/app/types/application"
+import { Status, type Application } from "@/app/types/application"
 import type { Offer } from "@/app/types/offer"
 
 type NotificationType = {
@@ -29,7 +30,7 @@ type NotificationType = {
   message: string
 } | null
 
-type ApplicationStatus = "pending" | "accepted" | "rejected"
+type ApplicationStatus = Status.PENDING | Status.ACCEPTED |Status.REJECTED
 
 const ApplicationManagement = () => {
   const { data: applications, isLoading } = useGetApplications()
@@ -153,7 +154,7 @@ const ApplicationManagement = () => {
       setNotification({
         type: "success",
         message: `Candidature ${
-          status === "accepted" ? "acceptée" : status === "rejected" ? "refusée" : "mise à jour"
+          status === Status.ACCEPTED ? "acceptée" : status ===Status.REJECTED ? "refusée" : "mise à jour"
         } avec succès`,
       })
 
@@ -184,13 +185,13 @@ const ApplicationManagement = () => {
   // Get status badge
   const getStatusBadge = (status?: ApplicationStatus) => {
     switch (status) {
-      case "accepted":
+      case Status.ACCEPTED:
         return (
           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
             <CheckCircle size={12} className="mr-1" /> Acceptée
           </span>
         )
-      case "rejected":
+      case Status.REJECTED:
         return (
           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
             <XCircle size={12} className="mr-1" /> Refusée
@@ -272,9 +273,9 @@ const ApplicationManagement = () => {
                   onChange={(e) => setSelectedStatus(e.target.value as ApplicationStatus | "all")}
                 >
                   <option value="all">Tous les statuts</option>
-                  <option value="pending">En attente</option>
-                  <option value="accepted">Acceptées</option>
-                  <option value="rejected">Refusées</option>
+                  <option value={Status.PENDING}>En attente</option>
+                  <option value={Status.ACCEPTED}>Acceptées</option>
+                  <option value={Status.REJECTED}>Refusées</option>
                 </select>
                 <Filter
                   size={16}
@@ -574,7 +575,7 @@ const ApplicationManagement = () => {
                     <div className="flex items-center mt-2">
                       <span className="mr-2">Statut actuel:</span>
                       {/* {getStatusBadge(viewingApplication.status)} */}
-                      {getStatusBadge("pending")}
+                      {getStatusBadge(Status.PENDING)}
 
                     </div>
                   </div>
@@ -598,14 +599,14 @@ const ApplicationManagement = () => {
 
                     <div className="flex flex-col sm:flex-row gap-3 mt-6">
                       <button
-                        onClick={() => handleUpdateStatus(viewingApplication.id, "accepted")}
+                        onClick={() => handleUpdateStatus(viewingApplication.id, Status.ACCEPTED)}
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                       >
                         <CheckCircle size={18} />
                         Accepter la candidature
                       </button>
                       <button
-                        onClick={() => handleUpdateStatus(viewingApplication.id, "rejected")}
+                        onClick={() => handleUpdateStatus(viewingApplication.id,Status.REJECTED)}
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                       >
                         <XCircle size={18} />

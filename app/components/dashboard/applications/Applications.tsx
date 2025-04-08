@@ -2,18 +2,19 @@
 import type React from "react"
 import { useEffect, useState } from "react"
 import { Search, Filter, Calendar, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react"
-import type { Application } from "@/app/types/application"
-import { useLocations } from "@/app/hooks/useLocations"
+import { Status, type Application } from "@/app/types/application"
+// import { useLocations } from "@/app/hooks/useLocations"
 import { searchApplications } from "@/app/services/applications"
 import ApplicationCard from "../../general/ApplicationCard"
 import { motion, AnimatePresence } from "framer-motion"
+import { useGetLocations } from "@/app/hooks/useLocations"
 
 type ApplicationsProps = {
   applications: Application[]
 }
 
 const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
-  const { data: locations, isLoading, error: errorData } = useLocations()
+  const { data: locations, isLoading, error: errorData, isError: isErrorLocations } = useGetLocations()
   const [error, setError] = useState<string | null>(null)
   const [applicationsList, setApplicationsList] = useState<Application[]>(Array.isArray(applications) ? applications : []);
       const [searchQuery, setSearchQuery] = useState<string>("")
@@ -29,7 +30,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
       setApplicationsList(applicationsResults || []);
     } catch (e) {
       console.error("Error : ", e);
-      setError(errorData ?? "Erreur lors de la recherche des candidatures");
+      setError(errorData?.message ?? "Erreur lors de la recherche des candidatures");
     }
   };
 
@@ -37,10 +38,10 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
   const filteredApplications = Array.isArray(applicationsList) 
   ? applicationsList.filter((application) => {
         // Status filter (uncomment if you want to use it)
-    // if (statusFilter !== "all") {
-    //   const status = application.status || "pending";
-    //   if (status !== statusFilter) return false;
-    // }
+    if (statusFilter !== "all") {
+      const status = application.status || Status.PENDING;
+      if (status !== statusFilter) return false;
+    }
       // Date filter
       if (dateFilter !== "all") {
         const applicationDate = new Date(application.createdAt || Date.now());
@@ -113,7 +114,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
                 <div className="flex items-center">
                   <AlertCircle size={18} className="text-yellow-400 mr-1" />
                   <span className="text-white text-sm">
-                    {/* {applicationsList.filter((a) => !a.status || a.status === "pending").length} */}
+                    {applicationsList.filter((a) => a.status === Status.PENDING).length} 
                      En attente
                   </span>
                 </div>
@@ -185,9 +186,9 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => setStatusFilter("pending")}
+                          onClick={() => setStatusFilter(Status.PENDING)}
                           className={`px-3 py-1.5 rounded-full text-sm transition-all flex items-center ${
-                            statusFilter === "pending"
+                            statusFilter === Status.PENDING
                               ? "bg-yellow-500 text-white"
                               : "bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
                           }`}

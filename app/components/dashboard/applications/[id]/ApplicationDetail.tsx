@@ -16,7 +16,7 @@ import {
   User,
   FileText,
 } from "lucide-react"
-import type { Application } from "@/app/types/application"
+import { Application, Status } from "@/app/types/application"
 import { motion, AnimatePresence } from "framer-motion"
 import { updateApplication } from "@/app/services/applications"
 
@@ -26,17 +26,14 @@ interface ApplicationDetailProps {
 
 const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) => {
   const router = useRouter()
-  const [status, setStatus] = useState<string>(
-    // application?.status
-    //  ||
-      "pending")
+  const [status, setStatus] = useState<string>(application?.status || Status.PENDING)
   const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false)
-  const [actionType, setActionType] = useState<"accepted" | "rejected" | null>(null)
+  const [actionType, setActionType] = useState<Status.ACCEPTED | Status.REJECTED | null>(null)
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [feedback, setFeedback] = useState<string>("")
   const [showSuccess, setShowSuccess] = useState<boolean>(false)
 
-  const handleStatusChange = async (newStatus: "accepted" | "rejected") => {
+  const handleStatusChange = async (newStatus: Status.ACCEPTED | Status.REJECTED) => {
     setActionType(newStatus)
     setIsConfirmOpen(true)
   }
@@ -47,8 +44,8 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) =>
     setIsLoading(true)
     try {
       await updateApplication(application.id, {
-        // status: actionType,
-        // feedback: feedback,
+        status: actionType as Status,
+        feedback: feedback,
       })
       setStatus(actionType || "pending")
       setIsConfirmOpen(false)
@@ -67,14 +64,14 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) =>
 
   const getStatusBadge = () => {
     switch (status) {
-      case "accepted":
+      case Status.ACCEPTED:
         return (
           <div className="flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800 text-sm font-medium">
             <CheckCircle size={16} className="mr-1" />
             Candidature acceptée
           </div>
         )
-      case "rejected":
+      case Status.REJECTED:
         return (
           <div className="flex items-center px-3 py-1 rounded-full bg-red-100 text-red-800 text-sm font-medium">
             <XCircle size={16} className="mr-1" />
@@ -216,14 +213,14 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) =>
             {status === "pending" && (
               <div className="flex flex-col sm:flex-row gap-3 mt-8">
                 <button
-                  onClick={() => handleStatusChange("accepted")}
+                  onClick={() => handleStatusChange(Status.ACCEPTED)}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                 >
                   <CheckCircle size={18} />
                   Accepter la candidature
                 </button>
                 <button
-                  onClick={() => handleStatusChange("rejected")}
+                  onClick={() => handleStatusChange(Status.REJECTED)}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                 >
                   <XCircle size={18} />
@@ -235,19 +232,19 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) =>
             {status !== "pending" && (
               <div className="mt-6 p-4 rounded-lg bg-gray-50">
                 <h3 className="text-lg font-semibold mb-2">
-                  {status === "accepted" ? "Candidature acceptée" : "Candidature refusée"}
+                  {status === Status.ACCEPTED ? "Candidature acceptée" : "Candidature refusée"}
                 </h3>
                 <p className="text-gray-600">
-                  {status === "accepted"
+                  {status === Status.ACCEPTED
                     ? "Vous avez accepté cette candidature. Le candidat a été notifié."
                     : "Vous avez refusé cette candidature. Le candidat a été notifié."}
                 </p>
-                {/* {application.feedback && (
+                {application.feedback && (
                   <div className="mt-3">
                     <p className="text-sm font-medium text-gray-700">Votre feedback:</p>
                     <p className="text-sm text-gray-600 mt-1">{application.feedback}</p>
                   </div>
-                )} */}
+                )}
               </div>
             )}
           </div>
@@ -270,10 +267,10 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) =>
               className="bg-white rounded-xl p-6 max-w-md w-full"
             >
               <h3 className="text-xl font-bold mb-4">
-                {actionType === "accepted" ? "Accepter la candidature" : "Refuser la candidature"}
+                {actionType === Status.ACCEPTED ? "Accepter la candidature" : "Refuser la candidature"}
               </h3>
               <p className="text-gray-600 mb-4">
-                {actionType === "accepted"
+                {actionType === Status.ACCEPTED
                   ? "Êtes-vous sûr de vouloir accepter cette candidature ? Le candidat sera notifié."
                   : "Êtes-vous sûr de vouloir refuser cette candidature ? Le candidat sera notifié."}
               </p>
@@ -286,7 +283,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) =>
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
                   rows={3}
                   placeholder={
-                    actionType === "accepted"
+                    actionType === Status.ACCEPTED
                       ? "Expliquez pourquoi vous acceptez cette candidature..."
                       : "Expliquez pourquoi vous refusez cette candidature..."
                   }
@@ -304,7 +301,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) =>
                 <button
                   onClick={confirmStatusChange}
                   className={`px-4 py-2 rounded-lg text-white flex items-center ${
-                    actionType === "accepted" ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
+                    actionType === Status.ACCEPTED ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"
                   }`}
                   disabled={isLoading}
                 >
@@ -315,7 +312,7 @@ const ApplicationDetail: React.FC<ApplicationDetailProps> = ({ application }) =>
                     </>
                   ) : (
                     <>
-                      {actionType === "accepted" ? (
+                      {actionType === Status.ACCEPTED ? (
                         <>
                           <CheckCircle size={16} className="mr-2" />
                           Confirmer l'acceptation

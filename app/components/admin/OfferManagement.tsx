@@ -22,10 +22,12 @@ import {
   ChevronUp,
 } from "lucide-react"
 import { useGetOffers, useDeleteOffer, useUpdateOffer, useCreateOffer } from "@/app/hooks/useOffers"
-import { useLocations } from "@/app/hooks/useLocations"
+// import { useLocations } from "@/app/hooks/useLocations"
 import { useGetUserInfo } from "@/app/hooks/useUserInfo"
 import type { Offer } from "@/app/types/offer"
 import type { Location } from "@/app/types/location"
+import { useGetLocations } from "@/app/hooks/useLocations"
+import { isError } from "util"
 
 type NotificationType = {
   type: "success" | "error"
@@ -44,8 +46,8 @@ type OfferFormType = {
 }
 
 const OfferManagement = () => {
-  const { data: offers, isLoading } = useGetOffers()
-  const { data: locations } = useLocations()
+  const { data: offers, isLoading: isLoadingOffers, isError: isErrorOffers, error: errorOffers } = useGetOffers()
+  const { data: locations, isLoading: isLoadingLocations, isError: isErrorLocations, error: errorLocations } = useGetLocations()
   const { data: userInfo } = useGetUserInfo()
   const { mutateAsync: deleteOffer } = useDeleteOffer()
   const { mutateAsync: updateOffer } = useUpdateOffer()
@@ -269,7 +271,14 @@ if (sortConfig.key) {
     }).format(date)
   }
 
-  if (isLoading) {
+  if(isErrorOffers || isErrorLocations) {
+    return (
+      <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 transition-all">
+        {errorOffers?.message || "Erreur lors de la récupération des offres et/ou des localisations"}
+      </div>
+    )
+  }
+  if (isLoadingOffers || isLoadingLocations) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-purple"></div>
