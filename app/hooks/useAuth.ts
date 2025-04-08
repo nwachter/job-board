@@ -69,7 +69,7 @@ export interface LoginUser {
 export const useRegister = (): UseMutationResult<
 User,
 Error,
-{ data: Omit<User, "id" | "role" | "applications" | "offers" | "createdAt" | "updatedAt"> }
+{ data: Omit<User, "id" | "applications" | "offers" | "createdAt" | "updatedAt"> } //tsterror removed "role"
 > => {
 const queryClient = useQueryClient();
 
