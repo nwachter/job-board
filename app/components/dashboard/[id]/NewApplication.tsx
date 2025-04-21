@@ -7,6 +7,7 @@ import { useGetUserInfo } from "@/app/hooks/useUserInfo"
 import { createApplication } from "@/app/services/applications"
 import { uploadPdfFile } from "@/app/services/upload"
 import { motion, AnimatePresence } from "framer-motion"
+import { Status } from "@/app/types/application"
 
 export type FormInputs = {
   firstname: string
@@ -121,7 +122,7 @@ const NewApplication: React.FC<NewApplicationProps> = ({ offer_id, onCancel }) =
         user_id: Number(userId),
         offer_id: Number(offer_id),
         cv: fileLink,
-        status: "pending",
+        status: Status.PENDING,
       }
 
       const application = await createApplication(applicationData)

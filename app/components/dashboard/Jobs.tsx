@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import JobCard from '../general/JobCard';
 import { Search } from 'lucide-react';
 import { Offer } from '@/app/types/offer';
-import { useLocations } from '@/app/hooks/useLocations';
+import { useGetLocations } from '@/app/hooks/useLocations';
 import { searchOffers } from '@/app/services/offers';
 
 type JobsProps = {
@@ -13,7 +13,7 @@ type JobsProps = {
 
 const Jobs: React.FC<JobsProps> = ({ offers, contractTypes }) => {
   // const router = useRouter();
-  const { data: locations, isLoading: isLoadingLocations, error: errorData } = useLocations();
+  const { data: locations, isLoading: isLoadingLocations, error: errorData } = useGetLocations();
   const [error, setError] = useState<string | null>(null);
   const [offersList, setOffersList] = useState<Offer[]>(offers);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -29,7 +29,7 @@ const Jobs: React.FC<JobsProps> = ({ offers, contractTypes }) => {
       return offers;
     } catch (e) {
       console.error("Error : ", e);
-      setError(errorData ?? "Erreur lors de la recherche des offres");
+      setError(errorData?.message ?? "Erreur lors de la recherche des offres");
     }
   };
 

@@ -60,12 +60,18 @@ export default function RootLayout({
         className={`${dmSans.variable} ${dmSans.variable} antialiased`}
       >
         <GlobalLayout>
-          <Navbar />
-          <div className="flex flex-col min-h-screen min-w-screen w-full h-full">
+          <div className="grid grid-cols-10">
+            <div className="col-span-1">
+            <Navbar />
+
+            </div>
+          <div className="flex col-span-9 flex-col min-h-screen min-w-screen w-full h-full">
             <div className="w-full h-fit px-8">
               <TopButtons />
             </div>
             <div id="main-content" className="h-full grow basis-auto w-full">{children}</div>
+          </div>
+
           </div>
         </GlobalLayout>
       </body>
