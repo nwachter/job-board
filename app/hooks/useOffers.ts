@@ -125,7 +125,7 @@ import { getApplications, getApplicationById, createApplication, updateApplicati
   export const useCreateOffer = (): UseMutationResult<
     Offer,
     Error,
-    { data: Omit<Offer, "_id"> }
+    { data: Omit<Offer, "id"> }
   > => {  
     const queryClient = useQueryClient();
     return useMutation({

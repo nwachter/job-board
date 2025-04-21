@@ -61,6 +61,8 @@ model Application {
   user       User    @relation(fields: [user_id], references: [id])
   user_id    Int
   cv         String
+  status     String   @default("pending") // pending, accepted, refused
+  feedback  String?    // feedback from recruiter
 }
 
 model Location {
@@ -69,7 +71,6 @@ model Location {
   country String @default("France")
   offers Offer[]
 }
-
 
 
 //migration :  npx prisma migrate dev --name nom_de_migration
