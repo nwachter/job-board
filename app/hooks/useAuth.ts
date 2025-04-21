@@ -4,7 +4,7 @@
 
 import { User } from "@/app/types/user";
 import { UseMutationResult, useQueryClient, useMutation } from "@tanstack/react-query";
-import { getUserInfo, login, logout, register } from "../services/auth";
+import { getUserInfo, login, logout, register, RegisterType } from "../services/auth";
 import { useRouter } from "next/navigation";
 export interface LoginUser {
     email: string;
@@ -69,7 +69,7 @@ export interface LoginUser {
 export const useRegister = (): UseMutationResult<
 User,
 Error,
-{ data: Omit<User, "id" | "role" | "applications" | "offers" | "createdAt" | "updatedAt"> }
+{ data: Omit<User, "id" | "applications" | "offers" | "createdAt" | "updatedAt"> } //tsterror removed "role"
 > => {
 const queryClient = useQueryClient();
 

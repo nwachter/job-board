@@ -3,7 +3,7 @@
 // import { getApplications } from "../services/applications";
 // import { Application } from "../types/application";
 
-import { Application } from "../types/application";
+import { Application } from "@/app/types/application";
 import { UseQueryResult, useQuery, UseMutationResult, useQueryClient, useMutation, UseQueryOptions } from "@tanstack/react-query";
 import { useRouter } from "next/router";
 import { getApplications, getApplicationById, createApplication, updateApplication, searchApplications, deleteApplication } from "../services";

@@ -18,6 +18,7 @@ import {
   ChevronUp,
   Eye,
   MapPin,
+  History,
 } from "lucide-react"
 import { useGetApplications, useDeleteApplication, useUpdateApplication } from "@/app/hooks/useApplication"
 import { useGetOffers } from "@/app/hooks/useOffers"
@@ -29,6 +30,7 @@ type NotificationType = {
   message: string
 } | null
 
+type ApplicationStatus = Status.PENDING | Status.ACCEPTED |Status.REJECTED
 
 const ApplicationManagement = () => {
   const { data: applications, isLoading } = useGetApplications()
@@ -38,7 +40,7 @@ const ApplicationManagement = () => {
 
   const [filteredApplications, setFilteredApplications] = useState<Application[]>([])
   const [searchTerm, setSearchTerm] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState<Status | "all">("all")
+  const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus | "all">("all")
   const [selectedOffer, setSelectedOffer] = useState<number | "all">("all")
   const [currentPage, setCurrentPage] = useState(1)
   const [itemsPerPage] = useState(10)
@@ -74,9 +76,9 @@ const ApplicationManagement = () => {
     }
 
     // Status filter
-    if (selectedStatus !== "all") {
-      filtered = filtered.filter((application) => application.status === selectedStatus)
-    }
+    // if (selectedStatus !== "all") {
+    //   filtered = filtered.filter((application) => application.status === selectedStatus)
+    // } //testerror add status
 
     // Offer filter
     if (selectedOffer !== "all") {
@@ -84,20 +86,19 @@ const ApplicationManagement = () => {
     }
 
     // Sorting
-    if (sortConfig.key !== "") {
-        filtered.sort((a, b) => {
-          const aValue = a[sortConfig.key as keyof Application] ?? "";
-          const bValue = b[sortConfig.key as keyof Application] ?? "";
-          
-          if (aValue < bValue) {
-            return sortConfig.direction === "ascending" ? -1 : 1;
-          }
-          if (aValue > bValue) {
-            return sortConfig.direction === "ascending" ? 1 : -1;
-          }
-          return 0;
-        });
-      }
+    if (sortConfig.key) {
+      filtered.sort((a, b) => {
+          const aValue = a[sortConfig.key as keyof Application];  // We know it's a keyof Application here
+              const bValue = b[sortConfig.key as keyof Application];
+              if ((aValue ?? 0) < (bValue ?? 0)) {
+          return sortConfig.direction === "ascending" ? -1 : 1
+        }
+        if ((aValue ?? 0) > (bValue ?? 0)) {
+          return sortConfig.direction === "ascending" ? 1 : -1
+        }
+        return 0
+      })
+    }
 
     setFilteredApplications(filtered)
   }
@@ -140,20 +141,20 @@ const ApplicationManagement = () => {
   }
 
   // Handle update application status
-  const handleUpdateStatus = async (applicationId: number, status: Status) => {
+  const handleUpdateStatus = async (applicationId: number, status: ApplicationStatus) => {
     try {
       await updateApplication({
         id: applicationId,
         data: {
-          status,
-          feedback: feedback || undefined,
+        //   status,
+        //   feedback: feedback || undefined, //testerror add feedback
         },
       })
 
       setNotification({
         type: "success",
         message: `Candidature ${
-          status === Status.ACCEPTED ? "acceptée" : status === Status.REJECTED ? "refusée" : "mise à jour"
+          status === Status.ACCEPTED ? "acceptée" : status ===Status.REJECTED ? "refusée" : "mise à jour"
         } avec succès`,
       })
 
@@ -182,7 +183,7 @@ const ApplicationManagement = () => {
   }
 
   // Get status badge
-  const getStatusBadge = (status?: Status) => {
+  const getStatusBadge = (status?: ApplicationStatus) => {
     switch (status) {
       case Status.ACCEPTED:
         return (
@@ -190,7 +191,7 @@ const ApplicationManagement = () => {
             <CheckCircle size={12} className="mr-1" /> Acceptée
           </span>
         )
-      case "rejected":
+      case Status.REJECTED:
         return (
           <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
             <XCircle size={12} className="mr-1" /> Refusée
@@ -269,7 +270,7 @@ const ApplicationManagement = () => {
                 <select
                   className="appearance-none pl-4 pr-8 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-electric-purple bg-white"
                   value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value as Status | "all")}
+                  onChange={(e) => setSelectedStatus(e.target.value as ApplicationStatus | "all")}
                 >
                   <option value="all">Tous les statuts</option>
                   <option value={Status.PENDING}>En attente</option>
@@ -395,7 +396,8 @@ const ApplicationManagement = () => {
                     <div className="text-sm text-gray-900">{application.offer?.title}</div>
                     <div className="text-xs text-gray-500">{application.offer?.company_name}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(application.status)}</td>
+                  <td></td>
+                  {/* <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(application.status)}</td> */}
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div className="flex items-center">
                       <Calendar size={14} className="mr-1" />
@@ -572,7 +574,9 @@ const ApplicationManagement = () => {
                     </div>
                     <div className="flex items-center mt-2">
                       <span className="mr-2">Statut actuel:</span>
-                      {getStatusBadge(viewingApplication.status)}
+                      {/* {getStatusBadge(viewingApplication.status)} */}
+                      {getStatusBadge(Status.PENDING)}
+
                     </div>
                   </div>
 
@@ -602,7 +606,7 @@ const ApplicationManagement = () => {
                         Accepter la candidature
                       </button>
                       <button
-                        onClick={() => handleUpdateStatus(viewingApplication.id, Status.REJECTED)}
+                        onClick={() => handleUpdateStatus(viewingApplication.id,Status.REJECTED)}
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
                       >
                         <XCircle size={18} />

@@ -4,14 +4,18 @@ import JobCard from '../general/JobCard';
 import { Search } from 'lucide-react';
 import { Offer } from '@/app/types/offer';
 import { useRouter } from 'next/navigation';
-import { useLocations } from '@/app/hooks/useLocations';
 import { searchOffers } from '@/app/services/offers';
 import { Stats8 } from '../general/StatsCards';
+import { Location } from '@/app/types/location';
 
 type RecruiterDashboardProps = {
   offers: Offer[];
   contractTypes: string[]
   applicationsNumber: number,
+  locations: Location[];
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
 }
 
 type DashboardStats = {
@@ -20,10 +24,9 @@ type DashboardStats = {
   label: string;
 }
 
-const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ offers, contractTypes, applicationsNumber }) => {
+const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ offers, contractTypes, applicationsNumber, locations, isLoading, isError, error }) => {
   const router = useRouter();
-  const { data: locations, isLoading: isLoadingLocations, error: errorData } = useLocations();
-  const [error, setError] = useState<string | null>(null);
+  // const { data: locations, isLoading: isLoadingLocations, error: errorLocations, isError: isErrorLocations } = useGetLocations();
   const [offersList, setOffersList] = useState<Offer[]>(offers);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [contractType, setContractType] = useState<string>('');
@@ -32,13 +35,13 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ offers, contrac
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    setError(null);
+error = error
     try {
       const offersResults = await searchOffers(searchQuery, contractType, locationId);
       setOffersList(offersResults ?? offers);
     } catch (e) {
       console.error("Error : ", e);
-      setError(errorData ?? "Erreur lors de la recherche des offres");
+      error = error ?? new Error("Erreur lors de la recherche des offres");
     }
   };
 
@@ -64,8 +67,8 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({ offers, contrac
   }, [offers, applicationsNumber])
   
 
-  if (error) return <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 transition-all">{error}</div>;
-  if (isLoadingLocations) return (
+  if (isError) return <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 transition-all">{error?.message}</div>;
+  if (isLoading) return (
     <div className="flex items-center justify-center h-full">
       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
       <span className="ml-2">Chargement...</span>

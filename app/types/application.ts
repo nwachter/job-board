@@ -2,11 +2,10 @@ import { Offer } from "./offer";
 import { User } from "./user";
 
 export enum Status {
-    PENDING = "pending",
-    ACCEPTED = "accepted",
-    REJECTED = "rejected",
+    PENDING = "PENDING",
+    ACCEPTED = "ACCEPTED",
+    REJECTED = "REJECTED"
 }
-
 export type Application = {
     id: number;
     content: string;

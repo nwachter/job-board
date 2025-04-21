@@ -24,7 +24,7 @@ const api = axios.create({
 export const getApplications = async () => {
   try {
     const response = await api.get("/applications");
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("Échec de la récupération des candidatures :", error);
     throw error;

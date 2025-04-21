@@ -22,10 +22,12 @@ import {
   ChevronUp,
 } from "lucide-react"
 import { useGetOffers, useDeleteOffer, useUpdateOffer, useCreateOffer } from "@/app/hooks/useOffers"
-import { useLocations } from "@/app/hooks/useLocations"
+// import { useLocations } from "@/app/hooks/useLocations"
 import { useGetUserInfo } from "@/app/hooks/useUserInfo"
-import { Offer } from "@/app/types/offer"
+import type { Offer } from "@/app/types/offer"
 import type { Location } from "@/app/types/location"
+import { useGetLocations } from "@/app/hooks/useLocations"
+import { isError } from "util"
 
 type NotificationType = {
   type: "success" | "error"
@@ -33,7 +35,7 @@ type NotificationType = {
 } | null
 
 type OfferFormType = {
-  id?: number
+   id?: number
   title: string
   description: string
   company_name: string
@@ -44,8 +46,8 @@ type OfferFormType = {
 }
 
 const OfferManagement = () => {
-  const { data: offers, isLoading } = useGetOffers()
-  const { data: locations } = useLocations()
+  const { data: offers, isLoading: isLoadingOffers, isError: isErrorOffers, error: errorOffers } = useGetOffers()
+  const { data: locations, isLoading: isLoadingLocations, isError: isErrorLocations, error: errorLocations } = useGetLocations()
   const { data: userInfo } = useGetUserInfo()
   const { mutateAsync: deleteOffer } = useDeleteOffer()
   const { mutateAsync: updateOffer } = useUpdateOffer()
@@ -62,9 +64,9 @@ const OfferManagement = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
   const [notification, setNotification] = useState<NotificationType>(null)
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Offer | ""
+    key: keyof Offer | null
     direction: "ascending" | "descending"
-  }>({ key: "", direction: "ascending" })
+  }>({ key: null, direction: "ascending" })
 
   // Form state
   const [offerForm, setOfferForm] = useState<OfferFormType>({
@@ -111,22 +113,21 @@ const OfferManagement = () => {
       filtered = filtered.filter((offer) => offer.location_id === selectedLocation)
     }
 
-    // Sorting
-    if (sortConfig.key !== "") {
-      filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key as keyof Offer] ?? "";
-        const bValue = b[sortConfig.key as keyof Offer] ?? "";
-        
-        if (aValue < bValue) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
+// Sorting
+if (sortConfig.key) {
+    filtered.sort((a, b) => {
+      const aValue = a[sortConfig.key as keyof Offer];  // We know it's a keyof Offer here
+      const bValue = b[sortConfig.key as keyof Offer];
+      
+      if ((aValue ?? 0) < (bValue ?? 0)) {
+        return sortConfig.direction === "ascending" ? -1 : 1;
+      }
+      if ((aValue ?? 0) > (bValue ?? 0)) {
+        return sortConfig.direction === "ascending" ? 1 : -1;
+      }
+      return 0;
+    });
+  }
     setFilteredOffers(filtered)
   }
 
@@ -159,6 +160,7 @@ const OfferManagement = () => {
     e.preventDefault()
 
     try {
+       
       await createOffer({
         data: {
           ...offerForm,
@@ -269,7 +271,14 @@ const OfferManagement = () => {
     }).format(date)
   }
 
-  if (isLoading) {
+  if(isErrorOffers || isErrorLocations) {
+    return (
+      <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 transition-all">
+        {errorOffers?.message || "Erreur lors de la récupération des offres et/ou des localisations"}
+      </div>
+    )
+  }
+  if (isLoadingOffers || isLoadingLocations) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-purple"></div>
