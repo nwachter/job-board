@@ -2,12 +2,13 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Briefcase, Users, Building2, FileText, ShieldAlert, Home, ChevronRight, Menu, X } from "lucide-react"
 import { useGetUserInfo } from "@/app/hooks/useUserInfo"
 import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { cn } from "@/lib/utils"
+import { Role } from "@/app/types/user"
 
 type NavItem = {
   icon: React.ReactNode
@@ -24,28 +25,28 @@ const navItems: NavItem[] = [
     activeIcon: <Home size={20} />,
     title: "Dashboard",
     path: "/dashboard",
-    showAlways: true,
+    roles: [Role.RECRUITER, Role.USER],
   },
   {
     icon: <Briefcase size={20} />,
     activeIcon: <Briefcase size={20} />,
     title: "Offres d'emploi",
     path: "/jobs",
-    roles: ["user", "guest"],
+    showAlways: true,
   },
   {
     icon: <Users size={20} />,
     activeIcon: <Users size={20} />,
     title: "Candidatures",
     path: "/dashboard/applications",
-    roles: ["recruiter"],
+    roles: [Role.RECRUITER, Role.USER],
   },
   {
     icon: <Building2 size={20} />,
     activeIcon: <Building2 size={20} />,
     title: "Entreprises",
     path: "/companies",
-    roles: ["user"],
+    roles: [Role.USER],
   },
   {
     icon: <FileText size={20} />,
@@ -59,7 +60,7 @@ const navItems: NavItem[] = [
     activeIcon: <ShieldAlert size={20} />,
     title: "Administration",
     path: "/admin",
-    roles: ["recruiter", "admin"],
+    roles: [Role.RECRUITER, Role.ADMIN],
   },
 ]
 
@@ -139,10 +140,13 @@ export const Navbar = () => {
   const router = useRouter()
   const pathname = usePathname()
   const { data: userInfo } = useGetUserInfo()
-  const userRole = userInfo?.role || "guest"
+  const userRole = useMemo(() => (userInfo?.role || "GUEST"), [userInfo])
+
+
 
   // Handle window resize for mobile/desktop view
   useEffect(() => {
+    console.log("USERROLE", userInfo?.role)
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setIsNavExpanded(false)

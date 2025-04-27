@@ -1,11 +1,18 @@
 import { Application } from "./application";
 import { Offer } from "./offer";
 
+export enum Role {
+    USER = "USER",
+    ADMIN = "ADMIN",
+    RECRUITER = "RECRUITER",
+    // GUEST = "guest",
+}
+
 export type User = {
     id: number;
     username: string;
     email: string;
-    role: string;
+    role: Role;
     avatar: string;
     password: string;
     applications?: Application[];
@@ -13,3 +20,4 @@ export type User = {
     createdAt?: Date;
     updatedAt?: Date;
 }
+

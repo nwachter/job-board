@@ -67,7 +67,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -82,19 +82,25 @@ const TopButtons = () => {
   const router = useRouter();
   const { data: userInfo } = useGetUserInfo();
 
-  // Hide component on authentication pages
-  if (pathname.startsWith("/sign")) {
-    return null;
-  }
-
   const handleLogout = async () => {
     await logout();
     // Optional: Redirect user after logout, e.g., router.push('/')
      router.push('/jobs');
   };
 
+  useEffect(() => {
+    console.log("userInfo (topbuttons) : ", userInfo);
+    
+  }, [userInfo])
+  
+
+  // Hide component on authentication pages
+  if (pathname.startsWith("/sign")) {
+    return null;
+  }
+
   return (
-    <div className=" z-50 p-4 md:p-6"> {/* Positioned top-right, more padding on medium screens */}
+    <div className="z-50 p-4 md:p-6"> {/* Positioned top-right, more padding on medium screens */}
       <div className="flex items-center justify-end gap-4">
         {userInfo ? (
           // --- Logged In State: User Dropdown Menu ---
@@ -124,7 +130,7 @@ const TopButtons = () => {
               <DropdownMenu.Content
                 align="end" // Align dropdown to the right edge of the trigger
                 sideOffset={8} // Space between trigger and dropdown
-                className="bg-gradient-to-b from-white/80 to-gray-100/80 rounded-md shadow-lg border border-gray-200 w-48 z-50 focus:outline-none
+                className="bg-gradient-to-b from-white/80 to-gray-100/80 backdrop-blur-sm rounded-md shadow-lg border border-gray-200 w-48 z-50 focus:outline-none
                            animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 // Added animations
                            data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2" // Added slide-in animations
               >

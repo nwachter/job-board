@@ -39,6 +39,13 @@ interface SettingItem {
 const SettingsManagement = () => {
   const [activeCategory, setActiveCategory] = useState<SettingCategory>("general")
   const [notification, setNotification] = useState<NotificationType>(null)
+  //fr/en
+  // Site_name
+  // Site tagline
+  // Contact email
+  //contact phone
+  // Logo
+  // Language
   const [settings, setSettings] = useState<Record<SettingCategory, SettingItem[]>>({
     general: [
       {

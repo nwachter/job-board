@@ -14,9 +14,10 @@ import { useGetUserInfo } from "../hooks/useUserInfo";
 
 import { Offer } from "../types/offer";
 import { useGetLocations } from "../hooks/useLocations";
+import { Role } from "../types/user";
 
 const Dashboard = () => {
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState(Role.USER);
   // const [offersData, setOffersData] = useState<Offer[]>([]);
   const { data: userInfo, isLoading: isLoadingUserInfo, isError: isErrorUserInfo, error: errorUserInfo } = useGetUserInfo();
 
@@ -42,12 +43,12 @@ const Dashboard = () => {
     ) || 0;
 
   useEffect(() => {
-    setRole(userInfo?.role ?? "user");
+    setRole(userInfo?.role ?? Role.USER);
   }, [userInfo]);
 
   return (
     <div className="h-full w-full">
-      {role === "recruiter" ? (
+      {role === Role.RECRUITER ? (
         <RecruiterDashboard
           offers={offers ?? []}
           contractTypes={contractTypes}
