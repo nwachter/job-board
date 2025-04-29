@@ -34,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -55,13 +55,16 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap"
           rel="stylesheet"
         />
+        <title>JobBoard</title>
+        <meta name="description" content="Application de recherche d'emploi"/>
+
       </head>
       <body
         className={`${dmSans.variable} ${dmSans.variable} antialiased`}
       >
         <GlobalLayout>
-          <div className="grid grid-cols-10">
-            <div className="col-span-1">
+          <div className="">
+            <div className="">
             <Navbar />
 
             </div>

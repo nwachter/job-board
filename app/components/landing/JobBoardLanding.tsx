@@ -97,7 +97,7 @@ const JobBoardLanding = () => {
   return (
     <div className="w-full h-screen old:bg-gradient-to-br old:from-indigo-900 old:via-purple-900 old:to-violet-800 overflow-hidden">
       {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute -z-10 inset-0 overflow-hidden">
         {/* <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_30%_20%,rgba(120,90,255,0.2)_0%,rgba(0,0,0,0)_60%)]"></div>
         <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_80%,rgba(76,29,149,0.3)_0%,rgba(0,0,0,0)_60%)]"></div> */}
         

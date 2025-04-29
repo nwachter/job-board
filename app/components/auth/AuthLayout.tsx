@@ -122,10 +122,10 @@ const AuthLayout = () => {
                 <div className="relative w-full h-full flex flex-col justify-center items-center text-center p-8">
                     {/* Text Content */}
                     <motion.div variants={textVariants} className="z-10 relative max-w-lg">
-                        <h1 className='font-merriweather-sans text-4xl lg:text-5xl font-bold text-gray-800 mb-4'>
+                        <h1 className='font-merriweather-sans  text-4xl lg:text-5xl font-bold text-eggplant mb-4'>
                             Bienvenue
-                        </h1>
-                        <p className='font-dm-sans text-xl lg:text-2xl text-gray-600'>
+                               </h1>
+                        <p className='font-dm-sans text-xl lg:text-2xl text-shadow-[0_35px_35px_rgb(0_0_0_/_0.55)]'>
                             {message}
                         </p>
                     </motion.div>

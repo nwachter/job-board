@@ -7,7 +7,7 @@ import Jobs from "../components/dashboard/Jobs";
 import { Offer } from "../types/offer";
 
 const Dashboard = () => {
-  const [role, setRole] = useState("user");
+  const [role, setRole] = useState("USER");
   // const [offersData, setOffersData] = useState<Offer[]>([]);
   // const {data: userInfo} = useUserInfo();
 

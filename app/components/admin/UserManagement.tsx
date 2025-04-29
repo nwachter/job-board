@@ -1,6 +1,6 @@
-"use client"
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+"use client";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Filter,
@@ -16,11 +16,11 @@ import {
   Lock,
   X,
   AlertTriangle,
-} from "lucide-react"
-import Image from "next/image"
-import { useGetUsers, useUpdateUser, useDeleteUser } from "@/app/hooks/useUser"
-import { useRegister } from "@/app/hooks/useAuth"
-import type { User as UserType } from "@/app/types/user"
+} from "lucide-react";
+import Image from "next/image";
+import { useGetUsers, useUpdateUser, useDeleteUser } from "@/app/hooks/useUser";
+import { useRegister } from "@/app/hooks/useAuth";
+import type { User as UserType } from "@/app/types/user";
 
 type NotificationType = {
   type: "success" | "error";
@@ -30,7 +30,7 @@ type NotificationType = {
 type NewUserType = {
   username: string;
   email: string;
-  role: "user" | "recruiter" | "admin";
+  role: "USER" | "RECRUITER" | "ADMIN";
   password: string;
   confirmPassword: string;
 };
@@ -39,47 +39,50 @@ type EditUserType = {
   id: number | null;
   username: string;
   email: string;
-  role: "user" | "recruiter" | "admin";
+  role: "USER" | "RECRUITER" | "ADMIN";
   password: string;
   confirmPassword: string;
 };
 type FormType = NewUserType | EditUserType;
 
-
 const UserManagement = () => {
-  const { data: users, isLoading } = useGetUsers()
-  const { mutateAsync: registerUser } = useRegister()
-  const { mutateAsync: deleteUser } = useDeleteUser()
-  const { mutateAsync: updateUser } = useUpdateUser()
+  const { data: users, isLoading } = useGetUsers();
+  const { mutateAsync: registerUser } = useRegister();
+  const { mutateAsync: deleteUser } = useDeleteUser();
+  const { mutateAsync: updateUser } = useUpdateUser();
 
-  const [filteredUsers, setFilteredUsers] = useState<UserType[]>(users ?? [])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedRole, setSelectedRole] = useState<"all" | "user" | "recruiter" | "admin">("all")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(10)
-  const [isAddingUser, setIsAddingUser] = useState(false)
-  const [editingUser, setEditingUser] = useState<number | null>(null)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
-  const [notification, setNotification] = useState<NotificationType>(null)
+  const [filteredUsers, setFilteredUsers] = useState<UserType[]>(users ?? []);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedRole, setSelectedRole] = useState<
+    "all" | "USER" | "RECRUITER" | "ADMIN"
+  >("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [isAddingUser, setIsAddingUser] = useState(false);
+  const [editingUser, setEditingUser] = useState<number | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
+    null,
+  );
+  const [notification, setNotification] = useState<NotificationType>(null);
 
   // New user form state
   const [newUser, setNewUser] = useState<NewUserType>({
     username: "",
     email: "",
-    role: "user",
+    role: "USER",
     password: "",
     confirmPassword: "",
-  })
+  });
 
   // Edit user form state
   const [editForm, setEditForm] = useState<EditUserType>({
     id: null,
     username: "",
     email: "",
-    role: "user",
+    role: "USER",
     password: "",
     confirmPassword: "",
-  })
+  });
 
   useEffect(() => {
     let updatedUsers = users ?? [];
@@ -87,7 +90,6 @@ const UserManagement = () => {
       filterUsers();
     }
     setFilteredUsers(updatedUsers); // Initialize with fetched users
-
   }, [users]);
 
   const filterUsers = () => {
@@ -96,10 +98,10 @@ const UserManagement = () => {
       setFilteredUsers([]);
       return;
     }
-  
+
     // Create a safe copy of the users array
     let filtered = [...users];
-  
+
     // Search filter
     if (searchTerm) {
       filtered = filtered.filter(
@@ -108,41 +110,41 @@ const UserManagement = () => {
           user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
-  
+
     // Role filter
     if (selectedRole !== "all") {
       filtered = filtered.filter((user) => user.role === selectedRole);
     }
-  
+
     setFilteredUsers(filtered);
   };
 
   // Pagination
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem)
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
   // Handle form input changes
-// Handle form input changes
+  // Handle form input changes
 
-const handleInputChange = <T extends FormType>(
-  e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
-  formSetter: React.Dispatch<React.SetStateAction<T>>
-) => {
-  const { name, value } = e.target;
-  formSetter((prev: T) => ({ ...prev, [name]: value }));
-}
+  const handleInputChange = <T extends FormType>(
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    formSetter: React.Dispatch<React.SetStateAction<T>>,
+  ) => {
+    const { name, value } = e.target;
+    formSetter((prev: T) => ({ ...prev, [name]: value }));
+  };
   // Handle add user form submission
   const handleAddUser = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (newUser.password !== newUser.confirmPassword) {
       setNotification({
         type: "error",
         message: "Les mots de passe ne correspondent pas",
-      })
-      return
+      });
+      return;
     }
 
     try {
@@ -152,57 +154,59 @@ const handleInputChange = <T extends FormType>(
           email: newUser.email,
           password: newUser.password,
           role: newUser.role,
-          avatar: "none"
+          avatar: "none",
         },
-      })
+      });
 
       setNotification({
         type: "success",
         message: "Utilisateur créé avec succès",
-      })
+      });
 
-      setIsAddingUser(false)
+      setIsAddingUser(false);
       setNewUser({
         username: "",
         email: "",
-        role: "user",
+        role: "USER",
         password: "",
         confirmPassword: "",
-      })
+      });
 
       // Clear notification after 3 seconds
-      setTimeout(() => setNotification(null), 3000)
+      setTimeout(() => setNotification(null), 3000);
     } catch (error) {
       setNotification({
         type: "error",
-        message: (error as Error).message || "Erreur lors de la création de l'utilisateur",
-      })
+        message:
+          (error as Error).message ||
+          "Erreur lors de la création de l'utilisateur",
+      });
     }
-  }
+  };
 
   // Handle edit user
   const handleEditClick = (user: UserType) => {
-    setEditingUser(user.id)
+    setEditingUser(user.id);
     setEditForm({
       id: user.id,
       username: user.username,
       email: user.email,
-      role: user.role as "admin" | "recruiter" | "user",
+      role: user.role as "ADMIN" | "RECRUITER" | "USER",
       password: "",
       confirmPassword: "",
-    })
-  }
+    });
+  };
 
   // Handle update user
   const handleUpdateUser = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (editForm.password && editForm.password !== editForm.confirmPassword) {
       setNotification({
         type: "error",
         message: "Les mots de passe ne correspondent pas",
-      })
-      return
+      });
+      return;
     }
 
     try {
@@ -211,7 +215,7 @@ const handleInputChange = <T extends FormType>(
         email: editForm.email,
         role: editForm.role,
         ...(editForm.password && { password: editForm.password }),
-      }
+      };
 
       if (!editForm.id) {
         throw new Error("User ID is missing");
@@ -220,81 +224,93 @@ const handleInputChange = <T extends FormType>(
       await updateUser({
         id: editForm.id,
         data: updateData,
-      })
+      });
 
       setNotification({
         type: "success",
         message: "Utilisateur mis à jour avec succès",
-      })
+      });
 
-      setEditingUser(null)
+      setEditingUser(null);
 
       // Clear notification after 3 seconds
-      setTimeout(() => setNotification(null), 3000)
+      setTimeout(() => setNotification(null), 3000);
     } catch (error) {
       setNotification({
         type: "error",
-        message: (error as Error).message || "Erreur lors de la mise à jour de l'utilisateur",
-      })
+        message:
+          (error as Error).message ||
+          "Erreur lors de la mise à jour de l'utilisateur",
+      });
     }
-  }
+  };
 
   // Handle delete user
   const handleDeleteUser = async (userId: number) => {
     try {
-      await deleteUser(userId)
+      await deleteUser(userId);
 
       setNotification({
         type: "success",
         message: "Utilisateur supprimé avec succès",
-      })
+      });
 
-      setShowDeleteConfirm(null)
+      setShowDeleteConfirm(null);
 
       // Clear notification after 3 seconds
-      setTimeout(() => setNotification(null), 3000)
+      setTimeout(() => setNotification(null), 3000);
     } catch (error) {
       setNotification({
         type: "error",
-        message: (error as Error).message || "Erreur lors de la suppression de l'utilisateur",
-      })
+        message:
+          (error as Error).message ||
+          "Erreur lors de la suppression de l'utilisateur",
+      });
     }
-  }
+  };
 
   // Get role badge style
-  const getRoleBadgeStyle = (role: "user" | "recruiter" | "admin") => {
+  const getRoleBadgeStyle = (role: "USER" | "RECRUITER" | "ADMIN") => {
     switch (role) {
-      case "admin":
-        return "bg-red-100 text-red-800"
-      case "recruiter":
-        return "bg-blue-100 text-blue-800"
-      case "user":
-        return "bg-green-100 text-green-800"
+      case "ADMIN":
+        return "bg-red-100 text-red-800";
+      case "RECRUITER":
+        return "bg-blue-100 text-blue-800";
+      case "USER":
+        return "bg-green-100 text-green-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-purple"></div>
-        <span className="ml-3 text-electric-purple font-medium">Chargement des utilisateurs...</span>
+      <div className="flex h-full items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-electric-purple"></div>
+        <span className="ml-3 font-medium text-electric-purple">
+          Chargement des utilisateurs...
+        </span>
       </div>
-    )
+    );
   }
   if (!users || users.length === 0) {
     return (
-      <div className="flex items-center justify-center h-screen">
+      <div className="flex h-screen items-center justify-center">
         <span className="text-gray-500">Aucun utilisateur trouvé</span>
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Gestion des utilisateurs</h1>
+    <div className="mx-auto max-w-7xl">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <h1 className="text-3xl font-bold text-gray-800">
+          Gestion des utilisateurs
+        </h1>
         <p className="text-gray-600">Gérez les utilisateurs de la plateforme</p>
       </motion.div>
 
@@ -305,15 +321,17 @@ const handleInputChange = <T extends FormType>(
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`p-4 mb-6 rounded-lg flex items-center justify-between ${
-              notification.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+            className={`mb-6 flex items-center justify-between rounded-lg p-4 ${
+              notification.type === "success"
+                ? "bg-green-50 text-green-800"
+                : "bg-red-50 text-red-800"
             }`}
           >
             <div className="flex items-center">
               {notification.type === "success" ? (
-                <CheckCircle className="h-5 w-5 mr-2" />
+                <CheckCircle className="mr-2 h-5 w-5" />
               ) : (
-                <AlertTriangle className="h-5 w-5 mr-2" />
+                <AlertTriangle className="mr-2 h-5 w-5" />
               )}
               <span>{notification.message}</span>
             </div>
@@ -325,15 +343,18 @@ const handleInputChange = <T extends FormType>(
       </AnimatePresence>
 
       {/* Action Bar */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex flex-col md:flex-row justify-between gap-4">
+      <div className="mb-8 rounded-xl bg-white p-6 shadow-md">
+        <div className="flex flex-col justify-between gap-4 md:flex-row">
           {/* Search */}
           <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+              size={18}
+            />
             <input
               type="search"
               placeholder="Rechercher un utilisateur..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-electric-purple"
+              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -343,24 +364,28 @@ const handleInputChange = <T extends FormType>(
             {/* Role Filter */}
             <div className="relative">
               <select
-                className="appearance-none pl-4 pr-8 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-electric-purple bg-white"
+                className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-4 pr-8 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                 value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as "all" | "user" | "recruiter" | "admin")}
+                onChange={(e) =>
+                  setSelectedRole(
+                    e.target.value as "all" | "USER" | "RECRUITER" | "ADMIN",
+                  )
+                }
               >
                 <option value="all">Tous les rôles</option>
-                <option value="user">Candidats</option>
-                <option value="recruiter">Recruteurs</option>
-                <option value="admin">Admins</option>
+                <option value="USER">Candidats</option>
+                <option value="RECRUITER">Recruteurs</option>
+                <option value="ADMIN">Admins</option>
               </select>
               <Filter
                 size={16}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400"
               />
             </div>
 
-            {/* Add User Button */}
+            {/* Add USER Button */}
             <button
-              className="flex items-center gap-2 px-4 py-2 bg-electric-purple text-white rounded-lg hover:bg-electric-purple/90 transition-colors"
+              className="flex items-center gap-2 rounded-lg bg-electric-purple px-4 py-2 text-white transition-colors hover:bg-electric-purple/90"
               onClick={() => setIsAddingUser(true)}
             >
               <UserPlus size={18} />
@@ -371,49 +396,49 @@ const handleInputChange = <T extends FormType>(
       </div>
 
       {/* User Table */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="overflow-hidden rounded-xl bg-white shadow-md">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   Utilisateur
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   Email
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   Rôle
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   Activité
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {currentUsers.map((user) => (
                 <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 relative">
+                      <div className="relative h-10 w-10 flex-shrink-0">
                         {user.avatar ? (
                           <Image
                             src={user.avatar || "/placeholder.svg"}
@@ -423,40 +448,42 @@ const handleInputChange = <T extends FormType>(
                             height={40}
                           />
                         ) : (
-                          <div className="h-10 w-10 rounded-full bg-electric-purple/10 flex items-center justify-center">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-electric-purple/10">
                             <User size={20} className="text-electric-purple" />
                           </div>
                         )}
                       </div>
                       <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.username}</div>
+                        <div className="text-sm font-medium text-gray-900">
+                          {user.username}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="text-sm text-gray-500">{user.email}</div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <span
-                      className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleBadgeStyle(user.role as "admin" | "recruiter" | "user")}`}
+                      className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadgeStyle(user.role as "ADMIN" | "RECRUITER" | "USER")}`}
                     >
-                      {user.role === "user"
+                      {user.role === "USER"
                         ? "Candidat"
-                        : user.role === "recruiter"
+                        : user.role === "RECRUITER"
                           ? "Recruteur"
-                          : user.role === "admin"
-                            ? "Admin"
+                          : user.role === "ADMIN"
+                            ? "ADMIN"
                             : user.role}
                     </span>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.role === "user"
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    {user.role === "USER"
                       ? `${user.applications?.length || 0} candidature${user.applications?.length !== 1 ? "s" : ""}`
-                      : user.role === "recruiter"
+                      : user.role === "RECRUITER"
                         ? `${user.offers?.length || 0} offre${user.offers?.length !== 1 ? "s" : ""}`
                         : "Administrateur"}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         className="text-electric-purple hover:text-electric-purple/80"
@@ -464,7 +491,10 @@ const handleInputChange = <T extends FormType>(
                       >
                         <Edit size={18} />
                       </button>
-                      <button className="text-red-600 hover:text-red-800" onClick={() => setShowDeleteConfirm(user.id)}>
+                      <button
+                        className="text-red-600 hover:text-red-800"
+                        onClick={() => setShowDeleteConfirm(user.id)}
+                      >
                         <Trash2 size={18} />
                       </button>
                     </div>
@@ -477,17 +507,21 @@ const handleInputChange = <T extends FormType>(
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-3 bg-gray-50">
+          <div className="flex items-center justify-between bg-gray-50 px-6 py-3">
             <div className="text-sm text-gray-700">
-              Affichage de <span className="font-medium">{indexOfFirstItem + 1}</span> à{" "}
-              <span className="font-medium">{Math.min(indexOfLastItem, filteredUsers.length)}</span> sur{" "}
-              <span className="font-medium">{filteredUsers.length}</span> utilisateurs
+              Affichage de{" "}
+              <span className="font-medium">{indexOfFirstItem + 1}</span> à{" "}
+              <span className="font-medium">
+                {Math.min(indexOfLastItem, filteredUsers.length)}
+              </span>{" "}
+              sur <span className="font-medium">{filteredUsers.length}</span>{" "}
+              utilisateurs
             </div>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`p-1 rounded ${currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-200"}`}
+                className={`rounded p-1 ${currentPage === 1 ? "cursor-not-allowed text-gray-400" : "text-gray-700 hover:bg-gray-200"}`}
               >
                 <ChevronLeft size={20} />
               </button>
@@ -495,9 +529,11 @@ const handleInputChange = <T extends FormType>(
                 {currentPage} / {totalPages}
               </div>
               <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
-                className={`p-1 rounded ${currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-200"}`}
+                className={`rounded p-1 ${currentPage === totalPages ? "cursor-not-allowed text-gray-400" : "text-gray-700 hover:bg-gray-200"}`}
               >
                 <ChevronRight size={20} />
               </button>
@@ -513,17 +549,20 @@ const handleInputChange = <T extends FormType>(
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full"
+              className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
             >
-              <div className="flex justify-between items-center mb-4">
+              <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-bold">Ajouter un utilisateur</h2>
-                <button className="text-gray-500 hover:text-gray-700" onClick={() => setIsAddingUser(false)}>
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setIsAddingUser(false)}
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -531,14 +570,19 @@ const handleInputChange = <T extends FormType>(
               <form onSubmit={handleAddUser}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Nom d'utilisateur
+                    </label>
                     <div className="relative">
-                      <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <User
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <input
                         type="text"
                         name="username"
                         required
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={newUser.username}
                         onChange={(e) => handleInputChange(e, setNewUser)}
                       />
@@ -546,14 +590,19 @@ const handleInputChange = <T extends FormType>(
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Email
+                    </label>
                     <div className="relative">
-                      <Mail size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Mail
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <input
                         type="email"
                         name="email"
                         required
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={newUser.email}
                         onChange={(e) => handleInputChange(e, setNewUser)}
                       />
@@ -561,31 +610,41 @@ const handleInputChange = <T extends FormType>(
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Rôle
+                    </label>
                     <div className="relative">
-                      <Shield size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Shield
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <select
                         name="role"
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={newUser.role}
                         onChange={(e) => handleInputChange(e, setNewUser)}
                       >
-                        <option value="user">Candidat</option>
-                        <option value="recruiter">Recruteur</option>
-                        <option value="admin">Admin</option>
+                        <opstion value="USER">Candidat</option>
+                        <option value="RECRUITER">Recruteur</option>
+                        <option value="ADMIN">Admin</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Mot de passe
+                    </label>
                     <div className="relative">
-                      <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Lock
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <input
                         type="password"
                         name="password"
                         required
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={newUser.password}
                         onChange={(e) => handleInputChange(e, setNewUser)}
                       />
@@ -593,14 +652,19 @@ const handleInputChange = <T extends FormType>(
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Confirmer le mot de passe</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Confirmer le mot de passe
+                    </label>
                     <div className="relative">
-                      <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Lock
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <input
                         type="password"
                         name="confirmPassword"
                         required
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={newUser.confirmPassword}
                         onChange={(e) => handleInputChange(e, setNewUser)}
                       />
@@ -611,14 +675,14 @@ const handleInputChange = <T extends FormType>(
                 <div className="mt-6 flex justify-end space-x-3">
                   <button
                     type="button"
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
                     onClick={() => setIsAddingUser(false)}
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-electric-purple text-white rounded-md hover:bg-electric-purple/90"
+                    className="rounded-md bg-electric-purple px-4 py-2 text-white hover:bg-electric-purple/90"
                   >
                     Ajouter
                   </button>
@@ -636,17 +700,20 @@ const handleInputChange = <T extends FormType>(
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full"
+              className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
             >
-              <div className="flex justify-between items-center mb-4">
+              <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-xl font-bold">Modifier l'utilisateur</h2>
-                <button className="text-gray-500 hover:text-gray-700" onClick={() => setEditingUser(null)}>
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setEditingUser(null)}
+                >
                   <X size={20} />
                 </button>
               </div>
@@ -654,14 +721,19 @@ const handleInputChange = <T extends FormType>(
               <form onSubmit={handleUpdateUser}>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Nom d'utilisateur</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Nom d'utilisateur
+                    </label>
                     <div className="relative">
-                      <User size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <User
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <input
                         type="text"
                         name="username"
                         required
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={editForm.username}
                         onChange={(e) => handleInputChange(e, setEditForm)}
                       />
@@ -669,14 +741,19 @@ const handleInputChange = <T extends FormType>(
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Email
+                    </label>
                     <div className="relative">
-                      <Mail size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Mail
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <input
                         type="email"
                         name="email"
                         required
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={editForm.email}
                         onChange={(e) => handleInputChange(e, setEditForm)}
                       />
@@ -684,32 +761,40 @@ const handleInputChange = <T extends FormType>(
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
+                      Rôle
+                    </label>
                     <div className="relative">
-                      <Shield size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Shield
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <select
                         name="role"
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={editForm.role}
                         onChange={(e) => handleInputChange(e, setEditForm)}
                       >
-                        <option value="user">Candidat</option>
-                        <option value="recruiter">Recruteur</option>
-                        <option value="admin">Admin</option>
+                        <option value="USER">Candidat</option>
+                        <option value="RECRUITER">Recruteur</option>
+                        <option value="ADMIN">Admin</option>
                       </select>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className="mb-1 block text-sm font-medium text-gray-700">
                       Nouveau mot de passe (laisser vide pour ne pas changer)
                     </label>
                     <div className="relative">
-                      <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                      <Lock
+                        size={18}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                      />
                       <input
                         type="password"
                         name="password"
-                        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                        className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                         value={editForm.password}
                         onChange={(e) => handleInputChange(e, setEditForm)}
                       />
@@ -718,15 +803,18 @@ const handleInputChange = <T extends FormType>(
 
                   {editForm.password && (
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="mb-1 block text-sm font-medium text-gray-700">
                         Confirmer le nouveau mot de passe
                       </label>
                       <div className="relative">
-                        <Lock size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                        <Lock
+                          size={18}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+                        />
                         <input
                           type="password"
                           name="confirmPassword"
-                          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                          className="w-full rounded-md border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                           value={editForm.confirmPassword}
                           onChange={(e) => handleInputChange(e, setEditForm)}
                         />
@@ -738,14 +826,14 @@ const handleInputChange = <T extends FormType>(
                 <div className="mt-6 flex justify-end space-x-3">
                   <button
                     type="button"
-                    className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
                     onClick={() => setEditingUser(null)}
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-electric-purple text-white rounded-md hover:bg-electric-purple/90"
+                    className="rounded-md bg-electric-purple px-4 py-2 text-white hover:bg-electric-purple/90"
                   >
                     Mettre à jour
                   </button>
@@ -763,32 +851,35 @@ const handleInputChange = <T extends FormType>(
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full"
+              className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
             >
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                   <Trash2 size={32} className="text-red-600" />
                 </div>
-                <h2 className="text-xl font-bold mb-2">Confirmer la suppression</h2>
-                <p className="text-gray-600 text-center mb-6">
-                  Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action ne peut pas être annulée.
+                <h2 className="mb-2 text-xl font-bold">
+                  Confirmer la suppression
+                </h2>
+                <p className="mb-6 text-center text-gray-600">
+                  Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette
+                  action ne peut pas être annulée.
                 </p>
 
-                <div className="flex justify-center space-x-3 w-full">
+                <div className="flex w-full justify-center space-x-3">
                   <button
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
                     onClick={() => setShowDeleteConfirm(null)}
                   >
                     Annuler
                   </button>
                   <button
-                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    className="flex-1 rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
                     onClick={() => handleDeleteUser(showDeleteConfirm)}
                   >
                     Supprimer
@@ -800,8 +891,7 @@ const handleInputChange = <T extends FormType>(
         )}
       </AnimatePresence>
     </div>
-  )
-}
+  );
+};
 
-export default UserManagement
-
+export default UserManagement;

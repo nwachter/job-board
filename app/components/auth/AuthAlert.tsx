@@ -23,7 +23,7 @@ type AuthAlertProps = {
 const AuthAlert: React.FC<AuthAlertProps> = ({ type, message }) => {
   if (!type || !message) return null;
 
-  const style = alertStyles[type] || alertStyles.danger; // Default to danger
+  const style = alertStyles[type] || alertStyles.danger;
   const title = alertTitles[type] || alertTitles.danger;
 
   return (

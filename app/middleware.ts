@@ -122,7 +122,7 @@ function handleAuthenticatedUser(req: NextRequest, userInfoString: string) {
       : userInfo.role === role;
 
   if (path.startsWith("/admin")) {
-    if (hasRole("admin")) {
+    if (hasRole("ADMIN")) {
       return NextResponse.next();
     }
 
@@ -132,7 +132,7 @@ function handleAuthenticatedUser(req: NextRequest, userInfoString: string) {
 
 
   // Check if the path is /client and if the user has 'admin' role
-  if (path.startsWith("/admin") && !hasRole("admin")) {
+  if (path.startsWith("/admin") && !hasRole("ADMIN")) {
     return NextResponse.redirect(new URL("/sign", req.url));
   }
 

@@ -19,9 +19,19 @@ import { Role } from "../types/user";
 const Dashboard = () => {
   const [role, setRole] = useState(Role.USER);
   // const [offersData, setOffersData] = useState<Offer[]>([]);
-  const { data: userInfo, isLoading: isLoadingUserInfo, isError: isErrorUserInfo, error: errorUserInfo } = useGetUserInfo();
+  const {
+    data: userInfo,
+    isLoading: isLoadingUserInfo,
+    isError: isErrorUserInfo,
+    error: errorUserInfo,
+  } = useGetUserInfo();
 
-    const { data: locations, isLoading: isLoadingLocations, error: errorLocations, isError: isErrorLocations } = useGetLocations();
+  const {
+    data: locations,
+    isLoading: isLoadingLocations,
+    error: errorLocations,
+    isError: isErrorLocations,
+  } = useGetLocations();
   const {
     data: offersData,
     isLoading: isLoadingOffers,
@@ -39,7 +49,7 @@ const Dashboard = () => {
     offers?.reduce(
       (acc: number, offer: Offer) =>
         acc + (offer?.applications ? offer?.applications.length : 0),
-      0
+      0,
     ) || 0;
 
   useEffect(() => {
@@ -57,11 +67,17 @@ const Dashboard = () => {
           isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
           isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
           error={errorLocations ?? errorOffers ?? errorUserInfo}
+          userId={userInfo?.id ?? 0}
         />
       ) : (
-        <UserDashboard offers={offers ?? []} contractTypes={contractTypes} locations={locations ?? []}           isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
-        isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
-        error={errorLocations ?? errorOffers ?? errorUserInfo} />
+        <UserDashboard
+          offers={offers ?? []}
+          contractTypes={contractTypes}
+          locations={locations ?? []}
+          isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
+          isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
+          error={errorLocations ?? errorOffers ?? errorUserInfo}
+        />
       )}
     </div>
   );

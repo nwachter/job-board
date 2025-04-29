@@ -93,7 +93,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({ onToggleMode }) => {
             email: inputs.email,
             password: inputs.password,
             username: inputs.username,
-            role: "user" // Default role
+            role: "USER" // Default role
         };
 
         try {

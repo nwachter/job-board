@@ -4,101 +4,6 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-// generator client {
-//   provider = "prisma-client-js"
-// }
-
-// datasource db {
-//   provider = "mysql"
-//   url      = env("DATABASE_URL")
-// }
-
-// enum Role {
-//   ADMIN
-//   RECRUITER
-//   USER
-// }
-
-// enum Status {
-//   PENDING
-//   ACCEPTED
-//   REJECTED
-// }
-
-
-// model User {
-//   id          Int     @id @default(autoincrement())
-//   username    String
-//   email       String  @unique
-//   password    String
-//   role        String  @default("user") 
-//   avatar      String?
-
-//   // Normal Users 
-//   applications Application[]
-
-//   // Recruiters
-//   offers Offer[] @relation("RecruiterOffers")
-// }
-
-// model Offer {
-//   id            Int      @id @default(autoincrement())
-//   title         String
-//   description   String
-//   company_name  String
-//   salary        Int
-//   location      Location @relation(fields: [location_id], references: [id])
-//   location_id   Int
-//   contract_type String
-//   recruiter         User     @relation("RecruiterOffers", fields: [recruiter_id], references: [id])
-//   recruiter_id      Int
-//    skills        SkillOnOffer[]
-
-
-//   applications  Application[]
-// }
-
-// model Application {
-//   id         Int     @id @default(autoincrement())
-//   content    String
-//   firstname  String
-//   lastname   String
-//   email      String
-//   offer      Offer   @relation(fields: [offer_id], references: [id])
-//   offer_id   Int
-//   user       User    @relation(fields: [user_id], references: [id])
-//   user_id    Int
-//   cv         String
-//   status     Status  @default(PENDING)
-//   feedback   String?
-// }
-
-// model Location {
-//   id   Int    @id @default(autoincrement())
-//   city String
-//   country String @default("France")
-//   offers Offer[]
-// }
-
-// model Skill {
-//   id      Int            @id @default(autoincrement())
-//   name    String         @unique
-//   offers  SkillOnOffer[]
-// }
-
-// // Join table for many-to-many relationship between Offer and Skill
-// model SkillOnOffer {
-//   skill     Skill  @relation(fields: [skill_id], references: [id])
-//   skill_id  Int
-//   offer     Offer  @relation(fields: [offer_id], references: [id])
-//   offer_id  Int
-
-//   @@id([skill_id, offer_id])
-// }
-
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -127,24 +32,29 @@ model User {
   password    String
   role        Role     @default(USER)
   avatar      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
   
   applications Application[]
   offers       Offer[]       @relation("RecruiterOffers")
-  skills       UserSkill[]
+  skills       Skill[]       @relation("UserSkills")
 }
 
 model Offer {
   id            Int          @id @default(autoincrement())
   title         String
-  description   String
+  description   String       @db.Text
   company_name  String
   salary        Int
-  location      Location     @relation(fields: [location_id], references: [id])
+  location      Location     @relation(fields: [location_id], references: [id], onDelete: Cascade)
   location_id   Int
   contract_type String
   recruiter     User         @relation("RecruiterOffers", fields: [recruiter_id], references: [id])
   recruiter_id  Int
-  skills        OfferSkill[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  skills        Skill[]      @relation("OfferSkills")
   applications  Application[]
   
   @@index([location_id])
@@ -153,55 +63,40 @@ model Offer {
 
 model Application {
   id         Int       @id @default(autoincrement())
-  content    String
+  content    String    @db.Text
   firstname  String
   lastname   String
   email      String
-  offer      Offer     @relation(fields: [offer_id], references: [id])
+  offer      Offer     @relation(fields: [offer_id], references: [id], onDelete: Cascade)
   offer_id   Int
-  user       User      @relation(fields: [user_id], references: [id])
+  user       User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id    Int
   cv         String
   status     Status    @default(PENDING)
-  feedback   String?
+  feedback   String?   @db.Text
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
   
   @@index([offer_id])
   @@index([user_id])
 }
 
 model Location {
-  id      Int     @id @default(autoincrement())
-  city    String
-  country String  @default("France")
-  offers  Offer[]
+  id          Int       @id @default(autoincrement())
+  city        String
+  country     String    @default("France")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  offers      Offer[]
 }
 
 model Skill {
-  id          Int         @id @default(autoincrement())
-  name        String      @unique
-  userSkills  UserSkill[]
-  offerSkills OfferSkill[]
-}
-
-model UserSkill {
-  user     User   @relation(fields: [user_id], references: [id])
-  user_id  Int
-  skill    Skill  @relation(fields: [skill_id], references: [id])
-  skill_id Int
+  id         Int       @id @default(autoincrement())
+  name       String    @unique
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
   
-  @@id([user_id, skill_id])
+  users      User[]    @relation("UserSkills")
+  offers     Offer[]   @relation("OfferSkills")
 }
-
-model OfferSkill {
-  offer    Offer  @relation(fields: [offer_id], references: [id])
-  offer_id Int
-  skill    Skill  @relation(fields: [skill_id], references: [id])
-  skill_id Int
-  
-  @@id([offer_id, skill_id])
-}
-
-//migration :  npx prisma migrate dev --name nom_de_migration
-// npx prisma studio (localhost:5555)
-// npx prisma generate //genere le client
-

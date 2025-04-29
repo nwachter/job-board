@@ -139,7 +139,7 @@
 //             email,
 //             password,
 //             username,
-//             role: "user"
+//             role: "USER"
 //         }
 
 //         if (password !== password_confirmation && isSignUp === true) {

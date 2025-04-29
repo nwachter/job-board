@@ -104,9 +104,12 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
       // Create a preview URL
       const reader = new FileReader()
       reader.onload = () => {
+        let updatedAvatarPreview = avatarPreview;
         if (typeof reader.result === 'string') {
-          setAvatarPreview(reader.result)
+          updatedAvatarPreview = reader.result;
+       
         }
+        setAvatarPreview(updatedAvatarPreview)
       }
       reader.readAsDataURL(file)
     }

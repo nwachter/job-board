@@ -1,0 +1,139 @@
+import { NextResponse } from "next/server";
+import { PrismaClient } from "@prisma/client";
+import { format } from "date-fns";
+
+// Define the expected status values from your schema
+type ApplicationStatus = "PENDING" | "ACCEPTED" | "REJECTED";
+
+interface ChartDataPoint {
+  date: string;
+  [status: string]: string | number;
+}
+
+const prisma = new PrismaClient();
+
+export async function GET(
+  _request: Request,
+  { params }: { params: { recruiter_id: string } },
+) {
+  try {
+    const recruiterId = parseInt(params.recruiter_id, 10);
+
+    if (isNaN(recruiterId)) {
+      return NextResponse.json(
+        { error: "Invalid recruiter ID" },
+        { status: 400 },
+      );
+    }
+
+    // Get all applications for offers posted by this recruiter
+    const applications = await prisma.application.findMany({
+      where: {
+        offer: {
+          recruiter_id: recruiterId,
+        },
+      },
+      include: {
+        offer: {
+          include: {
+            location: true,
+          },
+        },
+        user: true,
+      },
+      orderBy: {
+        createdAt: "asc", // Order by ascending to process chronologically
+      },
+    });
+
+    if (!applications || applications.length === 0) {
+      return NextResponse.json(
+        {
+          message: "No applications found",
+          data: [],
+          chartData: [],
+        },
+        { status: 200 },
+      ); // Return empty arrays instead of 404
+    }
+
+    // Process applications for chart data
+    const chartData = getRecruiterApplicationsStatisticsForChart(applications);
+
+    return NextResponse.json(
+      {
+        message: "Applications retrieved successfully",
+        data: applications,
+        chartData: chartData,
+      },
+      { status: 200 },
+    );
+  } catch (error) {
+    console.error("Error retrieving applications:", error);
+    return NextResponse.json(
+      { error: "Failed to retrieve applications" },
+      { status: 500 },
+    );
+  } finally {
+    await prisma.$disconnect(); // Always disconnect prisma client
+  }
+}
+
+function getRecruiterApplicationsStatisticsForChart(
+  applications: any[],
+): ChartDataPoint[] {
+  // Get all unique statuses from the applications
+  const allStatuses = new Set<string>();
+  applications.forEach((app) => {
+    if (app.status) {
+      allStatuses.add(app.status);
+    }
+  });
+  const statusArray = Array.from(allStatuses);
+
+  // Create a map to store applications by date
+  const dataByDate = new Map<string, ChartDataPoint>();
+
+  // Initialize counts for each date with all possible statuses
+  applications.forEach((app) => {
+    const date = format(new Date(app.createdAt), "yyyy-MM-dd");
+
+    if (!dataByDate.has(date)) {
+      // Create an initial object with the date and all statuses set to 0
+      const initialData: ChartDataPoint = { date };
+      statusArray.forEach((status) => {
+        initialData[status] = 0;
+      });
+      dataByDate.set(date, initialData);
+    }
+
+    // Increment the count for the appropriate status
+    const currentData = dataByDate.get(date)!;
+    if (app.status && typeof currentData[app.status] === "number") {
+      currentData[app.status] = (currentData[app.status] as number) + 1;
+    }
+  });
+
+  // Convert map to array and sort by date
+  const chartData = Array.from(dataByDate.values()).sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+  );
+
+  // Calculate cumulative values
+  const cumulativeCounts: Record<string, number> = {};
+  statusArray.forEach((status) => {
+    cumulativeCounts[status] = 0;
+  });
+
+  return chartData.map((dayData) => {
+    const result: ChartDataPoint = { date: dayData.date };
+
+    // Add current day's values to cumulative counts for each status
+    statusArray.forEach((status) => {
+      cumulativeCounts[status] += (dayData[status] as number) || 0;
+      result[status] = cumulativeCounts[status];
+    });
+
+    return result;
+  });
+}

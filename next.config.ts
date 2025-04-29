@@ -5,7 +5,7 @@ import path from "path";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['i.ibb.co'],
+    domains: ['i.ibb.co', 'jardinage.lemonde.fr'],
   },
   // webpack: (config) => {
   //   config.resolve.alias = {
