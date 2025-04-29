@@ -38,6 +38,7 @@ export const Stats8 = ({
       label: "annual savings per enterprise partner",
     },
   ],
+
   userId,
 }: Stats8Props) => {
   const [animatedStats, setAnimatedStats] = useState(
@@ -71,6 +72,17 @@ export const Stats8 = ({
       }, 30);
     });
   }, [stats]);
+
+  const quadriStat = {
+    values: [3, 10, 2, 7, 5],
+    contents: [
+      "applications in the last week",
+      "total offers created",
+      "accepted applications",
+      "refused applications",
+      "feedback offered to applicants",
+    ],
+  };
   return (
     <section className="backf=drop-blur-md mb-6 rounded-[70px] bg-white/50 px-10 py-16 font-dm-sans shadow-xl shadow-eggplant/15">
       <div className="container">
