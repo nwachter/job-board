@@ -48,13 +48,13 @@ export const getApplicationById = async (id: number) => {
   }
 };
 
-export const getApplicationsByRecruiterId = async (recruiterId: number) => {
+export const getApplicationsByUserId = async (userId: number) => {
   try {
-    const response = await api.get(`/applications/by-recruiter/${recruiterId}`);
+    const response = await api.get(`/applications/by-user/${userId}`);
     return response.data;
   } catch (error) {
     console.error(
-      `Échec de la récupération de la candidature avec l'recruiterId #${recruiterId} :`,
+      `Échec de la récupération de la candidature de l'utilisateur #${userId} :`,
       error,
     );
     throw error;
@@ -115,7 +115,7 @@ export const getRecruiterApplicationsStatisticsForChart = async (
 ): Promise<{ chartData: ChartDataPoint[]; data: Application[] }> => {
   try {
     const response = await api.get(
-      `/applications/by-recruiter/${recruiterId}/chart`,
+      `/applications/by-user/${recruiterId}/chart`,
     );
     return response.data;
   } catch (error) {

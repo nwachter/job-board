@@ -5,22 +5,22 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: Request,
-  { params }: { params: { recruiter_id: string } },
+  { params }: { params: { user_id: string } },
 ) {
+  const { user_id } = await params;
   try {
-    const { recruiter_id } = await params;
-    // const applicationId = parseInt(params.recruiter_id, 10);
+    // const applicationId = parseInt(params.user_id, 10);
 
-    if (isNaN(Number(recruiter_id))) {
+    if (isNaN(Number(user_id))) {
       return NextResponse.json(
-        { error: "ID de candidature invalide" },
+        { error: "ID de l'utilisateur invalide" },
         { status: 400 },
       );
     }
 
     const application = await prisma.application.findMany({
       where: {
-        id: Number(recruiter_id),
+        user_id: Number(user_id),
       },
       include: {
         user: true,
@@ -31,7 +31,7 @@ export async function GET(
     return NextResponse.json(application);
   } catch (error) {
     return NextResponse.json({
-      error: "Erreur lors de la recherche de la candidature...",
+      error: `Erreur lors de la recherche des candidatures de l'user # ${user_id}`,
       status: 500,
     });
   }

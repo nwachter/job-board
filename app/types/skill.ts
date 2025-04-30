@@ -1,9 +1,11 @@
 import { Offer } from "./offer";
+import { User } from "./user";
 
-export type Location = {
+export type Skill = {
   id: number;
-  country: string;
-  city: string;
+  name: string;
+  level: number;
+  users?: User[];
   offers?: Offer[];
   createdAt?: Date;
   updatedAt?: Date;

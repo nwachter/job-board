@@ -5,7 +5,7 @@
 //   return <JobBoardLanding />;
 // }
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 import RecruiterDashboard from "../components/dashboard/RecruiterDashboard";
 import UserDashboard from "../components/dashboard/UserDashboard";
@@ -15,6 +15,8 @@ import { useGetUserInfo } from "../hooks/useUserInfo";
 import { Offer } from "../types/offer";
 import { useGetLocations } from "../hooks/useLocations";
 import { Role } from "../types/user";
+import { useGetApplications } from "../hooks/useApplication";
+import { Application } from "../types/application";
 
 const Dashboard = () => {
   const [role, setRole] = useState(Role.USER);
@@ -39,14 +41,46 @@ const Dashboard = () => {
     error: errorOffers,
   } = useGetOffers();
 
-  const offers = offersData ?? [];
+  const {
+    data: applications,
+    isLoading: isLoadingApplications,
+    isError: isErrorApplications,
+    error: errorApplications,
+  } = useGetApplications();
+
+  const filteredApplications = useMemo(() => {
+    if (userInfo?.role === Role.USER) {
+      return applications?.filter(
+        (application) => application.user_id === userInfo?.id,
+      );
+    } else {
+      const recruiterApplications: Application[] = offersData
+        ?.filter((offer) => offer.recruiter_id === userInfo?.id)
+        .flatMap((offer) => offer.applications ?? [])
+        .filter((application) => application !== undefined) as Application[];
+      return recruiterApplications;
+    }
+  }, [applications]);
+
+  const filteredOffers = useMemo(() => {
+    if (userInfo?.role === Role.RECRUITER) {
+      return offersData?.filter((offer) => offer.recruiter_id === userInfo?.id);
+    } else {
+      return offersData;
+    }
+  }, [offersData]);
+
+  //For users
+
   const contractTypes: string[] =
-    offers?.length > 0
-      ? Array.from(new Set(offers.map((offer: Offer) => offer.contract_type)))
+    offersData && offersData?.length > 0
+      ? Array.from(
+          new Set(offersData.map((offer: Offer) => offer.contract_type)),
+        )
       : [];
 
   const applicationsNumber: number =
-    offers?.reduce(
+    offersData?.reduce(
       (acc: number, offer: Offer) =>
         acc + (offer?.applications ? offer?.applications.length : 0),
       0,
@@ -60,7 +94,8 @@ const Dashboard = () => {
     <div className="h-full w-full">
       {role === Role.RECRUITER ? (
         <RecruiterDashboard
-          offers={offers ?? []}
+          offers={filteredOffers ?? []}
+          applications={filteredApplications ?? []}
           contractTypes={contractTypes}
           applicationsNumber={applicationsNumber}
           locations={locations ?? []}
@@ -71,7 +106,8 @@ const Dashboard = () => {
         />
       ) : (
         <UserDashboard
-          offers={offers ?? []}
+          offers={filteredOffers ?? []}
+          applications={filteredApplications ?? []}
           contractTypes={contractTypes}
           locations={locations ?? []}
           isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}

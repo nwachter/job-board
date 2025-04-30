@@ -17,9 +17,11 @@ import { Location } from "@/app/types/location";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
+import { Application } from "@/app/types/application";
 
 type UserDashboardProps = {
   offers: Offer[];
+  applications: Application[];
   contractTypes: string[];
   locations: Location[];
   isLoading: boolean;
@@ -28,6 +30,7 @@ type UserDashboardProps = {
 };
 const UserDashboard: React.FC<UserDashboardProps> = ({
   offers,
+  applications,
   contractTypes,
   locations,
   isLoading,

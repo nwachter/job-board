@@ -20,7 +20,7 @@ import {
   updateApplication,
   searchApplications,
   deleteApplication,
-  getApplicationsByRecruiterId,
+  getApplicationsByUserId,
   getRecruiterApplicationsStatisticsForChart,
   ChartDataPoint,
 } from "../services";
@@ -69,13 +69,13 @@ export const useGetApplicationById = (
   });
 };
 
-export const useGetApplicationsByRecruiterId = (
-  recruiterId: number,
+export const useGetApplicationsByUserId = (
+  userId: number,
 ): UseQueryResult<Application[]> => {
   return useQuery<Application[], Error>({
-    queryKey: ["useGetApplicationsByRecruiterId", recruiterId],
-    queryFn: () => getApplicationsByRecruiterId(recruiterId),
-    enabled: !!recruiterId,
+    queryKey: ["getApplicationsByUserId", userId],
+    queryFn: () => getApplicationsByUserId(userId),
+    enabled: !!userId,
   });
 };
 

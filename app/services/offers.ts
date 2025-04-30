@@ -21,7 +21,6 @@ const api = axios.create({
 //   return Promise.reject(error);
 // });
 
-
 export const getOffers = async () => {
   try {
     const response = await api.get("/offers");
@@ -32,8 +31,7 @@ export const getOffers = async () => {
   }
 };
 
-
-export const getOffersByRecruiterId = async (recruiter_id : number) => {
+export const getOffersByUserId = async (recruiter_id: number) => {
   try {
     const response = await api.get(`/offers/by-admin/${recruiter_id}`);
     return response.data;
@@ -43,8 +41,7 @@ export const getOffersByRecruiterId = async (recruiter_id : number) => {
   }
 };
 
-
-export const getOfferById = async (id : number) => {
+export const getOfferById = async (id: number) => {
   try {
     const response = await api.get(`/offers/${id}`);
     return response.data;
@@ -54,31 +51,39 @@ export const getOfferById = async (id : number) => {
   }
 };
 
-export const searchOffers = async (searchQuery: string, contractType?: string, locationId?: number) => {
+export const searchOffers = async (
+  searchQuery: string,
+  contractType?: string,
+  locationId?: number,
+) => {
   try {
-    const response = await api.post("/offers/search", { searchQuery, contractType, locationId });
+    const response = await api.post("/offers/search", {
+      searchQuery,
+      contractType,
+      locationId,
+    });
     return response.data;
   } catch (error) {
     console.error("Échec de la recherche des offres :", error);
     throw error;
   }
-}
+};
 
-export const createOffer = async (data : Omit<Offer, "id">) => {
+export const createOffer = async (data: Omit<Offer, "id">) => {
   try {
-
     const response = await api.post("/offers", data);
     return response.data;
-    
   } catch (error) {
     console.error("Failed to create offer:", error);
     throw error;
   }
 };
 
-export const updateOffer = async (id: number, data: Partial<Offer>
-  // Omit<Offer, "id"> 
-  ) => {
+export const updateOffer = async (
+  id: number,
+  data: Partial<Offer>,
+  // Omit<Offer, "id">
+) => {
   try {
     const response = await api.patch(`/offers/${id}`, data); //Attention, avant : put
     return response.data;
@@ -88,9 +93,7 @@ export const updateOffer = async (id: number, data: Partial<Offer>
   }
 };
 
-
-
-export const deleteOffer = async (id : number) => {
+export const deleteOffer = async (id: number) => {
   try {
     const response = await api.delete(`/offers/${id}`);
     return response.data;

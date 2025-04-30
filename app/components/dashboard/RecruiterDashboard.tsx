@@ -9,9 +9,11 @@ import { Stats8 } from "../general/StatsCards";
 import { Location } from "@/app/types/location";
 // import {useGetApplications} = '@/app/hooks/useApplications';
 import { Application } from "@/app/types/application";
+import { RecentApplications } from "../general/RecentApplications";
 
 type RecruiterDashboardProps = {
   offers: Offer[];
+  applications: Application[];
   contractTypes: string[];
   applicationsNumber: number;
   locations: Location[];
@@ -29,6 +31,7 @@ type DashboardStats = {
 
 const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
   offers,
+  applications,
   contractTypes,
   applicationsNumber,
   locations,
@@ -179,14 +182,19 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
 
           {<Stats8 stats={stats} userId={userId} />}
           {/* Job Cards Grid */}
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {offersList?.map((offer) => (
-              <JobCard
-                key={`offer-${offer.id}`}
-                offer={offer}
-                router={router}
-              />
-            ))}
+          <div className="flex items-center justify-center gap-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {offersList?.map((offer) => (
+                <JobCard
+                  key={`offer-${offer.id}`}
+                  offer={offer}
+                  router={router}
+                />
+              ))}
+            </div>
+            <div>
+              <RecentApplications applications={applications ?? []} />
+            </div>
           </div>
         </div>
       </main>
