@@ -4,7 +4,7 @@ import { User } from "./user";
 export type Skill = {
   id: number;
   name: string;
-  level: number;
+  level?: number;
   users?: User[];
   offers?: Offer[];
   createdAt?: Date;

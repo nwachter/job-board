@@ -36,8 +36,6 @@ import { getOfferById, getUserInfo } from "../services";
 //     return { data: userInfo, isLoading: isLoading, error: error };
 // }
 
-
-
 // export const getToken = () => {
 //     const token = localStorage.getItem('token');
 //     if(token) {
@@ -47,14 +45,21 @@ import { getOfferById, getUserInfo } from "../services";
 //     }
 // }
 
-export const useGetUserInfo = (): UseQueryResult<Omit<User, "password"> | null> => {
-    return useQuery<Omit<User, "password"> | null>({
-      queryKey: ["getUserInfo"],
-      queryFn: getUserInfo,
-    });
-  };
+export const useGetUserInfo = (): UseQueryResult<Omit<
+  User,
+  "password"
+> | null> => {
+  return useQuery<Omit<User, "password"> | null>({
+    queryKey: ["getUserInfo"],
+    queryFn: getUserInfo,
+    refetchIntervalInBackground: true,
+    refetchInterval(query) {
+      return 10000;
+    },
+  });
+};
 
-  /*
+/*
 
       id: number;
     username: string;

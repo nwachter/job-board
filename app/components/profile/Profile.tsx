@@ -759,6 +759,7 @@ import { Role, User as UserType } from "@/app/types/user";
 import { motion } from "framer-motion";
 import UserSkillsSelector from "@/app/components/general/SkillSelector";
 import { Skill } from "@/app/types/skill";
+import { useGetSkills } from "@/app/hooks/useSkills";
 
 // Types
 type ProfileProps = {
@@ -772,6 +773,11 @@ const fadeIn = {
 };
 
 export const Profile: React.FC<ProfileProps> = ({ user }) => {
+  const {
+    data: skills = [],
+    isLoading: isLoadingSkills,
+    error: errorSkills,
+  } = useGetSkills();
   // States for form data
   const [firstname, setFirstname] = useState(
     user?.username.split(" ")[0] || "",
@@ -1098,9 +1104,10 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
                     <UserSkillsSelector
                       userSkills={userSkills}
                       onSkillsChange={handleSkillsChange}
-                      className={
-                        !isEditing ? "pointer-events-none opacity-80" : ""
-                      }
+                      allSkills={skills}
+                      // className={
+                      //   !isEditing ? "pointer-events-none opacity-80" : ""
+                      // }
                     />
                   </div>
 

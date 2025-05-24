@@ -81,6 +81,7 @@ export const useLogin = (): UseMutationResult<any, Error, LoginUser> => {
       }
 
       queryClient.invalidateQueries({ queryKey: ["login"] });
+      queryClient.invalidateQueries({ queryKey: ["getUserInfo"] });
     },
     onError: (error: Error) => {},
   });
@@ -98,6 +99,7 @@ export const useLogout = (
     },
     onSuccess: async () => {
       queryClient.clear();
+      queryClient.invalidateQueries({ queryKey: ["getUserInfo"] });
       localStorage.removeItem("jobboard_user_info");
       localStorage.removeItem("token");
     },

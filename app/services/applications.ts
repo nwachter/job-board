@@ -115,7 +115,7 @@ export const getRecruiterApplicationsStatisticsForChart = async (
 ): Promise<{ chartData: ChartDataPoint[]; data: Application[] }> => {
   try {
     const response = await api.get(
-      `/applications/by-user/${recruiterId}/chart`,
+      `/applications/by-recruiter/${recruiterId}/chart`,
     );
     return response.data;
   } catch (error) {

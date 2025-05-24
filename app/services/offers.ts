@@ -31,12 +31,15 @@ export const getOffers = async () => {
   }
 };
 
-export const getOffersByUserId = async (recruiter_id: number) => {
+export const getOffersByRecruiterId = async (recruiterId: number) => {
   try {
-    const response = await api.get(`/offers/by-admin/${recruiter_id}`);
+    const response = await api.get(`/offers/by-recruiter/${recruiterId}`);
     return response.data;
   } catch (error) {
-    console.error(`Failed to fetch offers of admin #${recruiter_id}:`, error);
+    console.error(
+      `Failed to fetch offers of recruiter #${recruiterId}:`,
+      error,
+    );
     throw error;
   }
 };
@@ -44,7 +47,7 @@ export const getOffersByUserId = async (recruiter_id: number) => {
 export const getOfferById = async (id: number) => {
   try {
     const response = await api.get(`/offers/${id}`);
-    return response.data;
+    return response.data.data;
   } catch (error) {
     console.error("Failed to fetch offer by id:", error);
     throw error;

@@ -1,11 +1,10 @@
 import type { NextConfig } from "next";
 import path from "path";
 
-
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['i.ibb.co', 'jardinage.lemonde.fr'],
+    domains: ["i.ibb.co", "jardinage.lemonde.fr", "i.pravatar.cc"],
   },
   // webpack: (config) => {
   //   config.resolve.alias = {

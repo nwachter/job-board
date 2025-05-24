@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Search, Plus, X, Check, Star } from "lucide-react";
 import { Skill } from "@/app/types/skill";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,12 +9,14 @@ type UserSkillsSelectorProps = {
   userSkills: Skill[];
   onSkillsChange: (skills: Skill[]) => void;
   className?: string;
+  allSkills: Skill[];
 };
 
 export default function UserSkillsSelector({
   userSkills = [],
   onSkillsChange,
   className = "",
+  allSkills = [],
 }: UserSkillsSelectorProps) {
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>(userSkills);
   const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
@@ -24,34 +26,9 @@ export default function UserSkillsSelector({
   const [newSkillLevel, setNewSkillLevel] = useState(3);
   const [filteredSkills, setFilteredSkills] = useState<Skill[]>([]);
 
-  // Mock data for available skills
   useEffect(() => {
-    // In a real app, this would be an API call
-    const mockSkills: Skill[] = [
-      { id: 1, name: "React", level: 1 },
-      { id: 2, name: "Node.js", level: 1 },
-      { id: 3, name: "Python", level: 1 },
-      { id: 4, name: "SQL", level: 1 },
-      { id: 5, name: "TypeScript", level: 1 },
-      { id: 6, name: "Team Management", level: 1 },
-      { id: 7, name: "React Native", level: 1 },
-      { id: 8, name: "Swift", level: 1 },
-      { id: 9, name: "Kotlin", level: 1 },
-      { id: 10, name: "Java", level: 1 },
-      { id: 11, name: "C#", level: 1 },
-      { id: 12, name: "PHP", level: 1 },
-      { id: 13, name: "Ruby", level: 1 },
-      { id: 14, name: "Go", level: 1 },
-      { id: 15, name: "Docker", level: 1 },
-      { id: 16, name: "AWS", level: 1 },
-      { id: 17, name: "Azure", level: 1 },
-      { id: 18, name: "GCP", level: 1 },
-      { id: 19, name: "Git", level: 1 },
-      { id: 20, name: "Agile", level: 1 },
-    ];
-
     // Filter out skills that are already selected
-    const filteredAvailableSkills = mockSkills.filter(
+    const filteredAvailableSkills = allSkills.filter(
       (skill) => !selectedSkills.some((selected) => selected.id === skill.id),
     );
 
@@ -126,24 +103,14 @@ export default function UserSkillsSelector({
 
   return (
     <div className={`space-y-4 ${className}`}>
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-medium text-gray-800">Compétences</h3>
-        <button
-          onClick={() => setShowSkillModal(true)}
-          className="flex items-center gap-1 rounded-lg bg-electric-purple px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-purple-700"
-        >
-          <Plus size={16} />
-          Ajouter
-        </button>
-      </div>
-
       {/* Selected Skills */}
-      <div className="space-y-3">
+      <div className="flex items-center gap-3">
         {selectedSkills.length === 0 ? (
           <div className="rounded-lg border-2 border-dashed border-gray-200 p-6 text-center">
             <p className="text-gray-500">Aucune compétence sélectionnée</p>
             <button
               onClick={() => setShowSkillModal(true)}
+              type="button"
               className="mt-2 text-sm text-electric-purple hover:underline"
             >
               Ajouter des compétences
@@ -153,30 +120,35 @@ export default function UserSkillsSelector({
           selectedSkills.map((skill) => (
             <div
               key={skill.id}
-              className="flex items-center justify-between rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-all hover:shadow-md"
+              className="flex w-fit items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-all hover:shadow-md"
             >
               <div className="flex items-center">
-                <span className="font-medium text-gray-800">{skill.name}</span>
+                <span className="font-base text-[13px] text-eggplant/60">
+                  {skill.name}
+                </span>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((level) => (
-                    <button
-                      key={level}
-                      onClick={() => updateSkillLevel(skill.id, level)}
-                      className={`h-6 w-6 ${level <= skill.level ? "text-electric-purple" : "text-gray-300"} hover:text-electric-purple`}
-                    >
-                      <Star
-                        size={16}
-                        fill={level <= skill.level ? "currentColor" : "none"}
-                      />
-                    </button>
-                  ))}
+                <div className="flex items-center gap-[3px]">
+                  {skill.level !== undefined &&
+                    [1, 2, 3, 4, 5].map((level) => (
+                      <button
+                        key={level}
+                        type="button"
+                        onClick={() => updateSkillLevel(skill.id, level)}
+                        className={`h-fit w-fit ${level <= skill.level! ? "text-electric-purple" : "text-gray-300"} hover:text-electric-purple`}
+                      >
+                        <Star
+                          size={16}
+                          fill={level <= skill.level! ? "currentColor" : "none"}
+                        />
+                      </button>
+                    ))}
                 </div>
 
                 <button
                   onClick={() => removeSkill(skill.id)}
+                  type="button"
                   className="ml-2 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                 >
                   <X size={16} />
@@ -202,6 +174,7 @@ export default function UserSkillsSelector({
                   Ajouter une compétence
                 </h3>
                 <button
+                  type="button"
                   onClick={() => setShowSkillModal(false)}
                   className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                 >
@@ -229,6 +202,7 @@ export default function UserSkillsSelector({
                   <div className="divide-y divide-gray-100">
                     {filteredSkills.map((skill) => (
                       <button
+                        type="button"
                         key={skill.id}
                         onClick={() => addSkill(skill)}
                         className="flex w-full items-center justify-between px-4 py-2 text-left hover:bg-purple-50"
@@ -269,6 +243,7 @@ export default function UserSkillsSelector({
                     <div className="flex">
                       {[1, 2, 3, 4, 5].map((level) => (
                         <button
+                          type="button"
                           key={level}
                           onClick={() => setNewSkillLevel(level)}
                           className={`h-8 w-8 ${level <= newSkillLevel ? "text-electric-purple" : "text-gray-300"} hover:text-electric-purple`}
@@ -295,15 +270,266 @@ export default function UserSkillsSelector({
 
               <div className="mt-6 flex justify-end gap-3">
                 <button
+                  type="button"
                   onClick={() => setShowSkillModal(false)}
                   className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
                 >
                   Annuler
                 </button>
                 <button
+                  type="button"
                   onClick={addCustomSkill}
                   disabled={!newSkillName.trim()}
                   className="flex items-center gap-1 rounded-lg bg-electric-purple px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700 disabled:bg-purple-300"
+                >
+                  <Check size={16} />
+                  Ajouter
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+type OfferSkillsSelectorProps = {
+  onSkillsChange: (skills: Omit<Skill, "id">[]) => void;
+  className?: string;
+  existingSkills?: Skill[];
+  selectedSkills: { name: string }[];
+  setSelectedSkills: Dispatch<SetStateAction<Omit<Skill, "id">[]>>;
+};
+
+export function OfferSkillsSelector({
+  onSkillsChange,
+  className = "",
+  existingSkills = [],
+  selectedSkills,
+  setSelectedSkills,
+}: OfferSkillsSelectorProps) {
+  // const [selectedSkills, setSelectedSkills] = useState<Omit<Skill, "id">[]>([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showSkillModal, setShowSkillModal] = useState(false);
+  const [newSkillName, setNewSkillName] = useState("");
+  const [filteredSkills, setFilteredSkills] = useState<Skill[]>([]);
+
+  useEffect(() => {
+    // Filter existing skills based on what's already selected
+    const filteredExistingSkills = existingSkills.filter(
+      (skill) =>
+        !selectedSkills.some((selected) => selected.name === skill.name),
+    );
+
+    setFilteredSkills(filteredExistingSkills);
+  }, [selectedSkills, existingSkills]);
+
+  // Filter available skills based on search term
+  useEffect(() => {
+    if (!searchTerm.trim()) {
+      setFilteredSkills(
+        existingSkills.filter(
+          (skill) =>
+            !selectedSkills.some((selected) => selected.name === skill.name),
+        ),
+      );
+      return;
+    }
+
+    const term = searchTerm.toLowerCase();
+    const filtered = existingSkills.filter(
+      (skill) =>
+        skill.name.toLowerCase().includes(term) &&
+        !selectedSkills.some((selected) => selected.name === skill.name),
+    );
+
+    setFilteredSkills(filtered);
+  }, [searchTerm, existingSkills, selectedSkills]);
+
+  // Add a skill to selected skills
+  const addSkill = (skill: Skill) => {
+    const newSkill = { name: skill.name };
+    setSelectedSkills((prev) => [...prev, newSkill]);
+    onSkillsChange([...selectedSkills, newSkill]);
+    setSearchTerm("");
+  };
+
+  // Remove a skill from selected skills
+  const removeSkill = (skillName: string) => {
+    setSelectedSkills((prev) =>
+      prev.filter((skill) => skill.name !== skillName),
+    );
+    // onSkillsChange(selectedSkills.filter((skill) => skill.name !== skillName));
+  };
+
+  // Add custom skill
+  const addCustomSkill = () => {
+    if (!newSkillName.trim()) return;
+
+    // Check if skill already exists in selected skills
+    if (
+      selectedSkills.some(
+        (skill) =>
+          skill.name.toLowerCase() === newSkillName.trim().toLowerCase(),
+      )
+    ) {
+      alert("Cette compétence est déjà ajoutée");
+      return;
+    }
+
+    const newSkill = { name: newSkillName.trim() };
+
+    setSelectedSkills((prev) => [...prev, newSkill]);
+    // onSkillsChange([...selectedSkills, newSkill]);
+    setNewSkillName("");
+    setShowSkillModal(false);
+  };
+
+  ///
+
+  ///
+
+  // Show the add skill button
+  const showAddSkillButton = () => {
+    return (
+      <button
+        onClick={() => setShowSkillModal(true)}
+        type="button"
+        className="flex items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 p-3 text-sm text-purple-600 transition-colors hover:bg-purple-50 hover:text-purple-700"
+      >
+        <Plus size={18} />
+        <span>Ajouter une compétence requise</span>
+      </button>
+    );
+  };
+
+  return (
+    <div className={`space-y-4 ${className}`}>
+      <div className="flex flex-wrap items-center gap-3">
+        {selectedSkills.length === 0 ? (
+          <div className="w-full rounded-lg border-2 border-dashed border-gray-200 p-6 text-center">
+            <p className="text-gray-500">Aucune compétence sélectionnée</p>
+            <button
+              onClick={() => setShowSkillModal(true)}
+              type="button"
+              className="mt-2 text-sm text-purple-600 hover:underline"
+            >
+              Ajouter des compétences requises
+            </button>
+          </div>
+        ) : (
+          <>
+            {selectedSkills.map((skill, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 shadow-sm transition-all hover:shadow-md"
+              >
+                <span className="font-medium text-gray-700">{skill.name}</span>
+                <button
+                  onClick={() => removeSkill(skill.name)}
+                  type="button"
+                  className="ml-1 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            ))}
+            {showAddSkillButton()}
+          </>
+        )}
+      </div>
+
+      {/* Add Skill Modal */}
+      <AnimatePresence>
+        {showSkillModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl"
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-lg font-medium text-gray-900">
+                  Ajouter une compétence requise
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowSkillModal(false)}
+                  className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Search existing skills */}
+              <div className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Rechercher une compétence..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600"
+                  />
+                </div>
+              </div>
+
+              {/* Available skills */}
+              <div className="mb-4 max-h-60 overflow-y-auto rounded-lg border border-gray-200">
+                {filteredSkills.length > 0 ? (
+                  <div className="divide-y divide-gray-100">
+                    {filteredSkills.map((skill) => (
+                      <button
+                        type="button"
+                        key={skill.id}
+                        onClick={() => addSkill(skill)}
+                        className="flex w-full items-center justify-between px-4 py-2 text-left hover:bg-purple-50"
+                      >
+                        <span>{skill.name}</span>
+                        <Plus size={16} className="text-purple-600" />
+                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-gray-500">
+                    Aucune compétence trouvée
+                  </div>
+                )}
+              </div>
+
+              {/* Add custom skill */}
+              <div className="space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+                <h4 className="text-sm font-medium text-gray-700">
+                  Ajouter une nouvelle compétence
+                </h4>
+
+                <div>
+                  <input
+                    type="text"
+                    placeholder="Nom de la compétence"
+                    value={newSkillName}
+                    onChange={(e) => setNewSkillName(e.target.value)}
+                    className="w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-6 flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowSkillModal(false)}
+                  className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="button"
+                  onClick={addCustomSkill}
+                  disabled={!newSkillName.trim()}
+                  className="flex items-center gap-1 rounded-lg bg-purple-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700 disabled:bg-purple-300"
                 >
                   <Check size={16} />
                   Ajouter

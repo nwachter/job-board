@@ -84,6 +84,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
     : [];
 
   useEffect(() => {
+    console.log("Candidatures : ", applications);
     setApplicationsList(Array.isArray(applications) ? applications : []);
   }, [applications]);
 

@@ -1,5 +1,3 @@
-// TO DELETE
-
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { format } from "date-fns";
@@ -7,10 +5,10 @@ import { format } from "date-fns";
 // Define the expected status values from your schema
 type ApplicationStatus = "PENDING" | "ACCEPTED" | "REJECTED";
 
-interface ChartDataPoint {
+type ChartDataPoint = {
   date: string;
   [status: string]: string | number;
-}
+};
 
 const prisma = new PrismaClient();
 
@@ -44,7 +42,7 @@ export async function GET(
         user: true,
       },
       orderBy: {
-        createdAt: "asc", // Order by ascending to process chronologically
+        createdAt: "asc",
       },
     });
 
@@ -56,10 +54,9 @@ export async function GET(
           chartData: [],
         },
         { status: 200 },
-      ); // Return empty arrays instead of 404
+      );
     }
 
-    // Process applications for chart data
     const chartData = getRecruiterApplicationsStatisticsForChart(applications);
 
     return NextResponse.json(
@@ -76,15 +73,15 @@ export async function GET(
       { error: "Failed to retrieve applications" },
       { status: 500 },
     );
-  } finally {
-    await prisma.$disconnect(); // Always disconnect prisma client
   }
+  // finally {
+  //   await prisma.$disconnect();
+  // }
 }
 
 function getRecruiterApplicationsStatisticsForChart(
   applications: any[],
 ): ChartDataPoint[] {
-  // Get all unique statuses from the applications
   const allStatuses = new Set<string>();
   applications.forEach((app) => {
     if (app.status) {

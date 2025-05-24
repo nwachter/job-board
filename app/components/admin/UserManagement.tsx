@@ -20,7 +20,7 @@ import {
 import Image from "next/image";
 import { useGetUsers, useUpdateUser, useDeleteUser } from "@/app/hooks/useUser";
 import { useRegister } from "@/app/hooks/useAuth";
-import type { User as UserType } from "@/app/types/user";
+import { Role, User as UserType } from "@/app/types/user";
 
 type NotificationType = {
   type: "success" | "error";
@@ -30,7 +30,7 @@ type NotificationType = {
 type NewUserType = {
   username: string;
   email: string;
-  role: "USER" | "RECRUITER" | "ADMIN";
+  role: Role;
   password: string;
   confirmPassword: string;
 };
@@ -39,7 +39,7 @@ type EditUserType = {
   id: number | null;
   username: string;
   email: string;
-  role: "USER" | "RECRUITER" | "ADMIN";
+  role: Role;
   password: string;
   confirmPassword: string;
 };
@@ -54,7 +54,7 @@ const UserManagement = () => {
   const [filteredUsers, setFilteredUsers] = useState<UserType[]>(users ?? []);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRole, setSelectedRole] = useState<
-    "all" | "USER" | "RECRUITER" | "ADMIN"
+    "all" | Role.USER | Role.RECRUITER | Role.ADMIN
   >("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
@@ -69,7 +69,7 @@ const UserManagement = () => {
   const [newUser, setNewUser] = useState<NewUserType>({
     username: "",
     email: "",
-    role: "USER",
+    role: Role.USER,
     password: "",
     confirmPassword: "",
   });
@@ -79,7 +79,7 @@ const UserManagement = () => {
     id: null,
     username: "",
     email: "",
-    role: "USER",
+    role: Role.USER,
     password: "",
     confirmPassword: "",
   });
@@ -167,7 +167,7 @@ const UserManagement = () => {
       setNewUser({
         username: "",
         email: "",
-        role: "USER",
+        role: Role.USER,
         password: "",
         confirmPassword: "",
       });
@@ -191,7 +191,7 @@ const UserManagement = () => {
       id: user.id,
       username: user.username,
       email: user.email,
-      role: user.role as "ADMIN" | "RECRUITER" | "USER",
+      role: user.role as Role.ADMIN | Role.RECRUITER | Role.USER,
       password: "",
       confirmPassword: "",
     });
@@ -270,13 +270,13 @@ const UserManagement = () => {
   };
 
   // Get role badge style
-  const getRoleBadgeStyle = (role: "USER" | "RECRUITER" | "ADMIN") => {
+  const getRoleBadgeStyle = (role: Role.USER | Role.RECRUITER | Role.ADMIN) => {
     switch (role) {
-      case "ADMIN":
+      case Role.ADMIN:
         return "bg-red-100 text-red-800";
-      case "RECRUITER":
+      case Role.RECRUITER:
         return "bg-blue-100 text-blue-800";
-      case "USER":
+      case Role.USER:
         return "bg-green-100 text-green-800";
       default:
         return "bg-gray-100 text-gray-800";
@@ -368,14 +368,18 @@ const UserManagement = () => {
                 value={selectedRole}
                 onChange={(e) =>
                   setSelectedRole(
-                    e.target.value as "all" | "USER" | "RECRUITER" | "ADMIN",
+                    e.target.value as
+                      | "all"
+                      | Role.USER
+                      | Role.RECRUITER
+                      | Role.ADMIN,
                   )
                 }
               >
                 <option value="all">Tous les rôles</option>
-                <option value="USER">Candidats</option>
-                <option value="RECRUITER">Recruteurs</option>
-                <option value="ADMIN">Admins</option>
+                <option value={Role.USER}>Candidats</option>
+                <option value={Role.RECRUITER}>Recruteurs</option>
+                <option value={Role.ADMIN}>Admins</option>
               </select>
               <Filter
                 size={16}
@@ -465,21 +469,21 @@ const UserManagement = () => {
                   </td>
                   <td className="whitespace-nowrap px-6 py-4">
                     <span
-                      className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadgeStyle(user.role as "ADMIN" | "RECRUITER" | "USER")}`}
+                      className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${getRoleBadgeStyle(user.role as Role.ADMIN | Role.RECRUITER | Role.USER)}`}
                     >
-                      {user.role === "USER"
+                      {user.role === Role.USER
                         ? "Candidat"
-                        : user.role === "RECRUITER"
+                        : user.role === Role.RECRUITER
                           ? "Recruteur"
-                          : user.role === "ADMIN"
-                            ? "ADMIN"
+                          : user.role === Role.ADMIN
+                            ? Role.ADMIN
                             : user.role}
                     </span>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                    {user.role === "USER"
+                    {user.role === Role.USER
                       ? `${user.applications?.length || 0} candidature${user.applications?.length !== 1 ? "s" : ""}`
-                      : user.role === "RECRUITER"
+                      : user.role === Role.RECRUITER
                         ? `${user.offers?.length || 0} offre${user.offers?.length !== 1 ? "s" : ""}`
                         : "Administrateur"}
                   </td>
@@ -624,9 +628,9 @@ const UserManagement = () => {
                         value={newUser.role}
                         onChange={(e) => handleInputChange(e, setNewUser)}
                       >
-                        <opstion value="USER">Candidat</option>
-                        <option value="RECRUITER">Recruteur</option>
-                        <option value="ADMIN">Admin</option>
+                        <option value={Role.USER}>Candidat</option>
+                        <option value={Role.RECRUITER}>Recruteur</option>
+                        <option value={Role.ADMIN}>Admin</option>
                       </select>
                     </div>
                   </div>
@@ -775,9 +779,9 @@ const UserManagement = () => {
                         value={editForm.role}
                         onChange={(e) => handleInputChange(e, setEditForm)}
                       >
-                        <option value="USER">Candidat</option>
-                        <option value="RECRUITER">Recruteur</option>
-                        <option value="ADMIN">Admin</option>
+                        <option value={Role.USER}>Candidat</option>
+                        <option value={Role.RECRUITER}>Recruteur</option>
+                        <option value={Role.ADMIN}>Admin</option>
                       </select>
                     </div>
                   </div>
