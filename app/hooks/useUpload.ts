@@ -3,13 +3,16 @@
 // import { User } from "../types/user";
 // import { uploadPdfFile } from "../services/upload";
 
+
 import { UseMutationResult, useMutation } from "@tanstack/react-query";
 import { uploadPdfFile } from "../services";
+
 
 // export const useUpload = (data: File) => {
 //     const [fileLink, setFileLink] = useState()
 //     const [error, setError] = useState<string>("");
 //     const [isLoading, setIsLoading] = useState<boolean>(true);
+
 
 //     useEffect(() => {
 //         const uploadFile = async (data: File) => {
@@ -26,6 +29,7 @@ import { uploadPdfFile } from "../services";
 //                 setIsLoading(false);
 //             }
 //         }
+
 
 //         uploadFile(data);
 

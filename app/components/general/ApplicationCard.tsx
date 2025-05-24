@@ -22,6 +22,7 @@ const ApplicationCard: React.FC<{
     }).format(date)
   }
 
+
   const getStatusBadge = () => {
     // const status = application.status || "pending"
     const status : string = "pending"
@@ -50,6 +51,7 @@ const ApplicationCard: React.FC<{
         )
     }
   }
+
 
   return (
     <div className="bg-white hover:shadow-lg rounded-xl p-6 shadow-sm transition-all duration-300 border border-gray-100 h-full flex flex-col">

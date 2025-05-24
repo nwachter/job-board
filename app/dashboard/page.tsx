@@ -1,4 +1,5 @@
 "use client";
+
 // import JobBoardLanding from '@/app/components/JobBoardLanding';
 
 // export default function Home() {
@@ -113,6 +114,7 @@ const Dashboard = () => {
           isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
           isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
           error={errorLocations ?? errorOffers ?? errorUserInfo}
+
         />
       )}
     </div>
@@ -120,3 +122,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

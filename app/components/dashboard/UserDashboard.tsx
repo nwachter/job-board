@@ -72,6 +72,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   };
 
   useEffect(() => {
+
     let updatedOffers =
       offersList && offersList.length > 0 ? offersList : offers;
     setOffersList(updatedOffers);

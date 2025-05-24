@@ -2,6 +2,7 @@
 
 // "use client";
 
+
 // import React, { useEffect, useState } from 'react';
 // import { Mail, Lock, User, Building2, ArrowRight } from 'lucide-react';
 // import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -61,6 +62,7 @@
 //     });
 //     const [alert, setAlert] = useState({ type: "", message: "" });
 //     const [message, setMessage] = useState("Prêt à trouver le job de vos rêves ?");
+
 
 
 

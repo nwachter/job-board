@@ -1,11 +1,10 @@
 import React from 'react'
 // import Navbar from '../components/layout/Navbar';
 
-export const DashboardLayout = ({
-    children,
-  }: Readonly<{
-    children: React.ReactNode;
-  }>) => {
+export default function Layout({ children } : Readonly<{
+  children: React.ReactNode;
+}>) 
+ {
   return (
     <div className='w-full h-full'>
         {/* <Navbar /> */}
@@ -15,5 +14,3 @@ export const DashboardLayout = ({
     </div>
   )
 }
-
-export default DashboardLayout

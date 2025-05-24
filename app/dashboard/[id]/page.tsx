@@ -1,9 +1,9 @@
 import OfferDetailPage from '@/app/components/dashboard/[id]/OfferDetailPage';
 
-interface OfferDetailDashboardPageProps {
-  params: {
-    id: string;
-  };
+type OfferDetailDashboardPageProps = {
+  params: Promise<{
+    id: string; //testerrorPromise
+  }>;
 }
 
 const OfferDetailDashboardPage: React.FC<OfferDetailDashboardPageProps> = async ({ params }) => {

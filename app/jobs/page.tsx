@@ -1,5 +1,6 @@
 "use client";
 
+
 import React, { useEffect, useState } from "react";
 import { useGetOffers } from "../hooks/useOffers";
 import { useGetUserInfo } from "@/app/hooks/useUserInfo";
@@ -29,6 +30,7 @@ const Dashboard = () => {
       0
     ) || 0;
 
+
   return (
     <div className="flex h-full w-full">
       {<Jobs offers={offers ?? []} contractTypes={contractTypes} />}
@@ -36,4 +38,6 @@ const Dashboard = () => {
   );
 };
 
+
 export default Dashboard;
+

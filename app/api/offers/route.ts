@@ -1,6 +1,6 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { authMiddleware } from "@/app/middleware";
+import middleware from "@/app/middleware";
 
 const prisma = new PrismaClient();
 
@@ -23,6 +23,7 @@ model Offer {
 
 }
 */
+
 export async function GET() {
 // request: Request
   try {
@@ -58,7 +59,9 @@ export async function POST(request: Request) {
 
     // }
 
+
     //testerror: add skills
+
     const {
       title,
       description,
@@ -125,6 +128,7 @@ export async function POST(request: Request) {
     if (!location) {
       return NextResponse.json(
         { error: "Emplacement introuvable" },
+
         { status: 404 },
       );
     } else {

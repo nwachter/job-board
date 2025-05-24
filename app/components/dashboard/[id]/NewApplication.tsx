@@ -1,4 +1,5 @@
 "use client";
+
 import type React from "react";
 import { useEffect, useState } from "react";
 import { FileText, User, Mail, Send, AlertCircle, X } from "lucide-react";
@@ -16,6 +17,7 @@ export type FormInputs = {
   content: string;
   cv: FileList | null;
 };
+
 
 type NewApplicationProps = {
   offer_id: number;
@@ -39,8 +41,10 @@ const NewApplication: React.FC<NewApplicationProps> = ({
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
+
   const { data: userInfo } = useGetUserInfo();
   const router = useRouter();
+
 
   useEffect(() => {
     // Pre-fill form with user info if available

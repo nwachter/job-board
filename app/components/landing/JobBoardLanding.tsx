@@ -94,6 +94,7 @@ const JobBoardLanding = () => {
     }),
   }
 
+
   return (
     <div className="w-full h-screen old:bg-gradient-to-br old:from-indigo-900 old:via-purple-900 old:to-violet-800 overflow-hidden">
       {/* Animated background elements */}

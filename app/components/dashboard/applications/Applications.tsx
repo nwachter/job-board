@@ -30,6 +30,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
     isError: isErrorLocations,
   } = useGetLocations();
   const [error, setError] = useState<string | null>(null);
+
   const [applicationsList, setApplicationsList] = useState<Application[]>(
     Array.isArray(applications) ? applications : [],
   );
@@ -37,6 +38,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [dateFilter, setDateFilter] = useState<string>("all");
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -84,9 +86,11 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
     : [];
 
   useEffect(() => {
+
     console.log("Candidatures : ", applications);
     setApplicationsList(Array.isArray(applications) ? applications : []);
   }, [applications]);
+
 
   if (error)
     return (
@@ -174,6 +178,7 @@ const Applications: React.FC<ApplicationsProps> = ({ applications }) => {
                   className="w-full rounded-lg border py-2 pl-10 pr-4 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-electric-purple"
                 />
               </div>
+
               <button
                 type="button"
                 onClick={() => setIsFiltersOpen(!isFiltersOpen)}

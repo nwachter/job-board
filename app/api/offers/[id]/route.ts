@@ -11,7 +11,9 @@ type Params = {
   id: string;
 };
 
-export async function GET(request: Request, { params }: { params: Params }) {
+export async function GET(request: Request,
+  { params }: { params: Promise<{ id: string }> }
+  ) {
   try {
     const { id } = await params;
 
@@ -39,10 +41,12 @@ export async function GET(request: Request, { params }: { params: Params }) {
   }
 }
 
+
 export const PUT = async (request: Request, { params }: { params: Params }) => {
   const { id } = await params; //testerror : add skills
   const { title, description, company_name, location, salary, recruiter_id } =
     await request.json();
+
 
   if (!id) {
     return NextResponse.json({
@@ -134,6 +138,7 @@ export const PATCH = async (
     status: 200,
   });
 };
+
 
 export const DELETE = async (
   request: Request,

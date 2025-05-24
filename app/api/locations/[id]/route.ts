@@ -8,7 +8,9 @@ type Params = {
     id: string;
 };
 
-export async function GET(request: Request,{ params }: { params: Params }) {
+export async function GET(request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
     try {
         const { id } = await params;
         if (!id) {
