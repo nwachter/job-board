@@ -93,7 +93,7 @@ const Dashboard = () => {
 
   return (
     <div className="h-full w-full">
-      {role === Role.RECRUITER ? (
+      {role === Role.RECRUITER || role === Role.ADMIN ? (
         <RecruiterDashboard
           offers={filteredOffers ?? []}
           applications={filteredApplications ?? []}
@@ -114,7 +114,6 @@ const Dashboard = () => {
           isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
           isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
           error={errorLocations ?? errorOffers ?? errorUserInfo}
-
         />
       )}
     </div>
@@ -122,4 +121,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-

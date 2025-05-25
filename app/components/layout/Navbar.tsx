@@ -72,7 +72,7 @@ const navItems: NavItem[] = [
     activeIcon: <ShieldAlert size={20} />,
     title: "Administration",
     path: "/admin",
-    roles: [Role.RECRUITER, Role.ADMIN],
+    roles: [Role.ADMIN],
   },
 ];
 
