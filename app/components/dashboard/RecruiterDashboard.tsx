@@ -49,7 +49,6 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
   const [locationId, setLocationId] = useState<number | undefined>(undefined);
   const [stats, setStats] = useState<DashboardStats[]>([]);
 
-
   // Get unique status values from all applications
   const getUniqueStatuses = (apps: Application[]) => {
     const statuses = new Set();
@@ -61,7 +60,6 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
     return Array.from(statuses);
   };
 
-
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     error = error;
@@ -70,7 +68,6 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
         searchQuery,
         contractType,
         locationId,
-
       );
       setOffersList(offersResults ?? offers);
     } catch (e) {
@@ -80,7 +77,6 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
   };
 
   useEffect(() => {
-
     let updatedOffers =
       offersList && offersList.length > 0 ? offersList : offers;
     setOffersList(updatedOffers);
@@ -205,7 +201,7 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
           </div>
         </div>
       </main>
-   
+    </div>
   );
 };
 
