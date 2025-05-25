@@ -182,7 +182,7 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
 
           {<Stats8 stats={stats} userId={userId} />}
           {/* Job Cards Grid */}
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-start justify-center gap-4">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {offersList?.map((offer) => (
                 <JobCard
@@ -192,7 +192,7 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
                 />
               ))}
             </div>
-            <div>
+            <div className="h-full">
               <RecentApplications applications={applications ?? []} />
             </div>
           </div>

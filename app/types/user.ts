@@ -1,5 +1,6 @@
 import { Application } from "./application";
 import { Offer } from "./offer";
+import { Skill } from "./skill";
 
 export enum Role {
   USER = "USER",

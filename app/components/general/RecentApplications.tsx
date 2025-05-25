@@ -9,6 +9,7 @@ import {
   Check,
   Clock,
   Calendar,
+  Link,
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -27,6 +28,7 @@ import {
   AvatarImage,
 } from "@/app/components/ui/Avatar";
 import { Application } from "@/app/types/application";
+import { useRouter } from "next/navigation";
 
 interface RecentApplicationsProps {
   applications?: Application[];
@@ -81,8 +83,10 @@ export function RecentApplications({
     return `${hours}:${minutesStr}`;
   };
 
+  const router = useRouter();
+
   return (
-    <div className="overflow-hidden rounded-2xl border border-electric-purple/20 bg-white/80 shadow-lg shadow-electric-purple/5 backdrop-blur-sm">
+    <div className="h-full overflow-hidden rounded-2xl border border-electric-purple/20 bg-white/90 shadow-lg shadow-electric-purple/5 backdrop-blur-sm">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-electric-purple/10 p-4">
         <div className="flex items-center gap-2">
@@ -104,15 +108,17 @@ export function RecentApplications({
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="h-8 w-8">
               <MoreHorizontal className="h-4 w-4 text-eggplant/70" />
-              <span className="sr-only">More options</span>
+              <span className="sr-only">Plus d'options</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View all applications</DropdownMenuItem>
-            <DropdownMenuItem>Mark all as read</DropdownMenuItem>
-            <DropdownMenuItem>Export as CSV</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => router.push("/applications")}>
+              Voir toutes les candidatures
+            </DropdownMenuItem>
+            {/* <DropdownMenuItem>Tout marquer comme lu</DropdownMenuItem> */}
+            {/* <DropdownMenuItem>Exporter en CSV</DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -143,7 +149,7 @@ export function RecentApplications({
               htmlFor="select-all"
               className="cursor-pointer text-xs font-medium text-eggplant/70"
             >
-              Select All
+              Tout Sélectionner
             </label>
           </div>
           <DropdownMenu>
@@ -153,22 +159,22 @@ export function RecentApplications({
                 size="sm"
                 className="h-8 border-electric-purple/20 bg-white/50 text-xs font-medium text-eggplant/70"
               >
-                <span>Sort By</span>
+                <span>Trier par</span>
                 <ChevronDown className="ml-1 h-3 w-3" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem>Newest first</DropdownMenuItem>
-              <DropdownMenuItem>Oldest first</DropdownMenuItem>
-              <DropdownMenuItem>Name (A-Z)</DropdownMenuItem>
-              <DropdownMenuItem>Name (Z-A)</DropdownMenuItem>
+              <DropdownMenuItem>+ Récent</DropdownMenuItem>
+              <DropdownMenuItem>+ Ancien</DropdownMenuItem>
+              <DropdownMenuItem>Nom (A-Z)</DropdownMenuItem>
+              <DropdownMenuItem>Nom (Z-A)</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
       {/* Applicants list */}
-      <div className="max-h-[400px] overflow-y-auto">
+      <div className="old:max-h-[400px] overflow-y-auto">
         {filteredApplications && filteredApplications?.length > 0 ? (
           filteredApplications?.map((application) => (
             <div
@@ -200,7 +206,7 @@ export function RecentApplications({
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-medium text-eggplant">
-                      {application.firstname}
+                      {application.firstname} {application.lastname}
                     </p>
                     {application.createdAt &&
                       new Date(application?.createdAt).getTime() >
@@ -257,19 +263,23 @@ export function RecentApplications({
               {selectedApplicants.length} selected
             </span>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 border-electric-purple/20 bg-white/50 text-xs font-medium text-eggplant"
-              >
-                Message
-              </Button>
-              <Button
-                size="sm"
-                className="h-8 bg-electric-purple text-xs font-medium text-white hover:bg-electric-purple/90"
-              >
-                Review
-              </Button>
+              {
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 border-electric-purple/20 bg-white/50 text-xs font-medium text-eggplant"
+                >
+                  Message
+                </Button>
+              }
+              <Link href={`/applications`}>
+                <Button
+                  size="sm"
+                  className="h-8 bg-electric-purple text-xs font-medium text-white hover:bg-electric-purple/90"
+                >
+                  Review
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

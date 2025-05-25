@@ -163,7 +163,7 @@ const TopButtons = () => {
                   className="flex cursor-pointer items-center gap-2 px-3 py-2 text-sm text-red-600 focus:bg-red-50 focus:outline-none" // Destructive action color
                 >
                   <LogOut className="h-4 w-4" />
-                  Log Out
+                  Déconnexon
                 </DropdownMenu.Item>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
@@ -175,16 +175,15 @@ const TopButtons = () => {
               {" "}
               {/* Assuming /sign/in for login */}
               <button className="rounded-md border border-indigo-600 bg-white px-4 py-2 text-sm font-medium text-indigo-600 transition duration-150 ease-in-out hover:bg-indigo-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                Log In
+                Connexion
               </button>
             </Link>
-            <Link href="/sign">
+            {/* <Link href="/sign">
               {" "}
-              {/* Assuming /sign/up for sign-up */}
               <button className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition duration-150 ease-in-out hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                 Sign Up
               </button>
-            </Link>
+            </Link> */}
           </div>
         )}
       </div>

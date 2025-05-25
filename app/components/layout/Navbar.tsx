@@ -19,6 +19,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 import { Role } from "@/app/types/user";
+import logoWithoutBg from "@/public/logos/logo_without_bg.png";
+import Image from "next/image";
 
 type NavItem = {
   icon: React.ReactNode;
@@ -58,13 +60,13 @@ const navItems: NavItem[] = [
     path: "/companies",
     roles: [Role.USER],
   },
-  {
-    icon: <FileText size={20} />,
-    activeIcon: <FileText size={20} />,
-    title: "Blog",
-    path: "/blog",
-    showAlways: true,
-  },
+  // {
+  //   icon: <FileText size={20} />,
+  //   activeIcon: <FileText size={20} />,
+  //   title: "Blog",
+  //   path: "/blog",
+  //   showAlways: true,
+  // },
   {
     icon: <ShieldAlert size={20} />,
     activeIcon: <ShieldAlert size={20} />,
@@ -240,7 +242,7 @@ export const Navbar = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              JB
+              <Image src={logoWithoutBg} alt="Logo" width={30} height={30} />
             </motion.div>
 
             <AnimatePresence mode="wait">
@@ -284,8 +286,16 @@ export const Navbar = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-medium text-white">
-              {userInfo?.username?.charAt(0) || "U"}
+            <div className="flex h-8 min-h-8 w-8 min-w-8 items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-medium text-white">
+              {userInfo?.avatar && userInfo.avatar !== "" ? (
+                <img
+                  src={userInfo.avatar}
+                  alt="User avatar"
+                  className="h-8 w-8 rounded-full object-cover"
+                />
+              ) : (
+                userInfo?.username?.charAt(0) || "U"
+              )}
             </div>
 
             <AnimatePresence mode="wait">
@@ -301,7 +311,13 @@ export const Navbar = () => {
                     {userInfo?.username || "Utilisateur"}
                   </p>
                   <p className="truncate text-xs text-gray-500 dark:text-gray-400">
-                    {userRole}
+                    {userRole === "GUEST"
+                      ? "Invité"
+                      : userRole === Role.RECRUITER
+                        ? "Recruteur"
+                        : userRole === Role.ADMIN
+                          ? "Admin"
+                          : "Candidat"}
                   </p>
                 </motion.div>
               )}

@@ -84,14 +84,14 @@ export const Stats8 = ({
   }, [stats]);
 
   const quadriStat = [
-    { label: "Candidates", value: 10, icon: <Users className="h-4 w-4" /> },
+    { label: "Candidats", value: 10, icon: <Users className="h-4 w-4" /> },
     {
-      label: "Job openings",
+      label: "Offres d'emploi",
       value: 5,
       icon: <Briefcase className="h-4 w-4" />,
     },
-    { label: "Accepted", value: 2, icon: <CheckCircle className="h-4 w-4" /> },
-    { label: "Rejected", value: 3, icon: <XCircle className="h-4 w-4" /> },
+    { label: "Acceptées", value: 2, icon: <CheckCircle className="h-4 w-4" /> },
+    { label: "Rejetées", value: 3, icon: <XCircle className="h-4 w-4" /> },
   ];
 
   return (
@@ -151,7 +151,7 @@ export const Stats8 = ({
             <div className="absolute inset-0 bg-gradient-to-br from-electric-purple/5 to-eggplant/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
             <div className="mb-2 flex items-center justify-between">
               <h3 className="font-semibold text-eggplant">
-                Applications Over Time
+                Candidatures dans le temps
               </h3>
               <div className="flex h-8 w-8 items-center justify-center rounded-full">
                 <TrendingUp className="h-4 w-4 text-electric-purple" />
@@ -165,7 +165,7 @@ export const Stats8 = ({
               )}
               {!applicationStatistics && (
                 <div className="flex h-full w-full items-center justify-center text-eggplant/50">
-                  Loading chart data...
+                  Chargement des données du graphique...
                 </div>
               )}
             </div>
@@ -175,7 +175,7 @@ export const Stats8 = ({
           <div className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-eggplant/20 bg-gradient-to-br from-white/80 to-white/40 p-3 shadow-lg shadow-eggplant/5 backdrop-blur-sm transition-all hover:translate-y-[-2px] hover:shadow-eggplant/10">
             <div className="absolute inset-0 bg-gradient-to-br from-electric-purple/5 to-eggplant/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="font-semibold text-eggplant">Key Metrics</h3>
+              <h3 className="font-semibold text-eggplant">Statistiques clés</h3>
               <div className="flex h-8 w-8 items-center justify-center rounded-full">
                 <Users className="h-4 w-4 text-electric-purple" />
               </div>
