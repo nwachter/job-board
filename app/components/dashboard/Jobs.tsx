@@ -76,15 +76,15 @@ const Jobs: React.FC<JobsProps> = ({ offers, contractTypes }) => {
   
 
   useEffect(() => {
-    let updatedOffers = offersList && offersList.length > 0 ? offersList : offers;
+    const updatedOffers = offersList && offersList.length > 0 ? offersList : offers;
     setOffersList(updatedOffers);
-  }, [offers])
+  }, [offers, offersList])
 
   if (error) return <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400 transition-all">{error}</div>;
   if (isLoadingLocations) return (
     <div className="flex items-center justify-center h-full">
       <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-purple-500"></div>
-      <span className="ml-2">Chargement...</span>
+      <span className="ml-2">Chargement des offres...</span>
     </div>
   );
   return (

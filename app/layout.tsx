@@ -62,6 +62,7 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${dmSans.variable} antialiased`}
       >
+
         <GlobalLayout>
           <div className="">
             <div className="">
@@ -73,6 +74,7 @@ export default function RootLayout({
               <TopButtons />
             </div>
             <div id="main-content" className="h-full grow basis-auto w-full">{children}</div>
+
           </div>
 
           </div>

@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import NewApplication from "./NewApplication";
 import { useGetOfferById } from "@/app/hooks/useOffers";
 
+
 const OfferDetailDashboardPage: React.FC<{
   params: {
     id: any;
@@ -12,6 +13,7 @@ const OfferDetailDashboardPage: React.FC<{
   const { id } = params;
   const { data: offer, isLoading, error } = useGetOfferById(Number(id));
   const [isApplicationOpen, setIsApplicationOpen] = useState(false);
+
 
   useEffect(() => {
     console.log("offer: ", offer);

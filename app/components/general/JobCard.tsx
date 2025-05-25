@@ -6,8 +6,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 
 import React from "react";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-const JobCard: React.FC<{ offer: Offer; router?: any }> = ({
+const JobCard: React.FC<{ offer: Offer; router?: AppRouterInstance }> = ({
   offer,
   router,
 }) => {

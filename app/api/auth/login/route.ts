@@ -28,12 +28,21 @@ export const POST = async (request: Request) => {
 
         //Générer le token
         const token = jwt.sign({id: user.id, email: user.email, role: user.role, username: user.username, avatar: user.avatar}, process.env.JWT_SECRET || "jwt_secret", {expiresIn: "1d"});
-
-        const response =  NextResponse.json({message: "Connexion réussie !", user: {id: user.id, email, username: user.username, role: user.role, avatar: user.avatar}, token, status: 200});
+        const userInfo = {id: user.id, email, username: user.username, role: user.role, avatar: user.avatar};
+        const response =  NextResponse.json({message: "Connexion réussie !", user: userInfo, token, status: 200});
        
         //Générer le cookie
         (await
             cookies()).set('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production', 
+            sameSite: 'strict',
+            maxAge: 5*24*60*60, //1 jour
+            path: '/', // Accessible sur le site entier
+        });
+
+        (await
+            cookies()).set('jobboard_user_info', JSON.stringify(userInfo), {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', 
             sameSite: 'strict',
