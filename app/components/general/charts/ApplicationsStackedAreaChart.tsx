@@ -48,24 +48,41 @@ export default function ApplicationsStackedAreaChart({
   }
 
   // Custom tooltip style
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({
+    active,
+    payload,
+    label,
+  }: {
+    active?: boolean;
+    payload?: Array<{
+      color: string;
+      name: string;
+      value: number;
+    }>;
+    label?: string;
+  }) => {
     if (active && payload && payload.length) {
       return (
         <div className="rounded-lg border border-electric-purple/20 bg-white/90 p-3 shadow-lg backdrop-blur-sm">
           <p className="font-medium text-eggplant">{label}</p>
           <div className="mt-2 space-y-1">
-            {payload.map((entry: any, index: number) => (
-              <div key={`item-${index}`} className="flex items-center gap-2">
-                <div
-                  className="h-2 w-2 rounded-full"
-                  style={{ backgroundColor: entry.color }}
-                />
-                <p className="text-sm">
-                  <span className="font-medium">{entry.name}: </span>
-                  <span>{entry.value}</span>
-                </p>
-              </div>
-            ))}
+            {payload.map(
+              (
+                entry: { color: string; name: string; value: number },
+                index: number,
+              ) => (
+                <div key={`item-${index}`} className="flex items-center gap-2">
+                  <div
+                    className="h-2 w-2 rounded-full"
+                    style={{ backgroundColor: entry.color }}
+                  />
+                  <p className="text-sm">
+                    <span className="font-medium">{entry.name}: </span>
+                    <span>{entry.value}</span>
+                  </p>
+                </div>
+              ),
+            )}
           </div>
         </div>
       );

@@ -108,7 +108,9 @@ export const CreateNewOffer: React.FC<CreateNewOfferProps> = ({
   };
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     setInputs((prev) => ({
@@ -437,7 +439,9 @@ export const CreateNewOffer: React.FC<CreateNewOfferProps> = ({
                   name="contract_type"
                   id="contract_type"
                   value={inputs.contract_type as string}
-                  onChange={(e) => handleInputChange(e as any)}
+                  onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                    handleInputChange(e)
+                  }
                   className="w-full appearance-none rounded-lg border border-gray-200 py-2.5 pl-10 pr-4 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-purple-500"
                 >
                   <option value="">Sélectionner le type de contrat</option>

@@ -9,7 +9,9 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-type StackedAreaChartProps = { data: any[] };
+type StackedAreaChartProps = {
+  data: { name: string; uv: number; pv: number; amt: number }[];
+};
 const data = [
   {
     name: "Page A",

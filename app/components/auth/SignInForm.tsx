@@ -38,10 +38,15 @@ const SignInForm: React.FC<SignInFormProps> = ({
     if (userRole) {
       router.push("/");
     }
-  }, [userRole]);
+  }, [userRole, router]);
+
+  useEffect(() => {
+    console.log(chosenRole);
+  }, [chosenRole]);
 
   const validateForm = () => {
     let isValid = true;
+
     const newErrors = { email: "", password: "", form: "" };
 
     if (!email.trim()) {
@@ -75,12 +80,12 @@ const SignInForm: React.FC<SignInFormProps> = ({
     try {
       const data = await login({ email, password });
 
-      if (data?.user) {
+      if (data) {
         const userInfo = {
-          id: data.user.id,
-          role: data.user.role,
-          username: data.user.username,
-          email: data.user.email,
+          id: data.id,
+          role: data.role,
+          username: data.username,
+          email: data.email,
         };
         localStorage.setItem("jobboard_user_info", JSON.stringify(userInfo));
         // Token should be handled by HttpOnly cookie from backend
@@ -94,15 +99,15 @@ const SignInForm: React.FC<SignInFormProps> = ({
         }, 1500);
       } else {
         // Use error message from backend if available, otherwise generic
-        const errorMessage =
-          data?.message || "L'email ou le mot de passe est incorrect.";
+        const errorMessage = "L'email ou le mot de passe est incorrect.";
         setErrors((prev) => ({ ...prev, form: errorMessage }));
         setAlert({ type: "danger", message: errorMessage });
       }
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error("Login Error:", error);
       const errorMessage =
-        error.response?.data?.message ||
+        (error as Error & { response?: { data?: { message?: string } } })
+          .response?.data?.message ||
         "Une erreur est survenue lors de la connexion. Veuillez réessayer.";
       setErrors((prev) => ({ ...prev, form: errorMessage }));
       setAlert({ type: "danger", message: errorMessage });

@@ -72,12 +72,11 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   };
 
   useEffect(() => {
-
-    let updatedOffers =
+    const updatedOffers =
       offersList && offersList.length > 0 ? offersList : offers;
     setOffersList(updatedOffers);
     console.log("locations : ", locations);
-  }, [offers, locations]);
+  }, [offers, locations, offersList]);
 
   const containerVariants = {
     hidden: { opacity: 0 },

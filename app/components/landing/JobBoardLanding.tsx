@@ -74,7 +74,7 @@ const JobBoardLanding = () => {
 
   const floatingIconVariants = {
     hidden: { opacity: 0, scale: 0 },
-    visible: (custom: any) => ({
+    visible: (custom: number) => ({
       opacity: 0.8,
       scale: 1,
       transition: {
@@ -83,7 +83,7 @@ const JobBoardLanding = () => {
         ease: "easeOut",
       },
     }),
-    float: (custom: any) => ({
+    float: (custom: number) => ({
       y: [0, -10, 0],
       x: [0, custom * 5, 0],
       transition: {
@@ -100,7 +100,6 @@ const JobBoardLanding = () => {
       },
     }),
   };
-
 
   return (
     <div className="old:bg-gradient-to-br old:from-indigo-900 old:via-purple-900 old:to-violet-800 h-screen w-full overflow-hidden">

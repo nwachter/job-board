@@ -17,7 +17,15 @@ type SignUpFormProps = {
 };
 
 // Validation function (can be moved to a utils file)
-const validateInput = (name: string, value: string, inputs: any = {}) => {
+const validateInput = (
+  name: string,
+  value: string,
+  inputs:
+    | { password?: string }
+    | { password_confirmation?: string }
+    | { username?: string }
+    | { email?: string },
+) => {
   const rules = {
     username: {
       min: 3,
@@ -62,7 +70,10 @@ const validateInput = (name: string, value: string, inputs: any = {}) => {
     return `${translatedName} ${name === "password_confirmation" ? "de passe " : ""}doit contenir au plus ${fieldRule.max} caractères.`;
   if (!fieldRule.regex.test(value))
     return `${translatedName} ${fieldRule.message}`;
-  if (name === "password_confirmation" && value !== inputs.password)
+  if (
+    name === "password_confirmation" &&
+    value !== (inputs as { password: string }).password
+  )
     return "Les mots de passe ne correspondent pas.";
 
   return "";
@@ -173,19 +184,19 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         setErrors((prev) => ({ ...prev, form: errorMessage }));
         setAlert({ type: "danger", message: errorMessage });
       }
-    } catch (error: any) {
+    } catch (error: Error | unknown) {
       console.error("Registration Error:", error);
       // Check for specific backend validation errors (e.g., email already exists)
-      let errorMessage =
+      const errorMessage =
         "Une erreur est survenue lors de l'inscription. Veuillez réessayer.";
-      if (error.response?.data?.errors) {
-        // Example: If backend returns { errors: { email: ["Email already taken"] } }
-        const backendErrors = error.response.data.errors;
-        const firstErrorField = Object.keys(backendErrors)[0];
-        errorMessage = backendErrors[firstErrorField][0] || errorMessage;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      }
+      // if (error.response?.data?.errors) {
+      //   // Example: If backend returns { errors: { email: ["Email already taken"] } }
+      //   // const backendErrors = error.response.data.errors;
+      //   // const firstErrorField = Object.keys(backendErrors)[0];
+      //   // errorMessage = backendErrors[firstErrorField][0] || errorMessage;
+      // } else if (error.response?.data?.message) {
+      //   errorMessage = error.response.data.message;
+      // }
       setErrors((prev) => ({ ...prev, form: errorMessage }));
       setAlert({ type: "danger", message: errorMessage });
     } finally {

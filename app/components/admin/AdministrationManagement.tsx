@@ -1,6 +1,6 @@
-"use client"
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+"use client";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Filter,
@@ -18,128 +18,151 @@ import {
   ChevronUp,
   Eye,
   MapPin,
-} from "lucide-react"
-import { useGetApplications, useDeleteApplication, useUpdateApplication } from "@/app/hooks/useApplication"
-import { useGetOffers } from "@/app/hooks/useOffers"
-import type { Application } from "@/app/types/application"
-import {Status} from "@/app/types/application";
-import type { Offer } from "@/app/types/offer"
+} from "lucide-react";
+import {
+  useGetApplications,
+  useDeleteApplication,
+  useUpdateApplication,
+} from "@/app/hooks/useApplication";
+import { useGetOffers } from "@/app/hooks/useOffers";
+import type { Application } from "@/app/types/application";
+import { Status } from "@/app/types/application";
+import type { Offer } from "@/app/types/offer";
 
 type NotificationType = {
-  type: "success" | "warning" | "error"
-  message: string
-} | null
-
-
+  type: "success" | "warning" | "error";
+  message: string;
+} | null;
 
 const ApplicationManagement = () => {
-  const { data: applications, isLoading } = useGetApplications()
-  const { data: offers } = useGetOffers()
-  const { mutateAsync: deleteApplication } = useDeleteApplication()
-  const { mutateAsync: updateApplication } = useUpdateApplication()
+  const { data: applications, isLoading } = useGetApplications();
+  const { data: offers } = useGetOffers();
+  const { mutateAsync: deleteApplication } = useDeleteApplication();
+  const { mutateAsync: updateApplication } = useUpdateApplication();
 
-  const [filteredApplications, setFilteredApplications] = useState<Application[]>([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedStatus, setSelectedStatus] = useState<Status | "all">("all")
-  const [selectedOffer, setSelectedOffer] = useState<number | "all">("all")
-  const [currentPage, setCurrentPage] = useState(1)
-  const [itemsPerPage] = useState(10)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null)
-  const [notification, setNotification] = useState<NotificationType>(null)
-  const [viewingApplication, setViewingApplication] = useState<Application | null>(null)
+  const [filteredApplications, setFilteredApplications] = useState<
+    Application[]
+  >([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState<Status | "all">("all");
+  const [selectedOffer, setSelectedOffer] = useState<number | "all">("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(
+    null,
+  );
+  const [notification, setNotification] = useState<NotificationType>(null);
+  const [viewingApplication, setViewingApplication] =
+    useState<Application | null>(null);
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof Application | ""
-    direction: "ascending" | "descending"
-  }>({ key: "", direction: "ascending" })
-  const [feedback, setFeedback] = useState("")
+    key: keyof Application | "";
+    direction: "ascending" | "descending";
+  }>({ key: "", direction: "ascending" });
+  const [feedback, setFeedback] = useState("");
 
   useEffect(() => {
+    const filterApplications = () => {
+      if (!applications) return;
+
+      let filtered = [...applications];
+
+      // Search filter
+      if (searchTerm) {
+        filtered = filtered.filter(
+          (application) =>
+            application.firstname
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            application.lastname
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            application.email
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()) ||
+            application.offer?.title
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase()),
+        );
+      }
+
+      // Status filter
+      if (selectedStatus !== "all") {
+        filtered = filtered.filter(
+          (application) => application.status === selectedStatus,
+        );
+      }
+
+      // Offer filter
+      if (selectedOffer !== "all") {
+        filtered = filtered.filter(
+          (application) => application.offer_id === selectedOffer,
+        );
+      }
+
+      // Sorting
+      if (sortConfig.key !== "") {
+        filtered.sort((a, b) => {
+          const aValue = a[sortConfig.key as keyof Application] ?? "";
+          const bValue = b[sortConfig.key as keyof Application] ?? "";
+
+          if (aValue < bValue) {
+            return sortConfig.direction === "ascending" ? -1 : 1;
+          }
+          if (aValue > bValue) {
+            return sortConfig.direction === "ascending" ? 1 : -1;
+          }
+          return 0;
+        });
+      }
+
+      setFilteredApplications(filtered);
+    };
     if (applications) {
-      filterApplications()
+      filterApplications();
     }
-  }, [applications, searchTerm, selectedStatus, selectedOffer, sortConfig])
-
-  const filterApplications = () => {
-    if (!applications) return
-
-    let filtered = [...applications]
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (application) =>
-          application.firstname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          application.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          application.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          application.offer?.title.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-    }
-
-    // Status filter
-    if (selectedStatus !== "all") {
-      filtered = filtered.filter((application) => application.status === selectedStatus)
-    }
-
-    // Offer filter
-    if (selectedOffer !== "all") {
-      filtered = filtered.filter((application) => application.offer_id === selectedOffer)
-    }
-
-    // Sorting
-    if (sortConfig.key !== "") {
-      filtered.sort((a, b) => {
-        const aValue = a[sortConfig.key as keyof Application] ?? "";
-        const bValue = b[sortConfig.key as keyof Application] ?? "";
-        
-        if (aValue < bValue) {
-          return sortConfig.direction === "ascending" ? -1 : 1;
-        }
-        if (aValue > bValue) {
-          return sortConfig.direction === "ascending" ? 1 : -1;
-        }
-        return 0;
-      });
-    }
-
-    setFilteredApplications(filtered)
-  }
+  }, [applications, searchTerm, selectedStatus, selectedOffer, sortConfig]);
 
   // Pagination
-  const indexOfLastItem = currentPage * itemsPerPage
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage
-  const currentApplications = filteredApplications.slice(indexOfFirstItem, indexOfLastItem)
-  const totalPages = Math.ceil(filteredApplications.length / itemsPerPage)
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentApplications = filteredApplications.slice(
+    indexOfFirstItem,
+    indexOfLastItem,
+  );
+  const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
 
   // Handle sort
   const requestSort = (key: keyof Application) => {
-    let direction: "ascending" | "descending" = "ascending"
+    let direction: "ascending" | "descending" = "ascending";
     if (sortConfig.key === key && sortConfig.direction === "ascending") {
-      direction = "descending"
+      direction = "descending";
     }
-    setSortConfig({ key, direction })
-  }
+    setSortConfig({ key, direction });
+  };
 
   // Handle delete application
   const handleDeleteApplication = async (applicationId: number) => {
     try {
-      await deleteApplication(applicationId)
+      await deleteApplication(applicationId);
 
       setNotification({
         type: "success",
         message: "Candidature supprimée avec succès",
-      })
+      });
 
-      setShowDeleteConfirm(null)
+      setShowDeleteConfirm(null);
 
       // Clear notification after 3 seconds
-      setTimeout(() => setNotification(null), 3000)
+      setTimeout(() => setNotification(null), 3000);
     } catch (error) {
       setNotification({
         type: "error",
-        message: (error as Error).message || "Erreur lors de la suppression de la candidature",
-      })
+        message:
+          (error as Error).message ||
+          "Erreur lors de la suppression de la candidature",
+      });
     }
-  }
+  };
 
   // Handle update application status
   const handleUpdateStatus = async (applicationId: number, status: Status) => {
@@ -150,77 +173,93 @@ const ApplicationManagement = () => {
           status,
           feedback: feedback || undefined,
         },
-      })
+      });
 
       setNotification({
         type: "success",
         message: `Candidature ${
-          status === "accepted" ? "acceptée" : status === "rejected" ? "refusée" : "mise à jour"
+          status === Status.ACCEPTED
+            ? "acceptée"
+            : status === Status.REJECTED
+              ? "refusée"
+              : "mise à jour"
         } avec succès`,
-      })
+      });
 
-      setViewingApplication(null)
-      setFeedback("")
+      setViewingApplication(null);
+      setFeedback("");
 
       // Clear notification after 3 seconds
-      setTimeout(() => setNotification(null), 3000)
+      setTimeout(() => setNotification(null), 3000);
     } catch (error) {
       setNotification({
         type: "error",
-        message: (error as Error).message || "Erreur lors de la mise à jour de la candidature",
-      })
+        message:
+          (error as Error).message ||
+          "Erreur lors de la mise à jour de la candidature",
+      });
     }
-  }
+  };
 
   // Format date
   const formatDate = (dateString?: Date) => {
-    if (!dateString) return "N/A"
-    const date = new Date(dateString)
+    if (!dateString) return "N/A";
+    const date = new Date(dateString);
     return new Intl.DateTimeFormat("fr-FR", {
       day: "2-digit",
       month: "short",
       year: "numeric",
-    }).format(date)
-  }
+    }).format(date);
+  };
 
   // Get status badge
   const getStatusBadge = (status?: Status) => {
     switch (status) {
-      case "accepted":
+      case Status.ACCEPTED:
         return (
-          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+          <span className="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
             <CheckCircle size={12} className="mr-1" /> Acceptée
           </span>
-        )
-      case "rejected":
+        );
+      case Status.REJECTED:
         return (
-          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+          <span className="inline-flex rounded-full bg-red-100 px-2 text-xs font-semibold leading-5 text-red-800">
             <XCircle size={12} className="mr-1" /> Refusée
           </span>
-        )
+        );
       default:
         return (
-          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+          <span className="inline-flex rounded-full bg-yellow-100 px-2 text-xs font-semibold leading-5 text-yellow-800">
             <AlertTriangle size={12} className="mr-1" /> En attente
           </span>
-        )
+        );
     }
-  }
+  };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-electric-purple"></div>
-        <span className="ml-3 text-electric-purple font-medium">Chargement des candidatures...</span>
+      <div className="flex h-full items-center justify-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-electric-purple"></div>
+        <span className="ml-3 font-medium text-electric-purple">
+          Chargement des candidatures...
+        </span>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
-      <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Gestion des candidatures</h1>
-        <p className="text-gray-600">Gérez les candidatures reçues sur la plateforme</p>
+    <div className="mx-auto max-w-7xl">
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <h1 className="text-3xl font-bold text-gray-800">
+          Gestion des candidatures
+        </h1>
+        <p className="text-gray-600">
+          Gérez les candidatures reçues sur la plateforme
+        </p>
       </motion.div>
 
       {/* Notification */}
@@ -230,15 +269,17 @@ const ApplicationManagement = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`p-4 mb-6 rounded-lg flex items-center justify-between ${
-              notification.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"
+            className={`mb-6 flex items-center justify-between rounded-lg p-4 ${
+              notification.type === "success"
+                ? "bg-green-50 text-green-800"
+                : "bg-red-50 text-red-800"
             }`}
           >
             <div className="flex items-center">
               {notification.type === "success" ? (
-                <CheckCircle className="h-5 w-5 mr-2" />
+                <CheckCircle className="mr-2 h-5 w-5" />
               ) : (
-                <AlertTriangle className="h-5 w-5 mr-2" />
+                <AlertTriangle className="mr-2 h-5 w-5" />
               )}
               <span>{notification.message}</span>
             </div>
@@ -250,15 +291,18 @@ const ApplicationManagement = () => {
       </AnimatePresence>
 
       {/* Action Bar */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <div className="flex flex-col md:flex-row justify-between gap-4">
+      <div className="mb-8 rounded-xl bg-white p-6 shadow-md">
+        <div className="flex flex-col justify-between gap-4 md:flex-row">
           {/* Search */}
           <div className="relative w-full md:w-96">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+            <Search
+              className="absolute left-3 top-1/2 -translate-y-1/2 transform text-gray-400"
+              size={18}
+            />
             <input
               type="search"
               placeholder="Rechercher une candidature..."
-              className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-electric-purple"
+              className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-electric-purple"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -269,9 +313,11 @@ const ApplicationManagement = () => {
             <div className="flex gap-2">
               <div className="relative">
                 <select
-                  className="appearance-none pl-4 pr-8 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-electric-purple bg-white"
+                  className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-4 pr-8 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                   value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value as Status | "all")}
+                  onChange={(e) =>
+                    setSelectedStatus(e.target.value as Status | "all")
+                  }
                 >
                   <option value="all">Tous les statuts</option>
                   <option value="pending">En attente</option>
@@ -280,14 +326,18 @@ const ApplicationManagement = () => {
                 </select>
                 <Filter
                   size={16}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400"
                 />
               </div>
               <div className="relative">
                 <select
-                  className="appearance-none pl-4 pr-8 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-electric-purple bg-white"
+                  className="appearance-none rounded-lg border border-gray-300 bg-white py-2 pl-4 pr-8 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                   value={selectedOffer}
-                  onChange={(e) => setSelectedOffer(e.target.value === "all" ? "all" : Number(e.target.value))}
+                  onChange={(e) =>
+                    setSelectedOffer(
+                      e.target.value === "all" ? "all" : Number(e.target.value),
+                    )
+                  }
                 >
                   <option value="all">Toutes les offres</option>
                   {offers?.map((offer: Offer) => (
@@ -298,7 +348,7 @@ const ApplicationManagement = () => {
                 </select>
                 <Filter
                   size={16}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"
+                  className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 transform text-gray-400"
                 />
               </div>
             </div>
@@ -307,14 +357,14 @@ const ApplicationManagement = () => {
       </div>
 
       {/* Applications Table */}
-      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+      <div className="overflow-hidden rounded-xl bg-white shadow-md">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   onClick={() => requestSort("firstname")}
                 >
                   <div className="flex items-center">
@@ -332,19 +382,19 @@ const ApplicationManagement = () => {
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   Offre
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   Statut
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer"
+                  className="cursor-pointer px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                   onClick={() => requestSort("createdAt")}
                 >
                   <div className="flex items-center">
@@ -362,24 +412,24 @@ const ApplicationManagement = () => {
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   CV
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-gray-500"
                 >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {currentApplications.map((application) => (
                 <tr key={application.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <div className="flex items-center">
-                      <div className="flex-shrink-0 h-10 w-10 bg-electric-purple/10 rounded-full flex items-center justify-center">
+                      <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-electric-purple/10">
                         <User size={18} className="text-electric-purple" />
                       </div>
                       <div className="ml-4">
@@ -393,29 +443,35 @@ const ApplicationManagement = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{application.offer?.title}</div>
-                    <div className="text-xs text-gray-500">{application.offer?.company_name}</div>
+                  <td className="whitespace-nowrap px-6 py-4">
+                    <div className="text-sm text-gray-900">
+                      {application.offer?.title}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      {application.offer?.company_name}
+                    </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">{getStatusBadge(application.status)}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4">
+                    {getStatusBadge(application.status)}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     <div className="flex items-center">
                       <Calendar size={14} className="mr-1" />
                       {formatDate(application.createdAt)}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="whitespace-nowrap px-6 py-4">
                     <a
                       href={application.cv}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-electric-purple hover:text-electric-purple/80 flex items-center"
+                      className="flex items-center text-electric-purple hover:text-electric-purple/80"
                     >
                       <Download size={16} className="mr-1" />
                       <span className="text-sm">Télécharger</span>
                     </a>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <td className="whitespace-nowrap px-6 py-4 text-right text-sm font-medium">
                     <div className="flex items-center justify-end space-x-2">
                       <button
                         className="text-electric-purple hover:text-electric-purple/80"
@@ -439,21 +495,32 @@ const ApplicationManagement = () => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-3 bg-gray-50">
+          <div className="flex items-center justify-between bg-gray-50 px-6 py-3">
             <div className="text-sm text-gray-700">
-              Affichage de <span className="font-medium">{indexOfFirstItem + 1}</span> à{" "}
-              <span className="font-medium">{Math.min(indexOfLastItem, filteredApplications.length)}</span> sur{" "}
-              <span className="font-medium">{filteredApplications.length}</span> candidatures
+              Affichage de{" "}
+              <span className="font-medium">{indexOfFirstItem + 1}</span> à{" "}
+              <span className="font-medium">
+                {Math.min(indexOfLastItem, filteredApplications.length)}
+              </span>{" "}
+              sur{" "}
+              <span className="font-medium">{filteredApplications.length}</span>{" "}
+              candidatures
             </div>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
                 disabled={currentPage === 1}
-                className={`p-1 rounded ${
-                  currentPage === 1 ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-200"
+                className={`rounded p-1 ${
+                  currentPage === 1
+                    ? "cursor-not-allowed text-gray-400"
+                    : "text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
@@ -465,13 +532,21 @@ const ApplicationManagement = () => {
                 {currentPage} / {totalPages}
               </div>
               <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                }
                 disabled={currentPage === totalPages}
-                className={`p-1 rounded ${
-                  currentPage === totalPages ? "text-gray-400 cursor-not-allowed" : "text-gray-700 hover:bg-gray-200"
+                className={`rounded p-1 ${
+                  currentPage === totalPages
+                    ? "cursor-not-allowed text-gray-400"
+                    : "text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                <svg
+                  className="h-5 w-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
                   <path
                     fillRule="evenodd"
                     d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
@@ -491,60 +566,72 @@ const ApplicationManagement = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg shadow-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+              className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-lg bg-white p-6 shadow-lg"
             >
-              <div className="flex justify-between items-center mb-6">
+              <div className="mb-6 flex items-center justify-between">
                 <h2 className="text-xl font-bold">Détails de la candidature</h2>
-                <button className="text-gray-500 hover:text-gray-700" onClick={() => setViewingApplication(null)}>
+                <button
+                  className="text-gray-500 hover:text-gray-700"
+                  onClick={() => setViewingApplication(null)}
+                >
                   <X size={20} />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
                 {/* Left column - Candidate info */}
-                <div className="md:col-span-1 bg-gray-50 p-6 rounded-xl">
-                  <div className="flex flex-col items-center mb-6">
-                    <div className="w-20 h-20 bg-electric-purple/10 rounded-full flex items-center justify-center mb-3">
+                <div className="rounded-xl bg-gray-50 p-6 md:col-span-1">
+                  <div className="mb-6 flex flex-col items-center">
+                    <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-electric-purple/10">
                       <User size={32} className="text-electric-purple" />
                     </div>
                     <h3 className="text-xl font-bold">
-                      {viewingApplication.firstname} {viewingApplication.lastname}
+                      {viewingApplication.firstname}{" "}
+                      {viewingApplication.lastname}
                     </h3>
                     <p className="text-gray-600">{viewingApplication.email}</p>
                   </div>
 
                   <div className="space-y-4">
                     <div className="flex items-start">
-                      <Mail className="w-5 h-5 text-gray-500 mt-0.5 mr-3" />
+                      <Mail className="mr-3 mt-0.5 h-5 w-5 text-gray-500" />
                       <div>
-                        <p className="text-sm font-medium text-gray-700">Email</p>
-                        <p className="text-sm text-gray-600">{viewingApplication.email}</p>
+                        <p className="text-sm font-medium text-gray-700">
+                          Email
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {viewingApplication.email}
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-start">
-                      <Calendar className="w-5 h-5 text-gray-500 mt-0.5 mr-3" />
+                      <Calendar className="mr-3 mt-0.5 h-5 w-5 text-gray-500" />
                       <div>
-                        <p className="text-sm font-medium text-gray-700">Date de candidature</p>
-                        <p className="text-sm text-gray-600">{formatDate(viewingApplication.createdAt)}</p>
+                        <p className="text-sm font-medium text-gray-700">
+                          Date de candidature
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          {formatDate(viewingApplication.createdAt)}
+                        </p>
                       </div>
                     </div>
 
                     <div className="flex items-start">
-                      <FileText className="w-5 h-5 text-gray-500 mt-0.5 mr-3" />
+                      <FileText className="mr-3 mt-0.5 h-5 w-5 text-gray-500" />
                       <div>
                         <p className="text-sm font-medium text-gray-700">CV</p>
                         <a
                           href={viewingApplication.cv}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center mt-1 px-3 py-1.5 bg-electric-purple/10 text-electric-purple text-sm rounded-lg hover:bg-electric-purple/20 transition-colors"
+                          className="mt-1 inline-flex items-center rounded-lg bg-electric-purple/10 px-3 py-1.5 text-sm text-electric-purple transition-colors hover:bg-electric-purple/20"
                         >
                           <Download size={14} className="mr-1.5" />
                           Télécharger le CV
@@ -557,13 +644,16 @@ const ApplicationManagement = () => {
                 {/* Right column - Application details */}
                 <div className="md:col-span-2">
                   <div className="mb-6">
-                    <h1 className="text-2xl font-bold mb-2">Candidature pour: {viewingApplication.offer?.title}</h1>
-                    <div className="flex flex-wrap gap-3 mb-4">
+                    <h1 className="mb-2 text-2xl font-bold">
+                      Candidature pour: {viewingApplication.offer?.title}
+                    </h1>
+                    <div className="mb-4 flex flex-wrap gap-3">
                       {viewingApplication.offer?.location?.city && (
                         <div className="flex items-center text-sm text-gray-600">
                           <MapPin className="mr-1" size={16} />
                           <span>
-                            {viewingApplication.offer?.location?.city}, {viewingApplication.offer?.location?.country}
+                            {viewingApplication.offer?.location?.city},{" "}
+                            {viewingApplication.offer?.location?.country}
                           </span>
                         </div>
                       )}
@@ -572,40 +662,56 @@ const ApplicationManagement = () => {
                         <span>{viewingApplication.offer?.contract_type}</span>
                       </div>
                     </div>
-                    <div className="flex items-center mt-2">
+                    <div className="mt-2 flex items-center">
                       <span className="mr-2">Statut actuel:</span>
                       {getStatusBadge(viewingApplication.status)}
                     </div>
                   </div>
 
                   <div className="mb-8">
-                    <h3 className="text-lg font-semibold mb-3">Lettre de motivation</h3>
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <p className="text-gray-700 whitespace-pre-line">{viewingApplication.content}</p>
+                    <h3 className="mb-3 text-lg font-semibold">
+                      Lettre de motivation
+                    </h3>
+                    <div className="rounded-lg bg-gray-50 p-4">
+                      <p className="whitespace-pre-line text-gray-700">
+                        {viewingApplication.content}
+                      </p>
                     </div>
                   </div>
 
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold mb-3">Feedback (optionnel)</h3>
+                    <h3 className="mb-3 text-lg font-semibold">
+                      Feedback (optionnel)
+                    </h3>
                     <textarea
                       value={feedback}
                       onChange={(e) => setFeedback(e.target.value)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-electric-purple"
+                      className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-electric-purple"
                       rows={3}
                       placeholder="Ajouter un feedback pour le candidat..."
                     ></textarea>
 
-                    <div className="flex flex-col sm:flex-row gap-3 mt-6">
+                    <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                       <button
-                        onClick={() => handleUpdateStatus(viewingApplication.id, Status.ACCEPTED)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                        onClick={() =>
+                          handleUpdateStatus(
+                            viewingApplication.id,
+                            Status.ACCEPTED,
+                          )
+                        }
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-white transition-colors hover:bg-green-700"
                       >
                         <CheckCircle size={18} />
                         Accepter la candidature
                       </button>
                       <button
-                        onClick={() => handleUpdateStatus(viewingApplication.id, Status.REJECTED)}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                        onClick={() =>
+                          handleUpdateStatus(
+                            viewingApplication.id,
+                            Status.REJECTED,
+                          )
+                        }
+                        className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-red-600 px-4 py-3 text-white transition-colors hover:bg-red-700"
                       >
                         <XCircle size={18} />
                         Refuser la candidature
@@ -626,32 +732,35 @@ const ApplicationManagement = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full"
+              className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg"
             >
               <div className="flex flex-col items-center">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100">
                   <Trash2 size={32} className="text-red-600" />
                 </div>
-                <h2 className="text-xl font-bold mb-2">Confirmer la suppression</h2>
-                <p className="text-gray-600 text-center mb-6">
-                  Êtes-vous sûr de vouloir supprimer cette candidature ? Cette action ne peut pas être annulée.
+                <h2 className="mb-2 text-xl font-bold">
+                  Confirmer la suppression
+                </h2>
+                <p className="mb-6 text-center text-gray-600">
+                  Êtes-vous sûr de vouloir supprimer cette candidature ? Cette
+                  action ne peut pas être annulée.
                 </p>
 
-                <div className="flex justify-center space-x-3 w-full">
+                <div className="flex w-full justify-center space-x-3">
                   <button
-                    className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                    className="flex-1 rounded-md border border-gray-300 px-4 py-2 text-gray-700 hover:bg-gray-50"
                     onClick={() => setShowDeleteConfirm(null)}
                   >
                     Annuler
                   </button>
                   <button
-                    className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                    className="flex-1 rounded-md bg-red-600 px-4 py-2 text-white hover:bg-red-700"
                     onClick={() => handleDeleteApplication(showDeleteConfirm)}
                   >
                     Supprimer
@@ -663,8 +772,7 @@ const ApplicationManagement = () => {
         )}
       </AnimatePresence>
     </div>
-  )
-}
+  );
+};
 
-export default ApplicationManagement
-
+export default ApplicationManagement;

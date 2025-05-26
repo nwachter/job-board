@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Search, CheckCircle, XCircle, Clock, Briefcase } from "lucide-react";
 import Image from "next/image";
 import { Status, Application } from "@/app/types/application";
@@ -96,7 +96,7 @@ export default function RecruiterApplications({
   // Memoized data fetch
 
   let { filteredApplications, offersList } = useMemo(() => {
-    let fetchApplications = () => {
+    const fetchApplications = () => {
       const uniqueOffers = Array.from(
         new Set(applications.map((app) => app.offer_id)),
       )
@@ -143,7 +143,7 @@ export default function RecruiterApplications({
       filteredApplications: result,
       offersList: offersList,
     };
-  }, [recruiterId, applications, searchTerm, statusFilter, offerFilter]);
+  }, [applications, searchTerm, statusFilter, offerFilter]);
 
   const handleStatusChange = (
     applicationId: number,
@@ -157,6 +157,8 @@ export default function RecruiterApplications({
     //       : app,
     //   ),
     // );
+
+    offersList = offersList;
     filteredApplications = filteredApplications.map((app) =>
       app.id === applicationId
         ? { ...app, status: newStatus, feedback: feedback || app.feedback }

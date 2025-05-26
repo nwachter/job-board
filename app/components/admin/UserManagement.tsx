@@ -85,39 +85,38 @@ const UserManagement = () => {
   });
 
   useEffect(() => {
-    let updatedUsers = users ?? [];
+    const filterUsers = () => {
+      // Ensure users is an array before spreading
+      if (!Array.isArray(users)) {
+        setFilteredUsers([]);
+        return;
+      }
+
+      // Create a safe copy of the users array
+      let filtered = [...users];
+
+      // Search filter
+      if (searchTerm) {
+        filtered = filtered.filter(
+          (user) =>
+            user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
+        );
+      }
+
+      // Role filter
+      if (selectedRole !== "all") {
+        filtered = filtered.filter((user) => user.role === selectedRole);
+      }
+
+      setFilteredUsers(filtered);
+    };
+    const updatedUsers = users ?? [];
     if (users) {
       filterUsers();
     }
     setFilteredUsers(updatedUsers); // Initialize with fetched users
-  }, [users]);
-
-  const filterUsers = () => {
-    // Ensure users is an array before spreading
-    if (!Array.isArray(users)) {
-      setFilteredUsers([]);
-      return;
-    }
-
-    // Create a safe copy of the users array
-    let filtered = [...users];
-
-    // Search filter
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (user) =>
-          user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email?.toLowerCase().includes(searchTerm.toLowerCase()),
-      );
-    }
-
-    // Role filter
-    if (selectedRole !== "all") {
-      filtered = filtered.filter((user) => user.role === selectedRole);
-    }
-
-    setFilteredUsers(filtered);
-  };
+  }, [users, searchTerm, selectedRole]);
 
   // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;

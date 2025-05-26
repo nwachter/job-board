@@ -1,4 +1,3 @@
-import { formatDate } from "date-fns";
 import { motion } from "motion/react";
 import {
   XCircle,
@@ -10,11 +9,11 @@ import {
 import React, { JSX, useState } from "react";
 import Image from "next/image";
 import { Skill } from "@/app/types/skill";
-import { Status } from "@/app/types/application";
+import { Application, Status } from "@/app/types/application";
 
 type ApplicationDetailsModalProps = {
   onClose: () => void;
-  selectedApplication: any;
+  selectedApplication: Application;
   getStatusBadge: (status: Status) => JSX.Element | null;
   handleStatusChange: (
     applicationId: number,
@@ -129,7 +128,9 @@ export const ApplicationDetailsModal: React.FC<
                       className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-3 py-2"
                     >
                       <span className="text-sm">{skill.name}</span>
-                      {renderSkillLevel(skill.level)}
+                      {skill?.level && (
+                        <span>{renderSkillLevel(skill?.level)}</span>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -21,17 +21,12 @@ const api = axios.create({
 // });
 export type RegisterType = {
   user: User;
-}
+};
 const register = async (
   data: Omit<
     User,
-    | "id"
-    | "role"
-    | "applications"
-    | "offers"
-    | "createdAt"
-    | "updatedAt"
-  >
+    "id" | "role" | "applications" | "offers" | "createdAt" | "updatedAt"
+  >,
 ): Promise<RegisterType> => {
   try {
     const response = await api.post<RegisterType>("/register", data);
@@ -47,15 +42,17 @@ const register = async (
 const login = async (data: {
   email: string;
   password: string;
-}): Promise<{user: User}> => {
+}): Promise<User> => {
   const { email, password } = data;
   if (!email || !password) {
     throw new Error("Il manque l'email ou le mot de passe");
   }
   try {
-    const response = await api.post<{user: User}>("/login", { email, password });
-    return response?.data;
- 
+    const response = await api.post<{ user: User }>("/login", {
+      email,
+      password,
+    });
+    return response?.data?.user;
   } catch (error) {
     console.error("Failed to login:", error);
     throw error;
@@ -64,7 +61,7 @@ const login = async (data: {
 
 export const updateUser = async (
   id: number,
-  data: Partial<Omit<User, "id" | "password">>
+  data: Partial<Omit<User, "id" | "password">>,
 ) => {
   try {
     const response = await api.put(`/users/${id}`, data);
@@ -72,7 +69,7 @@ export const updateUser = async (
   } catch (error) {
     console.error(
       `Échec de la mise à jour de l'utilisateur avec l'ID #${id} :`,
-      error
+      error,
     );
     throw error;
   }
@@ -85,7 +82,7 @@ export const deleteUser = async (id: number) => {
   } catch (error) {
     console.error(
       `Échec de la suppression de l'utilisateur avec l'ID #${id} :`,
-      error
+      error,
     );
     throw error;
   }

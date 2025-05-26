@@ -48,17 +48,17 @@ export const useRegister = (): UseMutationResult<
   });
 };
 
-export const useLogin = (): UseMutationResult<any, Error, LoginUser> => {
+export const useLogin = (): UseMutationResult<User, Error, LoginUser> => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  return useMutation({
+  return useMutation<User, Error, LoginUser>({
     mutationKey: ["login"],
     mutationFn: async (loginUserDto: LoginUser) => {
       const response = await login(loginUserDto);
       return response;
     },
-    onSuccess: async (data: any) => {
+    onSuccess: async (data: User) => {
       const userInfo = (await getUserInfo()) ?? null;
       if (!userInfo) {
         console.warn("User info cookie not found");
@@ -89,7 +89,7 @@ export const useLogin = (): UseMutationResult<any, Error, LoginUser> => {
 
 export const useLogout = (
   options?: UseQueryOptions<void, Error>,
-): UseMutationResult<void, Error, any> => {
+): UseMutationResult<void, Error, void> => {
   const queryClient = useQueryClient();
 
   return useMutation({

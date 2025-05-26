@@ -77,10 +77,10 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
   };
 
   useEffect(() => {
-    let updatedOffers =
+    const updatedOffers =
       offersList && offersList.length > 0 ? offersList : offers;
     setOffersList(updatedOffers);
-  }, [offers]);
+  }, [offers, offersList]);
 
   // In RecruiterDashboard.tsx
   useEffect(() => {
