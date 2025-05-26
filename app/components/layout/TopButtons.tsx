@@ -71,9 +71,7 @@ import { User, LogOut } from "lucide-react"; // More standard icons
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"; // Import Radix Dropdown
 
 import { useGetUserInfo } from "@/app/hooks/useUserInfo";
-import { logout } from "@/app/services/auth";
 import { useLogout } from "@/app/hooks/useAuth";
-import { on } from "events";
 
 const TopButtons = () => {
   const pathname = usePathname();
@@ -82,7 +80,7 @@ const TopButtons = () => {
   const logoutMutation = useLogout();
 
   const handleLogout = async () => {
-    await logoutMutation.mutateAsync({
+    logoutMutation.mutate(undefined, {
       onSuccess: () => {
         router.push("/jobs");
       },

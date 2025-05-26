@@ -7,7 +7,6 @@ import {
   Briefcase,
   Users,
   Building2,
-  FileText,
   ShieldAlert,
   Home,
   ChevronRight,
