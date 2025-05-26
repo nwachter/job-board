@@ -31,15 +31,12 @@ export const getOffers = async () => {
   }
 };
 
-export const getOffersByRecruiterId = async (recruiterId: number) => {
+export const getOffersByRecruiterId = async (id: number) => {
   try {
-    const response = await api.get(`/offers/by-recruiter/${recruiterId}`);
+    const response = await api.get(`/offers/by-recruiter/${id}`);
     return response.data;
   } catch (error) {
-    console.error(
-      `Failed to fetch offers of recruiter #${recruiterId}:`,
-      error,
-    );
+    console.error(`Failed to fetch offers of recruiter #${id}:`, error);
     throw error;
   }
 };
