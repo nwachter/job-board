@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { format } from "date-fns";
+import { Application } from "@/app/types/application";
 
 // Define the expected status values from your schema
 type ApplicationStatus = "PENDING" | "ACCEPTED" | "REJECTED";
@@ -13,11 +14,12 @@ type ChartDataPoint = {
 const prisma = new PrismaClient();
 
 export async function GET(
-  _request: Request,
-  { params }: { params: { recruiter_id: string } },
+  request: Request,
+  { params }: { params: Promise<{ recruiter_id: string }> },
 ) {
   try {
-    const recruiterId = parseInt(params.recruiter_id, 10);
+    const { recruiter_id } = await params;
+    const recruiterId = parseInt(recruiter_id, 10);
 
     if (isNaN(recruiterId)) {
       return NextResponse.json(
@@ -57,7 +59,9 @@ export async function GET(
       );
     }
 
-    const chartData = getRecruiterApplicationsStatisticsForChart(applications);
+    const chartData = getRecruiterApplicationsStatisticsForChart(
+      applications as Application[],
+    );
 
     return NextResponse.json(
       {
@@ -80,7 +84,7 @@ export async function GET(
 }
 
 function getRecruiterApplicationsStatisticsForChart(
-  applications: any[],
+  applications: Application[],
 ): ChartDataPoint[] {
   const allStatuses = new Set<string>();
   applications.forEach((app) => {
@@ -95,7 +99,7 @@ function getRecruiterApplicationsStatisticsForChart(
 
   // Initialize counts for each date with all possible statuses
   applications.forEach((app) => {
-    const date = format(new Date(app.createdAt), "yyyy-MM-dd");
+    const date = format(new Date(app.createdAt || new Date()), "yyyy-MM-dd");
 
     if (!dataByDate.has(date)) {
       // Create an initial object with the date and all statuses set to 0
