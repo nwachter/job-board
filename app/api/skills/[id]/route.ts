@@ -8,11 +8,14 @@ import { Role } from "@/app/types/user";
 
 const prisma = new PrismaClient();
 
-type Params = {
-  id: string;
-};
+// type Params = {
+//   id: string;
+// };
 
-export async function GET(request: Request, { params }: { params: Params }) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const { id } = await params;
 
@@ -39,7 +42,10 @@ export async function GET(request: Request, { params }: { params: Params }) {
   }
 }
 
-export const PUT = async (request: Request, { params }: { params: Params }) => {
+export const PUT = async (
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) => {
   const { id } = await params;
   const { name } = await request.json();
 
@@ -76,7 +82,7 @@ export const PUT = async (request: Request, { params }: { params: Params }) => {
 
 export const DELETE = async (
   request: Request,
-  { params }: { params: Params },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   try {
     const { id } = await params;
