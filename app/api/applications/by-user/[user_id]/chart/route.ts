@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { format } from "date-fns";
+import { Application } from "@/app/types/application";
 
 // Define the expected status values from your schema
 type ApplicationStatus = "PENDING" | "ACCEPTED" | "REJECTED";
@@ -15,13 +16,14 @@ interface ChartDataPoint {
 const prisma = new PrismaClient();
 
 export async function GET(
-  _request: Request,
-  { params }: { params: { recruiter_id: string } },
+  request: Request,
+  { params }: { params: Promise<{ user_id: string }> },
 ) {
   try {
-    const recruiterId = parseInt(params.recruiter_id, 10);
+    const { user_id } = await params;
+    const userId = parseInt(user_id, 10);
 
-    if (isNaN(recruiterId)) {
+    if (isNaN(userId)) {
       return NextResponse.json(
         { error: "Invalid recruiter ID" },
         { status: 400 },
@@ -32,7 +34,7 @@ export async function GET(
     const applications = await prisma.application.findMany({
       where: {
         offer: {
-          recruiter_id: recruiterId,
+          recruiter_id: userId,
         },
       },
       include: {
@@ -60,7 +62,9 @@ export async function GET(
     }
 
     // Process applications for chart data
-    const chartData = getRecruiterApplicationsStatisticsForChart(applications);
+    const chartData = getRecruiterApplicationsStatisticsForChart(
+      applications as Application[],
+    );
 
     return NextResponse.json(
       {
@@ -82,7 +86,7 @@ export async function GET(
 }
 
 function getRecruiterApplicationsStatisticsForChart(
-  applications: any[],
+  applications: Application[],
 ): ChartDataPoint[] {
   // Get all unique statuses from the applications
   const allStatuses = new Set<string>();
@@ -98,7 +102,7 @@ function getRecruiterApplicationsStatisticsForChart(
 
   // Initialize counts for each date with all possible statuses
   applications.forEach((app) => {
-    const date = format(new Date(app.createdAt), "yyyy-MM-dd");
+    const date = format(new Date(app.createdAt!), "yyyy-MM-dd");
 
     if (!dataByDate.has(date)) {
       // Create an initial object with the date and all statuses set to 0
