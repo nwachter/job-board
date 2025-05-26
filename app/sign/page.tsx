@@ -1,7 +1,4 @@
-
-
 // "use client";
-
 
 // import React, { useEffect, useState } from 'react';
 // import { Mail, Lock, User, Building2, ArrowRight } from 'lucide-react';
@@ -12,7 +9,7 @@
 // type FormFieldProps = {
 //     icon: React.ReactNode;
 //     error?: string;
-//     setInputs: 
+//     setInputs:
 //      React.Dispatch<React.SetStateAction<{
 //         email: string,
 //         password: string,
@@ -36,7 +33,6 @@
 //         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
 //     </div>
 // );
-
 
 // const SignPages = () => {
 
@@ -63,9 +59,6 @@
 //     const [alert, setAlert] = useState({ type: "", message: "" });
 //     const [message, setMessage] = useState("Prêt à trouver le job de vos rêves ?");
 
-
-
-
 //     const alertData: any = {
 //         danger: {
 //             type: "error",
@@ -82,7 +75,6 @@
 //     };
 //     const router = useRouter();
 
-    
 //     useEffect(() => {
 //         const url = new URL(window.location.href);
 //         const appRootUrl = `${url.protocol}//${url.host}`;
@@ -99,10 +91,8 @@
 //         username: "",
 //         password_confirmation: "",
 //       }));
-    
-      
+
 //     }, [isSignUp])
-    
 
 //     const validateInput = (value: string, min: number, max: number, regex: RegExp, name: string) => {
 //         const translatedName = name === "password" || name === "password_confirmation" ? "mot de passe" : name;
@@ -153,7 +143,7 @@
 //             };
 //                // setAlert(updatedAlert)
 //         }
-     
+
 //         console.log("Infos envoyées : ", email, password, password_confirmation, username);
 
 //         try {
@@ -166,13 +156,13 @@
 //                     id: data?.user?.id,
 //                     role: data?.user?.role,
 //                     username: data?.user?.username,
-//                     email: data?.user?.email,        
+//                     email: data?.user?.email,
 //                 }
 //                 // const userInfo = {
 //                 //     id: data?.user?.id,
 //                 //     role: data?.user?.role,
 //                 //     username: data?.user?.username,
-//                 //     email: data?.user?.email,        
+//                 //     email: data?.user?.email,
 //                 // }
 //                 localStorage.setItem("jobboard_user_info", JSON.stringify(userInfo));
 //                 // localStorage.setItem("token", data?.token); //Token is set in cookie in the backend
@@ -184,7 +174,6 @@
 //             type: alertType,
 //             message: alertData[alertType].message,
 //           };
-    
 
 //             if (isSignUp === false && data?.user) {
 //                 setTimeout(() => {
@@ -283,7 +272,7 @@
 //                         <form onSubmit={handleSubmit} method="POST" className="space-y-4">
 //                             {isSignUp && (
 //                                 <div className="space-y-4">
-                
+
 //                                     <FormField
 //                                         icon={<User size={20} />}
 //                                         type="text"
@@ -352,17 +341,17 @@
 //     );
 // };
 
-
 // export default SignPages;
 
-import React from 'react'
+import React, { Suspense } from "react";
 import AuthLayout from "../components/auth/AuthLayout";
 
-const SignPages = () => {
+const SignPage = () => {
   return (
-    <AuthLayout />
-  )
-}
+    <Suspense fallback={<div>Chargement...</div>}>
+      <AuthLayout />
+    </Suspense>
+  );
+};
 
-export default AuthLayout
-
+export default SignPage;
