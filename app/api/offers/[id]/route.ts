@@ -7,13 +7,10 @@ import { authMiddleware } from "@/app/middleware";
 
 const prisma = new PrismaClient();
 
-type Params = {
-  id: string;
-};
-
-export async function GET(request: Request,
-  { params }: { params: Promise<{ id: string }> }
-  ) {
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
   try {
     const { id } = await params;
 
@@ -41,12 +38,13 @@ export async function GET(request: Request,
   }
 }
 
-
-export const PUT = async (request: Request, { params }: { params: Params }) => {
+export const PUT = async (
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) => {
   const { id } = await params; //testerror : add skills
   const { title, description, company_name, location, salary, recruiter_id } =
     await request.json();
-
 
   if (!id) {
     return NextResponse.json({
@@ -84,7 +82,7 @@ export const PUT = async (request: Request, { params }: { params: Params }) => {
 
 export const PATCH = async (
   request: Request,
-  { params }: { params: Params },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   const { id } = await params;
   const {
@@ -139,10 +137,9 @@ export const PATCH = async (
   });
 };
 
-
 export const DELETE = async (
   request: Request,
-  { params }: { params: Params },
+  { params }: { params: Promise<{ id: string }> },
 ) => {
   try {
     const { id } = await params;
