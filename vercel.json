@@ -8,12 +8,6 @@
       "use": "@vercel/next"
     }
   ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/"
-    }
-  ],
   "env": {
     "DATABASE_URL": "@database_url",
     "NODE_ENV": "production",
