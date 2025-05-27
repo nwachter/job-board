@@ -20,16 +20,21 @@ model Application {
 }
 */
 
-export async function GET(request: Request, 
-  { params }: { params: Promise<{ id: string }> }
-) {   //BIGtesterror : maybe must add Promise everywhere we have params...
+export async function GET(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  //BIGtesterror : maybe must add Promise everywhere we have params...
   try {
-   const { id } = await params;
+    const { id } = await params;
     // const applicationId = parseInt(params.id, 10);
     const applicationId = parseInt(id, 10);
 
     if (isNaN(applicationId)) {
-      return NextResponse.json({ error: "ID de candidature invalide" }, { status: 400 });
+      return NextResponse.json(
+        { error: "ID de candidature invalide" },
+        { status: 400 },
+      );
     }
 
     const application = await prisma.application.findUnique({
@@ -39,45 +44,56 @@ export async function GET(request: Request,
       include: {
         user: true,
         offer: true,
-      }
+      },
     });
-
+    //
     if (!application) {
-      return NextResponse.json({ error: "Candidature introuvable" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Candidature introuvable" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json(application);
-
   } catch (error) {
-    return NextResponse.json({ error: `Erreur lors de la recherche de la candidature : ${error}`, status: 500 });
+    return NextResponse.json({
+      error: `Erreur lors de la recherche de la candidature : ${error}`,
+      status: 500,
+    });
   }
 }
-
 
 export async function PUT(request: Request) {
   try {
     const cookiesData = cookies();
-    const token = (await cookiesData).get('token')?.value;
+    const token = (await cookiesData).get("token")?.value;
 
     if (!token) {
-      return NextResponse.json({ message: 'Accès interdit' }, { status: 401 });
+      return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
     }
 
-    const decodedToken : DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+    const decodedToken: DecodedToken = jwt.verify(
+      token,
+      process.env.JWT_SECRET!,
+    ) as DecodedToken;
     if (decodedToken?.role !== "user") {
       return NextResponse.json({ error: "Accès non autorisé", status: 401 });
     }
 
-    const { id, firstname, lastname, email, offer_id, user_id, cv } = await request.json();
+    const { id, firstname, lastname, email, offer_id, user_id, cv } =
+      await request.json();
 
     // Vérifier si la candidature existe
     const existingApplication = await prisma.application.findUnique({
       where: {
         id: id,
-      }
+      },
     });
     if (!existingApplication) {
-      return NextResponse.json({ error: "Candidature introuvable" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Candidature introuvable" },
+        { status: 404 },
+      );
     }
 
     const updatedApplication = await prisma.application.update({
@@ -100,28 +116,36 @@ export async function PUT(request: Request) {
           connect: {
             id: offer_id,
           },
-        }
+        },
       },
       include: { user: true, offer: true },
     });
 
-    return NextResponse.json({ message: "Candidature mise à jour !", data: updatedApplication });
-
+    return NextResponse.json({
+      message: "Candidature mise à jour !",
+      data: updatedApplication,
+    });
   } catch (error) {
-    return NextResponse.json({ error: `Erreur lors de la mise à jour de la candidature : ${error}`}, {status: 500 });
+    return NextResponse.json(
+      { error: `Erreur lors de la mise à jour de la candidature : ${error}` },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(request: Request) {
   try {
     const cookiesData = cookies();
-    const token = (await cookiesData).get('token')?.value;
+    const token = (await cookiesData).get("token")?.value;
 
     if (!token) {
-      return NextResponse.json({ message: 'Accès interdit' }, { status: 401 });
+      return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
     }
 
-    const decodedToken : DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+    const decodedToken: DecodedToken = jwt.verify(
+      token,
+      process.env.JWT_SECRET!,
+    ) as DecodedToken;
     if (decodedToken?.role !== "user") {
       return NextResponse.json({ error: "Accès non autorisé", status: 401 });
     }
@@ -132,10 +156,13 @@ export async function DELETE(request: Request) {
     const existingApplication = await prisma.application.findUnique({
       where: {
         id: id,
-      }
+      },
     });
     if (!existingApplication) {
-      return NextResponse.json({ error: "Candidature introuvable" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Candidature introuvable" },
+        { status: 404 },
+      );
     }
 
     await prisma.application.delete({
@@ -145,8 +172,10 @@ export async function DELETE(request: Request) {
     });
 
     return NextResponse.json({ message: "Candidature supprimée !" });
-
   } catch (error) {
-    return NextResponse.json({ error: `Erreur lors de la suppression de la candidature : ${error}`}, {status: 500 });
+    return NextResponse.json(
+      { error: `Erreur lors de la suppression de la candidature : ${error}` },
+      { status: 500 },
+    );
   }
 }
