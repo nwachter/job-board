@@ -1,6 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import middleware from "@/app/middleware";
 
 const prisma = new PrismaClient();
 
@@ -25,7 +24,7 @@ model Offer {
 */
 
 export async function GET() {
-// request: Request
+  // request: Request
   try {
     const offers = await prisma.offer.findMany({
       include: {
@@ -58,7 +57,6 @@ export async function POST(request: Request) {
     //   return NextResponse.json({ error: "Erreur lors de la vérification du token", status: 500 });
 
     // }
-
 
     //testerror: add skills
 

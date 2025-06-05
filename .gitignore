@@ -40,3 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 public/uploads/d8269e73-891e-413c-8e1b-6aa82504722b.pdf
+
+# docker
+docker-compose.yaml
+docker-compose.yml 
+Dockerfile

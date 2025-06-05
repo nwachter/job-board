@@ -3,148 +3,105 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 
 const SECRET_KEY = process.env.JWT_SECRET || "jwt_secret";
-// This function can be marked `async` if using `await` inside
-// export const middleware = (request: Request) => {
-//   let userInfo;
-//   let token;
-//   const authorization = request.headers.get('Authorization');
 
-//   if (
-//     // request.url.includes('/dashboard') &&
-//     (!authorization || !authorization?.startsWith('Bearer'))) {
-//     return NextResponse.redirect(new URL('/sign', request.url))
-//   }
-//   if (authorization && authorization.startsWith('Bearer')) {
-//     token = authorization.split(' ')[1];
-//     userInfo = jwt.verify(token, process.env.JWT_SECRET || "secret_key");
-//   }
-
-//   return userInfo;
-
-// }
-
+// For API routes
 export const authMiddleware = async (request?: Request) => {
   try {
-    //Récupérer le token
     const token = (await cookies()).get("token")?.value;
-    // let decodedToken;
+
     if (!token) {
       return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
     }
-    const decodedToken = jwt.verify(token || "", SECRET_KEY);
+
+    const decodedToken = jwt.verify(token, SECRET_KEY);
 
     if (request && decodedToken) {
       request.headers.set("Authorization", `Bearer ${token}`);
     }
+
     return decodedToken;
   } catch (error) {
-    console.log("Erreur de décodage du token", error); // Log de l'erreur pour plus de détails
+    console.log("Erreur de décodage du token", error);
     return { error: "Token invalide ou expiré" };
   }
 };
 
-// See "Matching Paths" below to learn more
-// export const config = {
-//   matcher: ['/dashboard/:path*', '/profile/:path*', '/admin/:path*', '/jobs/new']
-// }
-
-// Define paths that should be protected
-const protectedPaths = ["/dashboard", "/profile", "/admin"];
+// Protected paths and their required roles
+const protectedRoutes = {
+  "/dashboard": ["user", "recruiter"],
+  "/profile": ["user", "recruiter", "admin"],
+  "/admin": ["admin"],
+};
 
 export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
-  // Only check authentication for protected paths
-  if (!protectedPaths.some((prefix) => path.startsWith(prefix))) {
+  // Check if current path needs protection (dash, pro, admin)
+  const matchedRoute = Object.keys(protectedRoutes).find((route) =>
+    path.startsWith(route),
+  );
+
+  // If no protected route matches, allow request
+  if (!matchedRoute) {
     return NextResponse.next();
   }
 
-  // const jwtCookie = req.cookies.get("token");
-  const jwtCookie = (await cookies()).get('token');
-  const userInfoCookie = (await cookies()).get('jobboard_user_info');
+  const requiredRoles =
+    protectedRoutes[matchedRoute as keyof typeof protectedRoutes];
+
+  // Get cookies
+  const jwtCookie = req.cookies.get("token");
+  const userInfoCookie = req.cookies.get("jobboard_user_info");
 
   if (!jwtCookie || !userInfoCookie) {
-    // No JWT cookie or user info found, user is not authenticated
     return handleUnauthenticatedUser(req);
   }
 
   try {
-    // Send the JWT to your backend for verification
-    const authResponse = await fetch(`${req.nextUrl.origin}/api/auth/jwt-verify`, {
-      method: "GET",
-      headers: {
-        Cookie: `token=${jwtCookie?.value}`, // testerror jwt au lieu de token
-      },
-      credentials: "include",
-    });
-    const decodedToken = jwt.verify(jwtCookie?.value || '', SECRET_KEY);
-    if(req && decodedToken) {
-      req.headers.set('Authorization', `Bearer ${jwtCookie?.value}`);
+    // Verify JWT token locally first
+    const decodedToken = jwt.verify(jwtCookie.value, SECRET_KEY);
 
-    }
-
-    if (!authResponse.ok) {
-      throw new Error("Authentication failed  (middle)");
-    }
-
-    const authData = await authResponse.json();
-
-    if (!authData.valid) {
+    if (!decodedToken) {
       return handleUnauthenticatedUser(req);
     }
 
-    // User is authenticated, check role-based access
-    return handleAuthenticatedUser(req, userInfoCookie.value);
+    // Parse user info from cookie
+    let userInfo;
+    try {
+      userInfo = JSON.parse(userInfoCookie.value);
+    } catch (error) {
+      console.error("Error parsing jobboard_user_info cookie:", error);
+      return handleUnauthenticatedUser(req);
+    }
+
+    // Check if user has required role
+    if (!hasRequiredRole(userInfo.role, requiredRoles)) {
+      return NextResponse.redirect(new URL("/", req.url));
+    }
+
+    // (facultat) Add authorization header for downstream API calls
+    const response = NextResponse.next();
+    response.headers.set("Authorization", `Bearer ${jwtCookie.value}`);
+
+    return response;
   } catch (error) {
-    console.error("Error checking authentication (middle):", error);
+    console.error("Error in middleware authentication:", error);
     return handleUnauthenticatedUser(req);
   }
 }
 
 function handleUnauthenticatedUser(req: NextRequest) {
-  // Redirect to login page or show an error
   return NextResponse.redirect(new URL("/sign", req.url));
 }
 
-function handleAuthenticatedUser(req: NextRequest, userInfoString: string) {
-  let userInfo;
-  try {
-    userInfo = JSON.parse(userInfoString);
-  } catch (error) {
-    console.error("Error parsing jobboard_user_info cookie: (handleAuth)", error);
-    return NextResponse.redirect(new URL("/sign", req.url));
+function hasRequiredRole(
+  userRole: string | string[],
+  requiredRoles: string[],
+): boolean {
+  if (Array.isArray(userRole)) {
+    return userRole.some((role) => requiredRoles.includes(role));
   }
-
-  const path = req.nextUrl.pathname;
-  const hasRole = (role: string) =>
-    Array.isArray(userInfo.role)
-      ? userInfo.role.includes(role)
-      : userInfo.role === role;
-
-  if (path.startsWith("/admin")) {
-    if (hasRole("ADMIN")) {
-      return NextResponse.next();
-    }
-
-    // Si l'utilisateur n'a pas le rôle approprié, redirigez-le
-    return NextResponse.redirect(new URL("/", req.url));
-  }
-
-  // Check if the path is /client and if the user has 'admin' role
-  if (path.startsWith("/admin") && !hasRole("ADMIN")) {
-    return NextResponse.redirect(new URL("/sign", req.url));
-  }
-
-  // Check if the path is /dashboard and if the user has 'recruiter' or 'user' role
-  if (
-    path.startsWith("/dashboard") &&
-    (!hasRole("recruiter") || !hasRole("user"))
-  ) {
-    return NextResponse.redirect(new URL("/sign", req.url));
-  }
-
-  // User has the correct role for the path, allow the request
-  return NextResponse.next();
+  return requiredRoles.includes(userRole);
 }
 
 export const config = {
@@ -155,7 +112,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     * - sign (login page)
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|sign).*)",
   ],
 };
