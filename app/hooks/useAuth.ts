@@ -61,7 +61,7 @@ export const useLogin = (): UseMutationResult<User, Error, LoginUser> => {
     onSuccess: async (data: User) => {
       const userInfo = (await getUserInfo()) ?? null;
       if (!userInfo) {
-        console.warn("User info cookie not found");
+        console.warn("User info cookie not found. updated");
         return;
       }
 
