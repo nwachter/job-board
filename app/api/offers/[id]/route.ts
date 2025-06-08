@@ -24,11 +24,7 @@ export async function GET(
         skills: true,
       },
     });
-    return NextResponse.json({
-      message: "Offre récupérée avec succès",
-      data: offer,
-      status: 200,
-    });
+    return NextResponse.json(offer);
   } catch (error: unknown) {
     console.error("Erreur lors de la recherche de l'offre : ", error);
     return NextResponse.json({

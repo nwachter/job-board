@@ -44,7 +44,7 @@ export const getOffersByRecruiterId = async (id: number) => {
 export const getOfferById = async (id: number) => {
   try {
     const response = await api.get(`/offers/${id}`);
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Failed to fetch offer by id:", error);
     throw error;

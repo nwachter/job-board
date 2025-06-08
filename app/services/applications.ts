@@ -28,7 +28,7 @@ export type ChartDataPoint = {
 export const getApplications = async () => {
   try {
     const response = await api.get("/applications");
-    return response.data.data;
+    return response.data;
   } catch (error) {
     console.error("Échec de la récupération des candidatures :", error);
     throw error;

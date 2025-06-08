@@ -44,56 +44,76 @@ const Dashboard = () => {
   } = useGetApplications();
 
   const filteredApplications = useMemo(() => {
-    if (!applications || !userInfo) return [];
+    if (!applications || !Array.isArray(applications) || !userInfo) return [];
 
     if (userInfo.role === Role.USER) {
-      return applications.filter(
-        (application) => application.user_id === userInfo.id,
-      );
-    } else {
-      if (!offersData) return [];
+      return applications?.filter((application) => {
+        return application.user_id === userInfo.id;
+      });
+    } else if (userInfo.role === Role.RECRUITER) {
+      if (!offersData || !Array.isArray(offersData)) return [];
 
-      const recruiterApplications: Application[] = offersData
-        .filter((offer) => offer.recruiter_id === userInfo.id)
-        .flatMap((offer) => offer.applications ?? [])
-        .filter((application) => application !== undefined) as Application[];
+      const recruiterOffersWithApplis =
+        offersData?.filter((offer) => {
+          return (
+            offer.recruiter_id === userInfo.id &&
+            offer.applications !== undefined
+          );
+        }) ?? [];
+      console.log("recruiterOffers", recruiterOffersWithApplis);
+      const recruiterOffersApplications =
+        recruiterOffersWithApplis?.flatMap((offer) => {
+          return offer.applications ?? [];
+        }) ?? [];
+      console.log("recruiterOffersApplications", recruiterOffersApplications);
+      const recruiterApplications: Application[] =
+        recruiterOffersApplications?.filter((application) => {
+          return application !== undefined;
+        }) as Application[];
+      console.log("recruiterApplications", recruiterApplications);
       return recruiterApplications;
+    } else {
+      return [];
     }
-  }, [applications, userInfo, offersData]); // Fix: Add all dependencies
+  }, [applications, userInfo, offersData]);
 
   const filteredOffers = useMemo(() => {
-    if (!offersData || !userInfo) return [];
+    if (!offersData || !Array.isArray(offersData) || !userInfo) return [];
 
     if (userInfo.role === Role.RECRUITER) {
-      return offersData.filter((offer) => offer.recruiter_id === userInfo.id);
-    } else {
+      return offersData?.filter((offer) => {
+        return offer.recruiter_id === userInfo.id;
+      });
+    } else if (userInfo.role === Role.USER) {
       return offersData;
+    } else {
+      return [];
     }
-  }, [offersData, userInfo]); // Fix: Add all dependencies
+  }, [offersData, userInfo]);
 
-  // Fix: Add safety check for offersData
   const contractTypes: string[] = useMemo(() => {
     if (!offersData || offersData.length === 0) return [];
     return Array.from(
-      new Set(offersData.map((offer: Offer) => offer.contract_type)),
+      new Set(
+        offersData?.map((offer: Offer) => {
+          return offer.contract_type;
+        }),
+      ),
     );
   }, [offersData]);
 
-  // Fix: Add safety check and useMemo for performance
   const applicationsNumber: number = useMemo(() => {
     if (!offersData) return 0;
-    return offersData.reduce(
-      (acc: number, offer: Offer) =>
-        acc + (offer?.applications ? offer.applications.length : 0),
-      0,
-    );
+    return offersData.reduce((acc: number, offer: Offer) => {
+      return acc + (offer?.applications ? offer.applications.length : 0);
+    }, 0);
   }, [offersData]);
 
   useEffect(() => {
     if (userInfo?.role) {
       setRole(userInfo.role);
     }
-  }, [userInfo?.role]); // Fix: More specific dependency
+  }, [userInfo?.role]);
 
   if (isLoadingUserInfo) {
     return (
