@@ -1,11 +1,5 @@
 "use client";
 
-// import JobBoardLanding from '@/app/components/JobBoardLanding';
-
-// export default function Home() {
-//   return <JobBoardLanding />;
-// }
-
 import React, { useEffect, useMemo, useState } from "react";
 
 import RecruiterDashboard from "../components/dashboard/RecruiterDashboard";
@@ -20,8 +14,7 @@ import { useGetApplications } from "../hooks/useApplication";
 import { Application } from "../types/application";
 
 const Dashboard = () => {
-  const [role, setRole] = useState(Role.USER);
-  // const [offersData, setOffersData] = useState<Offer[]>([]);
+  const [role, setRole] = useState<Role>(Role.USER);
   const {
     data: userInfo,
     isLoading: isLoadingUserInfo,
@@ -35,6 +28,7 @@ const Dashboard = () => {
     error: errorLocations,
     isError: isErrorLocations,
   } = useGetLocations();
+
   const {
     data: offersData,
     isLoading: isLoadingOffers,
@@ -50,70 +44,112 @@ const Dashboard = () => {
   } = useGetApplications();
 
   const filteredApplications = useMemo(() => {
-    if (userInfo?.role === Role.USER) {
-      return applications?.filter(
-        (application) => application.user_id === userInfo?.id,
+    if (!applications || !userInfo) return [];
+
+    if (userInfo.role === Role.USER) {
+      return applications.filter(
+        (application) => application.user_id === userInfo.id,
       );
     } else {
+      if (!offersData) return [];
+
       const recruiterApplications: Application[] = offersData
-        ?.filter((offer) => offer.recruiter_id === userInfo?.id)
+        .filter((offer) => offer.recruiter_id === userInfo.id)
         .flatMap((offer) => offer.applications ?? [])
         .filter((application) => application !== undefined) as Application[];
       return recruiterApplications;
     }
-  }, [applications]);
+  }, [applications, userInfo, offersData]); // Fix: Add all dependencies
 
   const filteredOffers = useMemo(() => {
-    if (userInfo?.role === Role.RECRUITER) {
-      return offersData?.filter((offer) => offer.recruiter_id === userInfo?.id);
+    if (!offersData || !userInfo) return [];
+
+    if (userInfo.role === Role.RECRUITER) {
+      return offersData.filter((offer) => offer.recruiter_id === userInfo.id);
     } else {
       return offersData;
     }
+  }, [offersData, userInfo]); // Fix: Add all dependencies
+
+  // Fix: Add safety check for offersData
+  const contractTypes: string[] = useMemo(() => {
+    if (!offersData || offersData.length === 0) return [];
+    return Array.from(
+      new Set(offersData.map((offer: Offer) => offer.contract_type)),
+    );
   }, [offersData]);
 
-  //For users
-
-  const contractTypes: string[] =
-    offersData && offersData?.length > 0
-      ? Array.from(
-          new Set(offersData.map((offer: Offer) => offer.contract_type)),
-        )
-      : [];
-
-  const applicationsNumber: number =
-    offersData?.reduce(
+  // Fix: Add safety check and useMemo for performance
+  const applicationsNumber: number = useMemo(() => {
+    if (!offersData) return 0;
+    return offersData.reduce(
       (acc: number, offer: Offer) =>
-        acc + (offer?.applications ? offer?.applications.length : 0),
+        acc + (offer?.applications ? offer.applications.length : 0),
       0,
-    ) || 0;
+    );
+  }, [offersData]);
 
   useEffect(() => {
-    setRole(userInfo?.role ?? Role.USER);
-  }, [userInfo]);
+    if (userInfo?.role) {
+      setRole(userInfo.role);
+    }
+  }, [userInfo?.role]); // Fix: More specific dependency
+
+  if (isLoadingUserInfo) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-purple-500"></div>
+        <span className="ml-2">Chargement...</span>
+      </div>
+    );
+  }
+
+  if (isErrorUserInfo) {
+    return (
+      <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 transition-all dark:bg-gray-800 dark:text-red-400">
+        Erreur lors du chargement des informations utilisateur:{" "}
+        {errorUserInfo?.message}
+      </div>
+    );
+  }
+
+  if (!userInfo) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <div className="text-center">
+          <p>Impossible de charger les informations utilisateur</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full w-full">
       {role === Role.RECRUITER || role === Role.ADMIN ? (
         <RecruiterDashboard
-          offers={filteredOffers ?? []}
-          applications={filteredApplications ?? []}
+          offers={filteredOffers}
+          applications={filteredApplications}
           contractTypes={contractTypes}
           applicationsNumber={applicationsNumber}
           locations={locations ?? []}
-          isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
-          isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
-          error={errorLocations ?? errorOffers ?? errorUserInfo}
-          userId={userInfo?.id ?? 0}
+          isLoading={
+            isLoadingLocations || isLoadingOffers || isLoadingApplications
+          }
+          isError={isErrorLocations || isErrorOffers || isErrorApplications}
+          error={errorLocations || errorOffers || errorApplications}
+          userId={userInfo.id}
         />
       ) : (
         <UserDashboard
-          offers={filteredOffers ?? []}
-          applications={filteredApplications ?? []}
+          offers={filteredOffers}
+          applications={filteredApplications}
           contractTypes={contractTypes}
           locations={locations ?? []}
-          isLoading={isLoadingLocations ?? isLoadingOffers ?? isLoadingUserInfo}
-          isError={isErrorLocations ?? isErrorOffers ?? isErrorUserInfo}
-          error={errorLocations ?? errorOffers ?? errorUserInfo}
+          isLoading={
+            isLoadingLocations || isLoadingOffers || isLoadingApplications
+          }
+          isError={isErrorLocations || isErrorOffers || isErrorApplications}
+          error={errorLocations || errorOffers || errorApplications}
         />
       )}
     </div>

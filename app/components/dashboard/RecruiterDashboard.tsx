@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { searchOffers } from "@/app/services/offers";
 import { Stats8 } from "../general/StatsCards";
 import { Location } from "@/app/types/location";
-// import {useGetApplications} = '@/app/hooks/useApplications';
 import { Application } from "@/app/types/application";
 import { RecentApplications } from "../general/RecentApplications";
 
@@ -31,7 +30,6 @@ type DashboardStats = {
 
 const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
   offers,
-
   applications,
   contractTypes,
   applicationsNumber,
@@ -39,15 +37,16 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
   isLoading,
   isError,
   error,
-  userId = 1,
+  userId,
 }) => {
   const router = useRouter();
 
-  const [offersList, setOffersList] = useState<Offer[]>(offers);
+  const [offersList, setOffersList] = useState<Offer[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [contractType, setContractType] = useState<string>("");
   const [locationId, setLocationId] = useState<number | undefined>(undefined);
   const [stats, setStats] = useState<DashboardStats[]>([]);
+  const [searchError, setSearchError] = useState<Error | null>(null);
 
   // Get unique status values from all applications
   const getUniqueStatuses = (apps: Application[]) => {
@@ -62,7 +61,8 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    error = error;
+    setSearchError(null);
+
     try {
       const offersResults = await searchOffers(
         searchQuery,
@@ -72,48 +72,54 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
       setOffersList(offersResults ?? offers);
     } catch (e) {
       console.error("Error : ", e);
-      error = error ?? new Error("Erreur lors de la recherche des offres");
+      setSearchError(
+        e instanceof Error
+          ? e
+          : new Error("Erreur lors de la recherche des offres"),
+      );
     }
   };
 
   useEffect(() => {
-    const updatedOffers =
-      offersList && offersList.length > 0 ? offersList : offers;
-    setOffersList(updatedOffers);
-  }, [offers, offersList]);
+    if (offers && offers.length > 0) {
+      setOffersList(offers);
+    }
+  }, [offers]);
 
-  // In RecruiterDashboard.tsx
   useEffect(() => {
     const updatedStats = [
       {
         id: "stat-1",
         label: "Offres",
-        value: String(offers?.length) ?? "0",
+        value: String(offers?.length ?? 0),
       },
       {
         id: "stat-2",
         label: "Candidatures",
-
-        value: String(applicationsNumber) ?? 0,
+        value: String(applicationsNumber ?? 0),
       },
     ];
 
     setStats(updatedStats);
-  }, [offers, applicationsNumber]);
+  }, [offers?.length, applicationsNumber]);
 
-  if (isError)
+  if (isError) {
     return (
       <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 transition-all dark:bg-gray-800 dark:text-red-400">
-        {error?.message}
+        {error?.message || "Une erreur est survenue"}
       </div>
     );
-  if (isLoading)
+  }
+
+  if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-purple-500"></div>
         <span className="ml-2">Chargement...</span>
       </div>
     );
+  }
+
   return (
     <div className="flex h-full w-full">
       <main className="ml-20 flex-1 p-8">
@@ -132,6 +138,13 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
             </button>
           </header>
 
+          {/* Fix: Show search error if it exists */}
+          {searchError && (
+            <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 transition-all dark:bg-gray-800 dark:text-red-400">
+              {searchError.message}
+            </div>
+          )}
+
           {/* Search Section */}
           <div className="mb-8 rounded-[30px] bg-white/70 p-6 shadow-md">
             <form onSubmit={handleSubmit} className="flex gap-4">
@@ -142,33 +155,34 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
                 />
                 <input
                   type="text"
+                  value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Rechercher une offre..."
                   className="w-full rounded-lg border py-2 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
               <select
-                defaultValue=""
+                value={contractType}
                 onChange={(e) => setContractType(e.target.value)}
                 className="rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
-                <option disabled value="">
-                  Type de contrat
-                </option>
-                {contractTypes.map((type, i) => (
+                <option value="">Type de contrat</option>
+                {contractTypes?.map((type, i) => (
                   <option key={`type-${i}`} value={type}>
                     {type}
                   </option>
                 ))}
               </select>
               <select
-                defaultValue=""
-                onChange={(e) => setLocationId(Number(e.target.value))}
+                value={locationId || ""}
+                onChange={(e) =>
+                  setLocationId(
+                    e.target.value ? Number(e.target.value) : undefined,
+                  )
+                }
                 className="rounded-lg border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
               >
-                <option disabled value="">
-                  Localisation
-                </option>
+                <option value="">Localisation</option>
                 {locations?.map((location) => (
                   <option key={location.id} value={location.id}>
                     {location.city}, {location.country}
@@ -183,17 +197,25 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
               </button>
             </form>
           </div>
-          {<Stats8 stats={stats} userId={userId} />}
+
+          <Stats8 stats={stats} userId={userId} />
+
           {/* Job Cards Grid */}
           <div className="flex items-start justify-center gap-4">
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {offersList?.map((offer) => (
-                <JobCard
-                  key={`offer-${offer.id}`}
-                  offer={offer}
-                  router={router}
-                />
-              ))}
+              {offersList?.length > 0 ? (
+                offersList.map((offer) => (
+                  <JobCard
+                    key={`offer-${offer.id}`}
+                    offer={offer}
+                    router={router}
+                  />
+                ))
+              ) : (
+                <div className="col-span-full text-center text-gray-500">
+                  Aucune offre trouvée
+                </div>
+              )}
             </div>
             <div className="h-full">
               <RecentApplications applications={applications ?? []} />
