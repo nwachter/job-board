@@ -39,6 +39,8 @@ model User {
   offers       Offer[]       @relation("RecruiterOffers")
   skills       Skill[]       @relation("UserSkills")
 
+  @@map("user") 
+
 }
 
 model Offer {
@@ -59,6 +61,8 @@ model Offer {
   applications  Application[]
   @@index([location_id])
   @@index([recruiter_id])
+
+  @@map("offer") 
 }
 
 model Application {
@@ -80,6 +84,8 @@ model Application {
   
   @@index([offer_id])
   @@index([user_id])
+
+  @@map("application") 
 }
 
 model Location {
@@ -89,6 +95,8 @@ model Location {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   offers      Offer[]
+
+  @@map("location") 
 
 }
 
@@ -101,4 +109,6 @@ model Skill {
   
   users      User[]    @relation("UserSkills")
   offers     Offer[]   @relation("OfferSkills")
+
+  @@map("skill") 
 }

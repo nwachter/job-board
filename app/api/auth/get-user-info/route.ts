@@ -1,40 +1,60 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import  { JwtPayload } from "jsonwebtoken";
+import { JwtPayload } from "jsonwebtoken";
 import { authMiddleware } from "@/app/middleware";
 
 const prisma = new PrismaClient();
 
-
 export const GET = async () => {
-    try {
+  try {
+    const userInfo = await authMiddleware();
 
-  
-        const userInfo = await authMiddleware();
+    // Vérifier si userInfo est un objet et contient une erreur
+    if ((userInfo as { error?: string }).error) {
+      return NextResponse.json({
+        error: (userInfo as { error?: string }).error,
+        status: 401,
+      });
+    }
+    // Check if auth is an object and has an error property
+    if (
+      typeof userInfo === "object" &&
+      userInfo !== null &&
+      "error" in userInfo
+    ) {
+      return NextResponse.json({
+        error: "Token invalide. Accès non autorisé",
+        userInfo,
+        status: 401,
+      });
+    }
 
-            // Vérifier si userInfo est un objet et contient une erreur
-            if ((userInfo as { error?: string }).error) {
-                return NextResponse.json({ error: (userInfo as { error?: string }).error, status: 401 });
-              }
-        // Check if auth is an object and has an error property
-        if (typeof userInfo === 'object' && userInfo !== null && 'error' in userInfo) {
-            return NextResponse.json({ error: "Token invalide. Accès non autorisé", status: 401 });
-          }
+    if (!(userInfo as JwtPayload)?.id) {
+      return NextResponse.json({
+        error: "Token invalide. Accès non autorisé",
+        userInfo,
+        status: 401,
+      });
+    }
+    console.log("RouteUserInfo : ", userInfo);
+    const user = await prisma.user.findUnique({
+      where: {
+        id: (userInfo as JwtPayload)?.id,
+      },
+    });
 
-          if(!(userInfo as JwtPayload)?.id) {
-            return NextResponse.json({ error: "Token invalide. Accès non autorisé", status: 401 });
-
-          }
-          console.log("RouteUserInfo : ", userInfo)
-        const user = await prisma.user.findUnique({
-            where: {
-                id: (userInfo as JwtPayload)?.id,
-            }
-        });
-     
-      
-       return NextResponse.json({message: "Utilisateur récupéré avec succès", user: {id: user?.id, email: user?.email, username: user?.username, role: user?.role, avatar: user?.avatar},  status: 200});
-        //Générer le cookie
+    return NextResponse.json({
+      message: "Utilisateur récupéré avec succès",
+      user: {
+        id: user?.id,
+        email: user?.email,
+        username: user?.username,
+        role: user?.role,
+        avatar: user?.avatar,
+      },
+      status: 200,
+    });
+    //Générer le cookie
     //    const token =  (await cookies()).get('token')?.value;
     //    if(!token) {
     //           return NextResponse.json({error: "Accès non autorisé", status: 401});
@@ -44,19 +64,19 @@ export const GET = async () => {
     //           return NextResponse.json({error: "Accès non autorisé", status: 401});
     //    }
     //     return userInfo;
-
-    } catch (error) {
-        if (error instanceof Error) {
-            // Si l'erreur est une instance de l'objet Error
-            console.log(error.message);
-        } else {
-            // Si ce n'est pas une erreur standard, affiche l'erreur telle quelle
-            console.log(error);
-        }
-    
-        return NextResponse.json({
-            error: "Erreur lors de la récupération des informations de l'utilisateur courant",
-            status: 500,
-        });
+  } catch (error) {
+    if (error instanceof Error) {
+      // Si l'erreur est une instance de l'objet Error
+      console.log(error.message);
+    } else {
+      // Si ce n'est pas une erreur standard, affiche l'erreur telle quelle
+      console.log(error);
     }
+
+    return NextResponse.json({
+      error:
+        "Erreur lors de la récupération des informations de l'utilisateur courant",
+      status: 500,
+    });
+  }
 };
