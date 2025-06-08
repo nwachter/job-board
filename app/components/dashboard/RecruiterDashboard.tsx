@@ -75,7 +75,9 @@ const RecruiterDashboard: React.FC<RecruiterDashboardProps> = ({
       setSearchError(
         e instanceof Error
           ? e
-          : new Error("Erreur lors de la recherche des offres"),
+          : new Error(
+              "Erreur lors de la recherche des offres (recruiterDashboard)",
+            ),
       );
     }
   };

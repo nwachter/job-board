@@ -38,7 +38,7 @@ export async function GET() {
   } catch (error) {
     console.log("Error fetching offers", error);
     return NextResponse.json({
-      error: "Erreur lors de la recherche des offres...",
+      error: "Erreur lors de la récupération des offres (api-offers)...",
       status: 500,
     });
   }

@@ -56,18 +56,25 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    error = error;
     try {
       const offersResults = await searchOffers(
         searchQuery,
         contractType,
         locationId,
       );
-      setOffersList(offersResults ?? offers);
+      setOffersList(
+        offersResults &&
+          Array.isArray(offersResults) &&
+          offersResults.length > 0
+          ? offersResults
+          : offers,
+      );
     } catch (e) {
       console.error("Error : ", e);
       // setError(error?.message ?? "Erreur lors de la recherche des offres");
-      error = error ?? new Error("Erreur lors de la recherche des offres");
+      error =
+        error ??
+        new Error("Erreur lors de la recherche des offres (userDashboard)");
     }
   };
 
