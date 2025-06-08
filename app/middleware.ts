@@ -5,20 +5,40 @@ import { cookies } from "next/headers";
 const SECRET_KEY = process.env.JWT_SECRET || "jwt_secret";
 
 // For API routes
+// export const authMiddleware = async (request?: Request) => {
+//   try {
+//     const token = (await cookies()).get("token")?.value;
+
+//     if (!token) {
+//       return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
+//     }
+
+//     const decodedToken = jwt.verify(token, SECRET_KEY);
+
+//     if (request && decodedToken) {
+//       request.headers.set("Authorization", `Bearer ${token}`);
+//     }
+
+//     return decodedToken;
+//   } catch (error) {
+//     console.log("Erreur de décodage du token", error);
+//     return { error: "Token invalide ou expiré" };
+//   }
+// };
+
 export const authMiddleware = async (request?: Request) => {
   try {
-    const token = (await cookies()).get("token")?.value;
+    const allCookies = await cookies();
+    console.log("All cookies:", allCookies.getAll()); // Debug line
+
+    const token = allCookies.get("token")?.value;
+    console.log("Token found:", !!token); // Debug line
 
     if (!token) {
       return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
     }
 
     const decodedToken = jwt.verify(token, SECRET_KEY);
-
-    if (request && decodedToken) {
-      request.headers.set("Authorization", `Bearer ${token}`);
-    }
-
     return decodedToken;
   } catch (error) {
     console.log("Erreur de décodage du token", error);
