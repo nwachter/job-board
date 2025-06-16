@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { DecodedToken } from "@/app/types/misc";
-import { authMiddleware } from "@/app/middleware";
+import { authMiddleware } from "@/lib/middlewares/auth";
 
 const prisma = new PrismaClient();
 
@@ -42,7 +42,7 @@ export async function GET() {
     try {
       await authMiddleware();
     } catch (error) {
-      console.error("Erreur lors de la vérification du token", error);
+      //console.warn("Erreur lors de la vérification du token", error);
       return NextResponse.json({
         error: "Erreur lors de la vérification du token (applications)",
         status: 401,
@@ -57,7 +57,7 @@ export async function GET() {
     });
     return NextResponse.json(applications);
   } catch (error) {
-    console.error("Erreur lors de la recherche des candidatures : ", error);
+    //console.warn("Erreur lors de la recherche des candidatures : ", error);
     return NextResponse.json({
       error: "Erreur lors de la recherche des candidatures...",
       status: 500,
@@ -74,16 +74,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
     }
 
-    const decodedToken: DecodedToken = jwt.verify(
-      token,
-      process.env.JWT_SECRET!,
-    ) as DecodedToken;
+    const decodedToken: DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
     if (decodedToken?.role !== "user") {
       return NextResponse.json({ error: "Accès non autorisé", status: 401 });
     }
 
-    const { firstname, lastname, email, offer_id, user_id, cv, content } =
-      await request.json();
+    const { firstname, lastname, email, offer_id, user_id, cv, content } = await request.json();
 
     // Vérifier si l'user existe
     const user = await prisma.user.findUnique({
@@ -92,10 +88,7 @@ export async function POST(request: Request) {
       },
     });
     if (!user) {
-      return NextResponse.json(
-        { error: "L'utilisateur lié à cette candidature est introuvable" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "L'utilisateur lié à cette candidature est introuvable" }, { status: 404 });
     }
 
     // Vérifier si l'offre existe
@@ -105,21 +98,10 @@ export async function POST(request: Request) {
       },
     });
     if (!offer) {
-      return NextResponse.json(
-        { error: "L'offre liée à la candidature est introuvable" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "L'offre liée à la candidature est introuvable" }, { status: 404 });
     }
 
-    if (
-      !firstname ||
-      !lastname ||
-      !email ||
-      !offer_id ||
-      !user_id ||
-      !cv ||
-      !content
-    ) {
+    if (!firstname || !lastname || !email || !offer_id || !user_id || !cv || !content) {
       return NextResponse.json({
         error: "Il manque des champs requis",
         status: 400,
@@ -155,7 +137,7 @@ export async function POST(request: Request) {
       status: 200,
     });
   } catch (error) {
-    console.error("Erreur lors de la création de la candidature : ", error);
+    //console.warn("Erreur lors de la création de la candidature : ", error);
     return NextResponse.json({
       error: "Erreur lors de la création de la candidature !",
       status: 500,

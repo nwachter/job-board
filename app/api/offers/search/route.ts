@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { searchOffers } from "@/lib/queries/offers";
 
 type QueryParameters = {
   [key: string]:
@@ -26,16 +24,19 @@ export async function POST(request: Request) {
       queryParameters.push({ contract_type: contractType });
     }
 
-    const offers = await prisma.offer.findMany({
-      where: {
-        OR: queryParameters,
-      },
-      include: {
-        recruiter: true,
-        applications: true,
-        location: true,
-      },
-    });
+    // const offers = await prisma.offer.findMany({
+    //   where: {
+    //     OR: queryParameters,
+    //   },
+    //   include: {
+    //     recruiter: true,
+    //     applications: true,
+    //     location: true,
+    //     skills: true, //testerror
+    //   },
+    // });
+
+    const offers = await searchOffers(queryParameters);
 
     return NextResponse.json(offers);
   } catch (e: unknown) {

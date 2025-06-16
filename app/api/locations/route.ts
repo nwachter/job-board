@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { authMiddleware } from "@/app/middleware";
+import { authMiddleware } from "@/lib/middlewares/auth";
 
 const prisma = new PrismaClient();
 
@@ -9,17 +9,16 @@ export async function GET() {
     const auth = await authMiddleware();
 
     // Check if auth is an object and has an error property
-    if (typeof auth === 'object' && auth !== null && 'error' in auth) {
+    if (typeof auth === "object" && auth !== null && "error" in auth) {
       return NextResponse.json({ error: "Token invalide. Accès non autorisé", status: 401 });
     }
 
     const locations = await prisma.location.findMany({
       include: {
         offers: true,
-      }
+      },
     });
     return NextResponse.json(locations);
-
   } catch (error) {
     console.log("Error fetching locations", error);
     return NextResponse.json({ error: "Erreur lors de la recherche des locations...", status: 500 });
@@ -31,7 +30,7 @@ export async function POST(request: Request) {
     const auth = await authMiddleware();
 
     // Check if auth is an object and has an error property
-    if (typeof auth === 'object' && auth !== null && 'error' in auth) {
+    if (typeof auth === "object" && auth !== null && "error" in auth) {
       return NextResponse.json({ error: "Token invalide. Accès non autorisé", status: 401 });
     }
 
@@ -56,7 +55,6 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ message: "Location créée !", data: newLocation, status: 201 });
-
   } catch (e: unknown) {
     console.error("Error creating location:", e);
     return NextResponse.json({ error: "Erreur lors de la création de la location !", status: 500 });

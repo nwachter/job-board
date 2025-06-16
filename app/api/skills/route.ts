@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { authMiddleware } from "@/app/middleware";
+import { authMiddleware } from "@/lib/middlewares/auth";
 
 const prisma = new PrismaClient();
 
@@ -33,7 +33,6 @@ export async function GET() {
     });
     return NextResponse.json(skills);
   } catch (error) {
-    console.log("Error fetching skills", error);
     return NextResponse.json({
       error: "Erreur lors de la recherche des compétences...",
       status: 500,
@@ -50,11 +49,8 @@ export async function POST(request: Request) {
         error: "Il manque des champs requis",
         status: 400,
       });
-    } else {
-      console.log("All required fields are present");
     }
 
-    console.log("Received data:", { name });
     const skillData = { name, ...(level && { level: level }) };
     const newSkill = await prisma.skill.create({
       data: {
@@ -62,17 +58,15 @@ export async function POST(request: Request) {
       },
     });
 
-    console.log("Skill created:", newSkill);
-
     return NextResponse.json({
       message: "Offre créée !",
       data: newSkill,
       status: 201,
     });
   } catch (e) {
-    console.error("Error creating skill:", e);
     return NextResponse.json({
       error: "Erreur lors de la création de la compétence !",
+      e,
       status: 500,
     });
   }

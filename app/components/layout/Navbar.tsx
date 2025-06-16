@@ -3,16 +3,7 @@
 import type React from "react";
 
 import { useState, useEffect, useMemo } from "react";
-import {
-  Briefcase,
-  Users,
-  Building2,
-  ShieldAlert,
-  Home,
-  ChevronRight,
-  Menu,
-  X,
-} from "lucide-react";
+import { Briefcase, Users, Building2, ShieldAlert, Home, ChevronRight, Menu, X } from "lucide-react";
 import { useGetUserInfo } from "@/app/hooks/useUserInfo";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "motion/react";
@@ -82,12 +73,7 @@ type NavItemProps = {
   onClick: () => void;
 };
 
-const NavItemComponent = ({
-  item,
-  isExpanded,
-  isActive,
-  onClick,
-}: NavItemProps) => {
+const NavItemComponent = ({ item, isExpanded, isActive, onClick }: NavItemProps) => {
   return (
     <motion.div
       onClick={onClick}
@@ -95,7 +81,7 @@ const NavItemComponent = ({
         "group relative my-1 flex cursor-pointer items-center rounded-lg px-4 py-3 transition-all",
         isActive
           ? "bg-gradient-to-r from-indigo-600/90 to-violet-600/90 text-white"
-          : "text-gray-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20",
+          : "text-gray-600 hover:bg-indigo-50 dark:hover:bg-indigo-950/20"
       )}
       whileHover={{
         x: isExpanded ? 4 : 0,
@@ -160,7 +146,7 @@ export const Navbar = () => {
 
   // Handle window resize for mobile/desktop view
   useEffect(() => {
-    console.log("USERROLE", userInfo?.role);
+    // console.log("USERROLE", userInfo?.role);
     const handleResize = () => {
       if (window.innerWidth < 768) {
         setIsNavExpanded(false);
@@ -174,9 +160,7 @@ export const Navbar = () => {
   }, []);
 
   // Filter nav items based on user role
-  const filteredNavItems = navItems.filter(
-    (item) => item.showAlways || (item.roles && item.roles.includes(userRole)),
-  );
+  const filteredNavItems = navItems.filter(item => item.showAlways || (item.roles && item.roles.includes(userRole)));
 
   // Toggle mobile nav
   const toggleMobileNav = () => {
@@ -223,7 +207,7 @@ export const Navbar = () => {
           "fixed z-50 h-full border-r border-gray-200/50 bg-white/80 shadow-lg backdrop-blur-md dark:border-gray-700/30 dark:bg-gray-900/80",
           "transition-all duration-300 ease-in-out",
           "md:block",
-          isMobileNavOpen ? "left-0" : "-left-full md:left-0",
+          isMobileNavOpen ? "left-0" : "-left-full md:left-0"
         )}
         initial={false}
         animate={{
@@ -262,7 +246,7 @@ export const Navbar = () => {
 
         {/* Navigation items */}
         <div className="mt-6 px-2 font-dm-sans">
-          {filteredNavItems.map((item) => (
+          {filteredNavItems.map(item => (
             <NavItemComponent
               key={item.path}
               item={item}
@@ -280,18 +264,14 @@ export const Navbar = () => {
               "flex items-center rounded-lg p-2",
               "bg-gray-100/80 dark:bg-gray-800/50",
               "hover:bg-gray-200/80 dark:hover:bg-gray-700/50",
-              "cursor-pointer transition-colors",
+              "cursor-pointer transition-colors"
             )}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             <div className="flex h-8 min-h-8 w-8 min-w-8 items-center justify-center whitespace-nowrap rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 text-sm font-medium text-white">
               {userInfo?.avatar && userInfo.avatar !== "" ? (
-                <img
-                  src={userInfo.avatar}
-                  alt="User avatar"
-                  className="h-8 w-8 rounded-full object-cover"
-                />
+                <img src={userInfo.avatar} alt="User avatar" className="h-8 w-8 rounded-full object-cover" />
               ) : (
                 userInfo?.username?.charAt(0) || "U"
               )}
@@ -306,9 +286,7 @@ export const Navbar = () => {
                   exit={{ opacity: 0, width: 0 }}
                   transition={{ duration: 0.15, delay: 0.1 }} // Match the same delay
                 >
-                  <p className="truncate text-sm font-medium">
-                    {userInfo?.username || "Utilisateur"}
-                  </p>
+                  <p className="truncate text-sm font-medium">{userInfo?.username || "Utilisateur"}</p>
                   <p className="truncate text-xs text-gray-500 dark:text-gray-400">
                     {userRole === "GUEST"
                       ? "Invité"

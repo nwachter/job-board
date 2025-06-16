@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 // import React, { useState, useEffect } from "react";
 // import {
 //   User,
@@ -733,10 +733,8 @@
 
 // export default Profile;
 
-"use client";
-
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   User,
   Briefcase,
@@ -753,17 +751,17 @@ import {
   Check,
 } from "lucide-react";
 import Image from "next/image";
-import { Status, Application } from "@/app/types/application";
-import { Offer } from "@/app/types/offer";
+
 import { Role, User as UserType } from "@/app/types/user";
 import { motion } from "framer-motion";
 import UserSkillsSelector from "@/app/components/general/SkillSelector";
 import { Skill } from "@/app/types/skill";
 import { useGetSkills } from "@/app/hooks/useSkills";
+import { useGetUserById, useUpdateUser } from "@/app/hooks/useUser";
 
 // Types
 type ProfileProps = {
-  user: Omit<UserType, "password"> | null;
+  user: Omit<UserType, "password">;
 };
 
 // Fade in animation variant
@@ -778,6 +776,17 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
     isLoading: isLoadingSkills,
     error: errorSkills,
   } = useGetSkills();
+
+  const {
+    data: userDetails,
+    isLoading: isLoadingUserDetails,
+    error: errorUserDetails,
+  } = useGetUserById(Number(user.id));
+
+  // let userSkills = useMemo(() => {
+  //   return userDetails?.skills ? userDetails.skills : [];
+  // }, [userDetails]);
+
   // States for form data
   const [firstname, setFirstname] = useState(
     user?.username.split(" ")[0] || "",
@@ -798,7 +807,15 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
   const [avatarPreview, setAvatarPreview] = useState(
     user?.avatar || "/default-avatar.png",
   );
-  const [userSkills, setUserSkills] = useState<Skill[]>(user?.skills || []);
+  const [userSkills, setUserSkills] = useState<Skill[]>(
+    userDetails?.skills || [],
+  );
+
+  useEffect(() => {
+    if (userDetails?.skills) {
+      setUserSkills(userDetails.skills);
+    }
+  }, [userDetails]);
 
   // User role
   const isRecruiter = user?.role === Role.RECRUITER;
@@ -906,9 +923,26 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
     }
   };
 
+  const updateUserMutation = useUpdateUser();
   // Handle skills change
-  const handleSkillsChange = (skills: Skill[]) => {
-    setUserSkills(skills);
+  const handleSkillsChange = async (changedSkills: Skill[]) => {
+    // userSkills = changedSkills;
+    console.log("Skills changed:", changedSkills);
+    const response = await updateUserMutation.mutateAsync(
+      {
+        id: user.id,
+        data: { skills: changedSkills },
+      },
+      {
+        onSuccess: (result) => {
+          console.log("Skills updated successfully");
+          setUserSkills(result.skills ?? changedSkills);
+        },
+        onError: (error) => {
+          console.error("Error updating skills:", error);
+        },
+      },
+    );
   };
 
   if (!user)
@@ -1049,7 +1083,7 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
                       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                         <div>
                           <label className="mb-1 block text-sm font-medium text-gray-700">
-                            Prénom
+                            Pseudo
                           </label>
                           <input
                             type="text"
@@ -1061,7 +1095,7 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
                             }`}
                           />
                         </div>
-                        <div>
+                        {/* <div>
                           <label className="mb-1 block text-sm font-medium text-gray-700">
                             Nom
                           </label>
@@ -1074,7 +1108,7 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
                               !isEditing ? "bg-gray-50" : ""
                             }`}
                           />
-                        </div>
+                        </div> */}
                       </div>
                       <div>
                         <label className="mb-1 block text-sm font-medium text-gray-700">
@@ -1100,16 +1134,23 @@ export const Profile: React.FC<ProfileProps> = ({ user }) => {
                   </div>
 
                   {/* Skills Section */}
-                  <div className="mt-8 border-t border-gray-200 pt-6">
-                    <UserSkillsSelector
-                      userSkills={userSkills}
-                      onSkillsChange={handleSkillsChange}
-                      allSkills={skills}
-                      // className={
-                      //   !isEditing ? "pointer-events-none opacity-80" : ""
-                      // }
-                    />
-                  </div>
+                  {errorSkills && (
+                    <p className="mt-8 border-t border-gray-200 pt-6 text-sm text-slate-700">
+                      Erreur lors du chargement des compétences
+                    </p>
+                  )}
+                  {!isLoadingSkills && !isLoadingUserDetails && (
+                    <div className="mt-8 border-t border-gray-200 pt-6">
+                      <UserSkillsSelector
+                        userSkills={userDetails?.skills ?? []}
+                        onSkillsChange={handleSkillsChange}
+                        allSkills={skills}
+                        // className={
+                        //   !isEditing ? "pointer-events-none opacity-80" : ""
+                        // }
+                      />
+                    </div>
+                  )}
 
                   {/* Resume Upload */}
                   {!isRecruiter && (

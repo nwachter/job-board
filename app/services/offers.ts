@@ -51,11 +51,7 @@ export const getOfferById = async (id: number) => {
   }
 };
 
-export const searchOffers = async (
-  searchQuery: string,
-  contractType?: string,
-  locationId?: number,
-) => {
+export const searchOffers = async (searchQuery: string, contractType?: string, locationId?: number) => {
   try {
     const response = await api.post("/offers/search", {
       searchQuery,
@@ -69,7 +65,7 @@ export const searchOffers = async (
   }
 };
 
-export const createOffer = async (data: Omit<Offer, "id">) => {
+export const createOffer = async (data: Omit<Offer, "id" | "createdAt" | "updatedAt">) => {
   try {
     const response = await api.post("/offers", data);
     return response.data;
@@ -81,7 +77,7 @@ export const createOffer = async (data: Omit<Offer, "id">) => {
 
 export const updateOffer = async (
   id: number,
-  data: Partial<Offer>,
+  data: Partial<Offer>
   // Omit<Offer, "id">
 ) => {
   try {

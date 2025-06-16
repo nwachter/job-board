@@ -15,10 +15,7 @@ type SignInFormProps = {
   chosenRole: "user" | "recruiter";
 };
 
-const SignInForm: React.FC<SignInFormProps> = ({
-  onToggleMode,
-  chosenRole,
-}) => {
+const SignInForm: React.FC<SignInFormProps> = ({ onToggleMode, chosenRole }) => {
   const { data: userInfo } = useGetUserInfo();
   const userRole = useMemo(() => userInfo?.role, [userInfo]);
 
@@ -39,10 +36,6 @@ const SignInForm: React.FC<SignInFormProps> = ({
       router.push("/");
     }
   }, [userRole, router]);
-
-  useEffect(() => {
-    console.log(chosenRole);
-  }, [chosenRole]);
 
   const validateForm = () => {
     let isValid = true;
@@ -100,16 +93,15 @@ const SignInForm: React.FC<SignInFormProps> = ({
       } else {
         // Use error message from backend if available, otherwise generic
         const errorMessage = "L'email ou le mot de passe est incorrect.";
-        setErrors((prev) => ({ ...prev, form: errorMessage }));
+        setErrors(prev => ({ ...prev, form: errorMessage }));
         setAlert({ type: "danger", message: errorMessage });
       }
     } catch (error: Error | unknown) {
       console.error("Login Error:", error);
       const errorMessage =
-        (error as Error & { response?: { data?: { message?: string } } })
-          .response?.data?.message ||
+        (error as Error & { response?: { data?: { message?: string } } }).response?.data?.message ||
         "Une erreur est survenue lors de la connexion. Veuillez réessayer.";
-      setErrors((prev) => ({ ...prev, form: errorMessage }));
+      setErrors(prev => ({ ...prev, form: errorMessage }));
       setAlert({ type: "danger", message: errorMessage });
     } finally {
       // Only stop loading if not redirecting immediately
@@ -122,20 +114,14 @@ const SignInForm: React.FC<SignInFormProps> = ({
   return (
     <>
       <CardHeader className="pb-4 text-center">
-        <h1 className="mb-1 font-merriweather-sans text-2xl font-bold">
-          Connexion
-        </h1>
-        <p className="font-dm-sans text-sm text-gray-600">
-          Entrez vos identifiants pour accéder à votre compte.
-        </p>
+        <h1 className="mb-1 font-merriweather-sans text-2xl font-bold">Connexion</h1>
+        <p className="font-dm-sans text-sm text-gray-600">Entrez vos identifiants pour accéder à votre compte.</p>
       </CardHeader>
       <CardContent className="pt-4">
         {!userRole ? (
           <form onSubmit={handleSubmit} method="POST" className="space-y-5">
             {/* Display form-level errors or general alerts */}
-            {alert.type && (
-              <AuthAlert type={alert.type} message={alert.message} />
-            )}
+            {alert.type && <AuthAlert type={alert.type} message={alert.message} />}
 
             <FormField
               icon={<Mail />}
@@ -143,9 +129,9 @@ const SignInForm: React.FC<SignInFormProps> = ({
               name="email"
               placeholder="Adresse email"
               value={email}
-              onChange={(e) => {
+              onChange={e => {
                 setEmail(e.target.value);
-                setErrors((prev) => ({ ...prev, email: "" }));
+                setErrors(prev => ({ ...prev, email: "" }));
               }}
               error={errors.email}
               disabled={isLoading}
@@ -157,9 +143,9 @@ const SignInForm: React.FC<SignInFormProps> = ({
               name="password"
               placeholder="Mot de passe"
               value={password}
-              onChange={(e) => {
+              onChange={e => {
                 setPassword(e.target.value);
-                setErrors((prev) => ({ ...prev, password: "" }));
+                setErrors(prev => ({ ...prev, password: "" }));
               }}
               error={errors.password}
               disabled={isLoading}

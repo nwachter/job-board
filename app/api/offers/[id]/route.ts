@@ -1,195 +1,169 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-import { cookies } from "next/headers";
+
 import { DecodedToken } from "@/app/types/misc";
-import jwt from "jsonwebtoken";
-import { authMiddleware } from "@/app/middleware";
 
-const prisma = new PrismaClient();
+import { authMiddleware } from "@/lib/middlewares/auth";
+import { Role } from "@/app/types/user";
+import { getOfferById, updateOffer, deleteOffer } from "@/lib/queries/offers";
+import { Skill } from "@prisma/client";
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
-  try {
-    const { id } = await params;
-
-    const offer = await prisma.offer.findUnique({
-      where: {
-        id: Number(id),
-      },
-      include: {
-        recruiter: true,
-        applications: true,
-        skills: true,
-      },
-    });
-    return NextResponse.json(offer);
-  } catch (error: unknown) {
-    console.error("Erreur lors de la recherche de l'offre : ", error);
-    return NextResponse.json({
-      error: "Erreur lors de la recherche de l'offre...",
-      status: 500,
-    });
-  }
-}
-
-export const PUT = async (
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) => {
-  const { id } = await params; //testerror : add skills
-  const { title, description, company_name, location, salary, recruiter_id } =
-    await request.json();
-
-  if (!id) {
-    return NextResponse.json({
-      error: "L'ID de l'offre est requis pour la mise à jour",
-      status: 400,
-    });
-  }
-
-  try {
-    const auth = await authMiddleware();
-    if (!auth) {
-      return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
-    }
-    // if (auth?.role  !== "recruiter") {
-    //   return NextResponse.json({ error: "Accès interdit", status: 401 });
-    // }
-  } catch (error) {
-    console.error("Token invalide", error);
-    return NextResponse.json({ message: "Token invalide" }, { status: 403 });
-  }
-
-  const updatedData = await prisma.offer.update({
-    where: {
-      id: Number(id),
-    },
-    data: { title, description, company_name, location, salary, recruiter_id },
-  });
-
-  return NextResponse.json({
-    message: "L'offre a été mise à jour avec succès !",
-    data: updatedData,
-    status: 200,
-  });
-};
-
-export const PATCH = async (
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) => {
-  const { id } = await params;
-  const {
-    title,
-    description,
-    company_name,
-    location,
-    salary,
-    recruiter_id,
-    skills,
-  } = await request.json();
-
-  if (!id) {
-    return NextResponse.json({
-      error: "L'ID de l'offre est requis pour la mise à jour",
-      status: 400,
-    });
-  }
-
-  try {
-    const auth = await authMiddleware();
-    if (!auth) {
-      return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
-    }
-    // if (auth?.role  !== "recruiter") {
-    //   return NextResponse.json({ error: "Accès interdit", status: 401 });
-    // }
-  } catch (error) {
-    console.error("Token invalide", error);
-    return NextResponse.json({ message: "Token invalide" }, { status: 403 });
-  }
-
-  const updatedData = await prisma.offer.update({
-    where: {
-      id: Number(id),
-    },
-    data: {
-      title,
-      description,
-      company_name,
-      location,
-      salary,
-      recruiter_id,
-      skills,
-    },
-  });
-
-  return NextResponse.json({
-    message: "L'offre a été mise à jour avec succès !",
-    data: updatedData,
-    status: 200,
-  });
-};
-
-export const DELETE = async (
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) => {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
     if (!id) {
       return NextResponse.json({
-        error: "L'ID de l'offre est requis pour la suppression",
+        error: "L'identifiant (ID) de l'offre est requis pour la recherche",
         status: 400,
       });
     }
 
+    const offer = await getOfferById(Number(id));
+    return NextResponse.json(offer);
+  } catch (error: unknown) {
+    console.error("Erreur lors de la recherche de l'offre : ", error);
+    return NextResponse.json({
+      error: "Erreur lors de la recherche de l'offre.",
+      status: 500,
+    });
+  }
+}
+
+export const PUT = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params;
+  const { title, description, company_name, contract_type, salary, recruiter_id, location_id, skills } =
+    await request.json();
+
+  if (!id) {
+    return NextResponse.json({
+      error: "L'identifiant (ID) de l'offre est requis pour la mise à jour",
+      status: 400,
+    });
+  }
+
+  try {
+    const auth = (await authMiddleware()) as DecodedToken;
+    if (!auth) {
+      return NextResponse.json(
+        {
+          message: "Accès interdit, veuillez vous connecter pour modifier cette offre.",
+        },
+        { status: 401 }
+      );
+    }
+    if (auth?.role !== Role.RECRUITER) {
+      return NextResponse.json(
+        {
+          error: "Accès interdit, seuls les recruteurs peuvent modifier des offres.",
+        },
+        { status: 403 }
+      );
+    }
+  } catch (error) {
+    return NextResponse.json(
+      {
+        error: "Erreur lors de la vérification de l'authentification (PUT offer).",
+      },
+      { status: 500 }
+    );
+  }
+  let updatedData = {
+    id: Number(id),
+    title,
+    description,
+    company_name,
+    contract_type,
+    salary,
+    recruiter_id,
+    location_id,
+    skills,
+  };
+  //Skills
+  if (skills) {
+    updatedData.skills = {
+      set: skills.map((skill: Skill) => ({ id: skill.id })),
+    };
+  }
+
+  const result = await updateOffer(Number(id), updatedData);
+
+  return NextResponse.json(
+    {
+      data: result,
+    },
+    { status: 200 }
+  );
+};
+
+export const PATCH = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  try {
+    const { id } = await params;
+    const { title, description, company_name, salary, recruiter_id, location_id, skills } = await request.json();
+
+    if (!id) {
+      return NextResponse.json({ error: "L'ID de l'offre est requis pour la mise à jour" }, { status: 400 });
+    }
+
     try {
-      const cookiesData = cookies();
-      const token = (await cookiesData).get("token")?.value;
-      if (!token) {
+      const auth = (await authMiddleware()) as DecodedToken;
+      if (!auth) {
+        return NextResponse.json({ error: "Accès interdit, veuillez vous connecter." }, { status: 401 });
+      }
+      if (auth?.role !== Role.RECRUITER) {
         return NextResponse.json(
-          { message: "Accès interdit" },
-          { status: 401 },
+          { error: "Accès interdit, seuls les recruteurs peuvent modifier des offres." },
+          { status: 403 }
         );
       }
-      const decodedToken: DecodedToken = jwt.verify(
-        token,
-        process.env.JWT_SECRET!,
-      ) as DecodedToken;
-      if (
-        decodedToken?.role !== "recruiter" &&
-        decodedToken?.role !== "admin"
-      ) {
-        return NextResponse.json({ error: "Accès non autorisé", status: 401 });
+    } catch (error) {
+      return NextResponse.json({ error: "Erreur lors de la vérification de l'authentification." }, { status: 500 });
+    }
+
+    const updatedData = await updateOffer(Number(id), {
+      id: Number(id),
+      title,
+      description,
+      company_name,
+      salary,
+      recruiter_id,
+      location_id,
+      skills,
+    });
+
+    if (!updatedData) {
+      return NextResponse.json({ error: "L'offre n'a pas été trouvée." }, { status: 404 });
+    }
+    return NextResponse.json({ data: updatedData }, { status: 200 });
+  } catch (error) {
+    console.error("Erreur lors de la mise à jour de l'offre : ", error);
+    return NextResponse.json({ error: "Erreur lors de la mise à jour de l'offre." }, { status: 500 });
+  }
+};
+export const DELETE = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
+  try {
+    const { id } = await params;
+    if (!id) {
+      return NextResponse.json({ error: "L'ID de l'offre est requis pour la suppression" }, { status: 400 });
+    }
+    try {
+      const auth = (await authMiddleware()) as DecodedToken;
+      if (!auth) {
+        return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
+      }
+      if (auth?.role !== Role.RECRUITER && auth?.role !== Role.ADMIN) {
+        return NextResponse.json({ error: "Accès non autorisé pour supprimer cette offre." }, { status: 403 });
       }
     } catch (error) {
-      console.error("Token invalide", error);
-      return NextResponse.json({ message: "Token invalide" }, { status: 403 });
+      return NextResponse.json({ error: "Erreur lors de la vérification de l'authentification." }, { status: 500 });
     }
 
-    const deletedOffer = prisma.offer.delete({ where: { id: Number(id) } });
+    const deletedOffer = await deleteOffer(Number(id));
+
     if (deletedOffer === null) {
-      return NextResponse.json({
-        error: "L'offre n'a pas été trouvée !",
-        status: 404,
-        data: null,
-      });
+      return NextResponse.json({ error: "L'offre n'a pas été trouvée !" }, { status: 404 });
     }
-    return NextResponse.json({
-      message: "Offre supprimée !",
-      data: deletedOffer,
-      status: 200,
-    });
+    return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error("Erreur lors de la suppression de l'offre : ", error);
-
-    return NextResponse.json(
-      { message: "Erreur lors de la suppression de l'offre...", data: null },
-      { status: 404 },
-    );
+    return NextResponse.json({ error: "Erreur lors de la suppression de l'offre." }, { status: 500 });
   }
 };

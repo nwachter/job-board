@@ -1,76 +1,39 @@
-import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-/*
-model Offer {
-model Offer {
-  id            Int      @id @default(autoincrement())
-  title         String
-  description   String
-  company_name  String
-  salary        Int
-  location      Location? @relation(fields: [location_id], references: [id])
-  location_id   Int?
-  contract_type String?
-  recruiter         User     @relation("RecruiterOffers", fields: [recruiter_id], references: [id])
-  recruiter_id      Int
-
-  applications  Application[]
-}
-
-}
-*/
+import { NextRequest, NextResponse } from "next/server";
+import { createOffer, getOffers } from "@/lib/queries/offers";
+import { getUserById } from "@/lib/queries/users";
+import { getLocationById } from "@/lib/queries/locations";
+import { authMiddleware } from "@/lib/middlewares/auth";
+import { Skill } from "@prisma/client";
 
 export async function GET() {
   // request: Request
   try {
-    const offers = await prisma.offer.findMany({
-      include: {
-        recruiter: true,
-        applications: true,
-        location: true,
-        skills: true,
-      },
-    });
+    const offers = await getOffers();
     return NextResponse.json(offers);
   } catch (error) {
-    console.log("Error fetching offers", error);
     return NextResponse.json({
-      error: "Erreur lors de la récupération des offres (api-offers)...",
+      error: `Erreur lors de la récupération des offres (api-offers) : ${error}`,
       status: 500,
     });
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  // // TEST - Rate limiting - 5 créations par heure
+  // const rateLimitCheck = checkRateLimit(request, 20, 60);
+
+  // if (rateLimitCheck.isLimited) {
+  //   return rateLimitCheck.response!;
+  // }
+
   try {
-    // try {
+    const { title, description, salary, location_id, company_name, contract_type, recruiter_id, skills } =
+      await request.json();
 
-    //   const auth = await authMiddleware();
-    //   if(!auth) {
-    //     return NextResponse.json({ error: "Accès non autorisé", status: 401 });
-    //   }
-    // } catch(error) {
-    //   console.log("Error verifying token", error);
-    //   return NextResponse.json({ error: "Erreur lors de la vérification du token", status: 500 });
-
-    // }
-
-    //testerror: add skills
-
-    const {
-      title,
-      description,
-      salary,
-      location_id,
-      company_name,
-      contract_type,
-      recruiter_id,
-    } = await request.json();
-    console.log("Received recruiter_id:", recruiter_id);
-    console.log("Received location_id:", location_id);
+    const auth = await authMiddleware();
+    if (!auth) {
+      return NextResponse.json({ error: "Vous n'êtes pas autorisé à créer une offre!" }, { status: 401 });
+    }
 
     if (
       !title ||
@@ -79,85 +42,82 @@ export async function POST(request: Request) {
       !salary ||
       !location_id ||
       !contract_type ||
-      !company_name
+      !company_name ||
+      !skills
     ) {
-      return NextResponse.json({
-        error: "Il manque des champs requis",
-        status: 400,
-      });
-    } else {
-      console.log("All required fields are present");
+      return NextResponse.json({ error: "Il manque des champs requis" }, { status: 400 });
     }
 
-    console.log("Received data:", {
+    let createdData: any = {
       title,
       description,
       salary,
-      contract_type,
       location_id,
       company_name,
+      contract_type,
       recruiter_id,
-    });
+      skills,
+    };
+
+    //console.log("Received data:", {
+    //   title,
+    //   description,
+    //   salary,
+    //   contract_type,
+    //   location_id,
+    //   company_name,
+    //   recruiter_id,
+    // });
 
     // Vérifier si l'recruiter existe
-    const recruiter = await prisma.user.findUnique({
-      where: {
-        id: recruiter_id,
-      },
-    });
+    const recruiter = await getUserById(recruiter_id);
 
     if (!recruiter) {
-      return NextResponse.json(
-        { error: "Recruteur introuvable" },
-        { status: 404 },
-      );
-    } else {
-      console.log("Recruiter found:", recruiter);
+      return NextResponse.json({ error: "Recruteur introuvable" }, { status: 404 });
     }
 
     //Check location
-    // Vérifier si la location existe
-    const location = await prisma.location.findUnique({
-      where: {
-        id: location_id,
-      },
-    });
+    const location = await getLocationById(location_id);
 
     if (!location) {
-      return NextResponse.json(
-        { error: "Emplacement introuvable" },
-
-        { status: 404 },
-      );
-    } else {
-      console.log("Location found:", location);
+      return NextResponse.json({ error: "Emplacement introuvable" }, { status: 404 });
     }
+    //Skills
 
-    const newOffer = await prisma.offer.create({
-      data: {
-        title,
-        description,
-        company_name,
-        salary,
-        location_id,
-        contract_type,
-        recruiter_id,
+    if (skills) {
+      createdData.skills = {
+        connect: skills.map((skill: Skill) => ({ id: skill.id })),
+      };
+    }
+    const newOffer = await createOffer(
+      createdData
+      //   {
+      //   title,
+      //   description,
+      //   company_name,
+      //   salary,
+      //   location_id,
+      //   location,
+      //   contract_type,
+      //   recruiter_id,
+      //   ...(skills && { skills }),
+      // }
+    );
+
+    return NextResponse.json(
+      {
+        data: newOffer,
       },
-      // include: { recruiter: true },
-    });
-
-    console.log("Offer created:", newOffer);
-
-    return NextResponse.json({
-      message: "Offre créée !",
-      data: newOffer,
-      status: 201,
-    });
+      { status: 201 }
+    );
   } catch (e) {
-    console.error("Error creating offer:", e); // Log the full error
-    return NextResponse.json({
-      error: "Erreur lors de la création de l'offre !",
-      status: 500,
-    });
+    //console.warn("Error creating offer:", e); // Log the full error
+    return NextResponse.json(
+      {
+        error: "Erreur lors de la création de l'offre : ",
+        e,
+      },
+      { status: 500 }
+    );
   }
 }

@@ -1,50 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import { cookies } from "next/headers";
 
 const SECRET_KEY = process.env.JWT_SECRET || "jwt_secret";
-
-// For API routes
-// export const authMiddleware = async (request?: Request) => {
-//   try {
-//     const token = (await cookies()).get("token")?.value;
-
-//     if (!token) {
-//       return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
-//     }
-
-//     const decodedToken = jwt.verify(token, SECRET_KEY);
-
-//     if (request && decodedToken) {
-//       request.headers.set("Authorization", `Bearer ${token}`);
-//     }
-
-//     return decodedToken;
-//   } catch (error) {
-//     console.log("Erreur de décodage du token", error);
-//     return { error: "Token invalide ou expiré" };
-//   }
-// };
-
-export const authMiddleware = async (request?: Request) => {
-  try {
-    const allCookies = await cookies();
-    console.log("All cookies:", allCookies.getAll()); // Debug line
-
-    const token = allCookies.get("token")?.value;
-    console.log("Token found:", !!token); // Debug line
-
-    if (!token) {
-      return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
-    }
-
-    const decodedToken = jwt.verify(token, SECRET_KEY);
-    return decodedToken;
-  } catch (error) {
-    console.log("Erreur de décodage du token", error);
-    return { error: "Token invalide ou expiré" };
-  }
-};
 
 // Protected paths and their required roles
 const protectedRoutes = {
@@ -57,17 +14,14 @@ export default async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
   // Check if current path needs protection (dash, pro, admin)
-  const matchedRoute = Object.keys(protectedRoutes).find((route) =>
-    path.startsWith(route),
-  );
+  const matchedRoute = Object.keys(protectedRoutes).find(route => path.startsWith(route));
 
   // If no protected route matches, allow request
   if (!matchedRoute) {
     return NextResponse.next();
   }
 
-  const requiredRoles =
-    protectedRoutes[matchedRoute as keyof typeof protectedRoutes];
+  const requiredRoles = protectedRoutes[matchedRoute as keyof typeof protectedRoutes];
 
   // Get cookies
   const jwtCookie = req.cookies.get("token");
@@ -114,12 +68,9 @@ function handleUnauthenticatedUser(req: NextRequest) {
   return NextResponse.redirect(new URL("/sign", req.url));
 }
 
-function hasRequiredRole(
-  userRole: string | string[],
-  requiredRoles: string[],
-): boolean {
+function hasRequiredRole(userRole: string | string[], requiredRoles: string[]): boolean {
   if (Array.isArray(userRole)) {
-    return userRole.some((role) => requiredRoles.includes(role));
+    return userRole.some(role => requiredRoles.includes(role));
   }
   return requiredRoles.includes(userRole);
 }

@@ -29,12 +29,7 @@ const Dashboard = () => {
     isError: isErrorLocations,
   } = useGetLocations();
 
-  const {
-    data: offersData,
-    isLoading: isLoadingOffers,
-    isError: isErrorOffers,
-    error: errorOffers,
-  } = useGetOffers();
+  const { data: offersData, isLoading: isLoadingOffers, isError: isErrorOffers, error: errorOffers } = useGetOffers();
 
   const {
     data: applications,
@@ -43,34 +38,33 @@ const Dashboard = () => {
     error: errorApplications,
   } = useGetApplications();
 
+  useEffect(() => {
+    if (userInfo?.role) {
+      setRole(userInfo.role);
+    }
+  }, [userInfo?.role]);
+
   const filteredApplications = useMemo(() => {
     if (!applications || !Array.isArray(applications) || !userInfo) return [];
 
     if (userInfo.role === Role.USER) {
-      return applications?.filter((application) => {
+      return applications?.filter(application => {
         return application.user_id === userInfo.id;
       });
     } else if (userInfo.role === Role.RECRUITER) {
       if (!offersData || !Array.isArray(offersData)) return [];
 
       const recruiterOffersWithApplis =
-        offersData?.filter((offer) => {
-          return (
-            offer.recruiter_id === userInfo.id &&
-            offer.applications !== undefined
-          );
+        offersData?.filter(offer => {
+          return offer.recruiter_id === userInfo.id && offer.applications !== undefined;
         }) ?? [];
-      console.log("recruiterOffers", recruiterOffersWithApplis);
       const recruiterOffersApplications =
-        recruiterOffersWithApplis?.flatMap((offer) => {
+        recruiterOffersWithApplis?.flatMap(offer => {
           return offer.applications ?? [];
         }) ?? [];
-      console.log("recruiterOffersApplications", recruiterOffersApplications);
-      const recruiterApplications: Application[] =
-        recruiterOffersApplications?.filter((application) => {
-          return application !== undefined;
-        }) as Application[];
-      console.log("recruiterApplications", recruiterApplications);
+      const recruiterApplications: Application[] = recruiterOffersApplications?.filter(application => {
+        return application !== undefined;
+      }) as Application[];
       return recruiterApplications;
     } else {
       return [];
@@ -81,7 +75,7 @@ const Dashboard = () => {
     if (!offersData || !Array.isArray(offersData) || !userInfo) return [];
 
     if (userInfo.role === Role.RECRUITER) {
-      return offersData?.filter((offer) => {
+      return offersData?.filter(offer => {
         return offer.recruiter_id === userInfo.id;
       });
     } else if (userInfo.role === Role.USER) {
@@ -92,28 +86,24 @@ const Dashboard = () => {
   }, [offersData, userInfo]);
 
   const contractTypes: string[] = useMemo(() => {
-    if (!offersData || offersData.length === 0) return [];
+    if (!offersData || !Array.isArray(offersData) || offersData.length === 0) return [];
     return Array.from(
       new Set(
         offersData?.map((offer: Offer) => {
           return offer.contract_type;
-        }),
-      ),
+        })
+      )
     );
   }, [offersData]);
 
   const applicationsNumber: number = useMemo(() => {
-    if (!offersData) return 0;
-    return offersData.reduce((acc: number, offer: Offer) => {
+    if (!offersData || !Array.isArray(offersData) || offersData.length === 0) return 0;
+    const recruiterOwnOffers = offersData?.filter(offer => offer.recruiter_id === userInfo?.id);
+    const resultAppNb = recruiterOwnOffers?.reduce((acc: number, offer: Offer) => {
       return acc + (offer?.applications ? offer.applications.length : 0);
     }, 0);
+    return resultAppNb ?? 0;
   }, [offersData]);
-
-  useEffect(() => {
-    if (userInfo?.role) {
-      setRole(userInfo.role);
-    }
-  }, [userInfo?.role]);
 
   if (isLoadingUserInfo) {
     return (
@@ -127,8 +117,7 @@ const Dashboard = () => {
   if (isErrorUserInfo) {
     return (
       <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 transition-all dark:bg-gray-800 dark:text-red-400">
-        Erreur lors du chargement des informations utilisateur:{" "}
-        {errorUserInfo?.message}
+        Erreur lors du chargement des informations utilisateur: {errorUserInfo?.message}
       </div>
     );
   }
@@ -152,9 +141,7 @@ const Dashboard = () => {
           contractTypes={contractTypes}
           applicationsNumber={applicationsNumber}
           locations={locations ?? []}
-          isLoading={
-            isLoadingLocations || isLoadingOffers || isLoadingApplications
-          }
+          isLoading={isLoadingLocations || isLoadingOffers || isLoadingApplications}
           isError={isErrorLocations || isErrorOffers || isErrorApplications}
           error={errorLocations || errorOffers || errorApplications}
           userId={userInfo.id}
@@ -165,9 +152,7 @@ const Dashboard = () => {
           applications={filteredApplications}
           contractTypes={contractTypes}
           locations={locations ?? []}
-          isLoading={
-            isLoadingLocations || isLoadingOffers || isLoadingApplications
-          }
+          isLoading={isLoadingLocations || isLoadingOffers || isLoadingApplications}
           isError={isErrorLocations || isErrorOffers || isErrorApplications}
           error={errorLocations || errorOffers || errorApplications}
         />

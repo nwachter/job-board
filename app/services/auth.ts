@@ -64,6 +64,22 @@ export const updateUser = async (
   data: Partial<Omit<User, "id" | "password">>,
 ) => {
   try {
+    const response = await api.patch(`/users/${id}`, data);
+    return response.data.data;
+  } catch (error) {
+    console.error(
+      `Échec de la mise à jour de l'utilisateur avec l'ID #${id} :`,
+      error,
+    );
+    throw error;
+  }
+};
+
+export const updateFullUser = async (
+  id: number,
+  data: Partial<Omit<User, "id" | "password">>,
+) => {
+  try {
     const response = await api.put(`/users/${id}`, data);
     return response.data;
   } catch (error) {

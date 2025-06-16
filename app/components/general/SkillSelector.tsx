@@ -4,12 +4,15 @@ import { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { Search, Plus, X, Check, Star } from "lucide-react";
 import { Skill } from "@/app/types/skill";
 import { motion, AnimatePresence } from "framer-motion";
+import { updateUser } from "@/app/services";
+import { useUpdateUser } from "@/app/hooks/useUser";
 
 type UserSkillsSelectorProps = {
   userSkills: Skill[];
   onSkillsChange: (skills: Skill[]) => void;
   className?: string;
   allSkills: Skill[];
+  isEditing?: boolean; // Add this
 };
 
 export default function UserSkillsSelector({
@@ -17,6 +20,7 @@ export default function UserSkillsSelector({
   onSkillsChange,
   className = "",
   allSkills = [],
+  isEditing = true,
 }: UserSkillsSelectorProps) {
   const [selectedSkills, setSelectedSkills] = useState<Skill[]>(userSkills);
   const [availableSkills, setAvailableSkills] = useState<Skill[]>([]);
@@ -25,6 +29,11 @@ export default function UserSkillsSelector({
   const [newSkillName, setNewSkillName] = useState("");
   const [newSkillLevel, setNewSkillLevel] = useState(3);
   const [filteredSkills, setFilteredSkills] = useState<Skill[]>([]);
+
+  useEffect(() => {
+    //add
+    setSelectedSkills(userSkills);
+  }, [userSkills]);
 
   useEffect(() => {
     // Filter out skills that are already selected
@@ -64,7 +73,7 @@ export default function UserSkillsSelector({
   };
 
   // Update skill level
-  const updateSkillLevel = (skillId: number, level: number) => {
+  const updateSkillLevel = async (skillId: number, level: number) => {
     setSelectedSkills((prev) =>
       prev.map((skill) => (skill.id === skillId ? { ...skill, level } : skill)),
     );
@@ -146,13 +155,15 @@ export default function UserSkillsSelector({
                     ))}
                 </div>
 
-                <button
-                  onClick={() => removeSkill(skill.id)}
-                  type="button"
-                  className="ml-2 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-                >
-                  <X size={16} />
-                </button>
+                {isEditing && (
+                  <button
+                    onClick={() => removeSkill(skill.id)}
+                    type="button"
+                    className="ml-2 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
               </div>
             </div>
           ))
@@ -360,6 +371,7 @@ export function OfferSkillsSelector({
     setSelectedSkills((prev) =>
       prev.filter((skill) => skill.name !== skillName),
     );
+
     // onSkillsChange(selectedSkills.filter((skill) => skill.name !== skillName));
   };
 

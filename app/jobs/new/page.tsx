@@ -7,6 +7,8 @@ import React, { useEffect, useState } from "react";
 import { Currency, FileText, MapPin, Building2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import CreateNewOffer from "./CreateNewOffer";
+import { Skill } from "@/app/types/skill";
+import { Offer } from "@/app/types/offer";
 
 // export type OfferFormInputs = {
 //     title: string;
@@ -19,9 +21,22 @@ import CreateNewOffer from "./CreateNewOffer";
 //     country: string;
 //   };
 
-export type FormInputs = {
-  [key: string]: string | number | FileList;
+// export type FormInputs = {
+//   [key: string]: string | number | FileList | Skill[];
+// };
+
+type FormInputs = {
+  title: string;
+  description: string;
+  company_name: string;
+  location_id: string;
+  salary: number;
+  contract_type: string;
+  city: string;
+  country: string;
+  skills: Skill[];
 };
+
 const NewJobPage = () => {
   const [inputs, setInputs] = useState<FormInputs>({
     title: "",
@@ -32,6 +47,7 @@ const NewJobPage = () => {
     contract_type: "",
     city: "",
     country: "",
+    skills: [],
   });
 
   const { data: userInfo } = useGetUserInfo();
@@ -45,15 +61,7 @@ const NewJobPage = () => {
   const router = useRouter();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const {
-      title,
-      description,
-      company_name,
-      city,
-      country,
-      salary,
-      contract_type,
-    } = inputs;
+    const { title, description, company_name, city, country, salary, contract_type, skills } = inputs;
 
     try {
       const locationData = { city: String(city), country: String(country) };
@@ -64,21 +72,19 @@ const NewJobPage = () => {
       }
 
       const locationId = createdLocation.id;
-      console.log("Created location ID:", locationId);
-
-      console.log("Created id location:", locationId);
 
       if (locationId) {
-        const offerData = {
-          title: String(title),
-          description: String(title),
-          company_name: String(company_name),
-          location_id: Number(locationId),
-          salary: Number(salary),
-          contract_type: String(contract_type),
-          recruiter_id: Number(recruiterId),
+        const offerData: Omit<Offer, "id" | "createdAt" | "updatedAt"> = {
+          title: String(title) as string,
+          description: String(title) as string,
+          company_name: String(company_name) as string,
+          location_id: Number(locationId) as number,
+          salary: Number(salary) as number,
+          contract_type: String(contract_type) as string,
+          recruiter_id: Number(recruiterId) as number,
+          skills: skills ? (skills as Skill[]) : [],
         };
-        const offer = await createOffer(offerData);
+        const offer = await createOffer({ ...offerData, skills });
 
         if (offer) {
           console.log("Created offer:", offer);

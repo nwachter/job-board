@@ -16,19 +16,14 @@ type RecruiterApplicationsProps = {
   applications: Application[];
 };
 
-export default function RecruiterApplications({
-  recruiterId,
-  applications,
-}: RecruiterApplicationsProps) {
+export default function RecruiterApplications({ recruiterId, applications }: RecruiterApplicationsProps) {
   // State for applications data
   // const [filteredApplications, setFilteredApplications] = useState<
   //   Application[]
   // >([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedApplication, setSelectedApplication] =
-    useState<Application | null>(null);
-  const [isOpenApplicationDetailModal, setIsOpenApplicationDetailModal] =
-    useState(false);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [isOpenApplicationDetailModal, setIsOpenApplicationDetailModal] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
 
   // Filter states
@@ -97,11 +92,9 @@ export default function RecruiterApplications({
 
   let { filteredApplications, offersList } = useMemo(() => {
     const fetchApplications = () => {
-      const uniqueOffers = Array.from(
-        new Set(applications.map((app) => app.offer_id)),
-      )
-        .map((offerId) => {
-          return applications.find((app) => app.offer_id === offerId)?.offer;
+      const uniqueOffers = Array.from(new Set(applications.map(app => app.offer_id)))
+        .map(offerId => {
+          return applications.find(app => app.offer_id === offerId)?.offer;
         })
         .filter(Boolean) as Offer[];
 
@@ -120,23 +113,23 @@ export default function RecruiterApplications({
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
       result = result.filter(
-        (app) =>
+        app =>
           app.firstname.toLowerCase().includes(term) ||
           app.lastname.toLowerCase().includes(term) ||
           app.email.toLowerCase().includes(term) ||
           app.offer?.title.toLowerCase().includes(term) ||
-          app.content.toLowerCase().includes(term),
+          app.content.toLowerCase().includes(term)
       );
     }
 
     // Apply status filter
     if (statusFilter !== "ALL") {
-      result = result.filter((app) => app.status === statusFilter);
+      result = result.filter(app => app.status === statusFilter);
     }
 
     // Apply offer filter
     if (offerFilter !== "ALL") {
-      result = result.filter((app) => app.offer_id === offerFilter);
+      result = result.filter(app => app.offer_id === offerFilter);
     }
 
     return {
@@ -145,11 +138,7 @@ export default function RecruiterApplications({
     };
   }, [applications, searchTerm, statusFilter, offerFilter]);
 
-  const handleStatusChange = (
-    applicationId: number,
-    newStatus: Status,
-    feedback: string = "",
-  ) => {
+  const handleStatusChange = (applicationId: number, newStatus: Status, feedback: string = "") => {
     // setFilteredApplications((prevApplications) =>
     //   prevApplications.map((app) =>
     //     app.id === applicationId
@@ -159,21 +148,17 @@ export default function RecruiterApplications({
     // );
 
     offersList = offersList;
-    filteredApplications = filteredApplications.map((app) =>
-      app.id === applicationId
-        ? { ...app, status: newStatus, feedback: feedback || app.feedback }
-        : app,
+    filteredApplications = filteredApplications.map(app =>
+      app.id === applicationId ? { ...app, status: newStatus, feedback: feedback || app.feedback } : app
     );
 
     // Close detail view after status change
     if (selectedApplication?.id === applicationId) {
-      setSelectedApplication((prev) =>
-        prev ? { ...prev, status: newStatus, feedback } : null,
-      );
+      setSelectedApplication(prev => (prev ? { ...prev, status: newStatus, feedback } : null));
     }
 
-    // Show success notification (in a real app)
-    console.log(`Application ${applicationId} status changed to ${newStatus}`);
+    // Show success notification
+    // console.log(`Application ${applicationId} status changed to ${newStatus}`);
   };
 
   // Format date
@@ -233,11 +218,8 @@ export default function RecruiterApplications({
   const renderSkillLevel = (level: number) => {
     return (
       <div className="flex space-x-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <div
-            key={star}
-            className={`h-2 w-2 rounded-full ${star <= level ? "bg-electric-purple" : "bg-gray-200"}`}
-          />
+        {[1, 2, 3, 4, 5].map(star => (
+          <div key={star} className={`h-2 w-2 rounded-full ${star <= level ? "bg-electric-purple" : "bg-gray-200"}`} />
         ))}
       </div>
     );
@@ -247,12 +229,8 @@ export default function RecruiterApplications({
     <div className="mx-auto min-h-screen max-w-7xl rounded-3xl bg-gradient-to-br from-white/60 to-cream/50 p-4 sm:p-6">
       <div className="container mx-auto px-4 py-8">
         <header className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Gestion des Candidatures
-          </h1>
-          <p className="mt-2 text-gray-600">
-            Consultez et gérez les candidatures pour vos offres d'emploi
-          </p>
+          <h1 className="text-3xl font-bold text-gray-900">Gestion des Candidatures</h1>
+          <p className="mt-2 text-gray-600">Consultez et gérez les candidatures pour vos offres d'emploi</p>
         </header>
 
         {/* Filters and Search */}
@@ -263,7 +241,7 @@ export default function RecruiterApplications({
               type="text"
               placeholder="Rechercher un candidat, une offre..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="w-full rounded-lg border border-gray-200 bg-gray-50 py-2 pl-10 pr-4 text-sm focus:border-electric-purple focus:outline-none focus:ring-1 focus:ring-electric-purple"
             />
           </div>
@@ -294,16 +272,12 @@ export default function RecruiterApplications({
           {isLoading ? (
             <div className="flex h-64 items-center justify-center">
               <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-t-2 border-electric-purple"></div>
-              <span className="ml-2 text-gray-600">
-                Chargement des candidatures...
-              </span>
+              <span className="ml-2 text-gray-600">Chargement des candidatures...</span>
             </div>
           ) : filteredApplications.length === 0 ? (
             <div className="flex h-64 flex-col items-center justify-center">
               <Briefcase size={48} className="mb-4 text-gray-300" />
-              <p className="text-gray-500">
-                Aucune candidature ne correspond à vos critères
-              </p>
+              <p className="text-gray-500">Aucune candidature ne correspond à vos critères</p>
             </div>
           ) : (
             <div className="overflow-hidden">
@@ -343,16 +317,13 @@ export default function RecruiterApplications({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200 bg-white">
-                  {filteredApplications.map((application) => (
+                  {filteredApplications.map(application => (
                     <tr key={application.id} className="hover:bg-purple-50">
                       <td className="whitespace-nowrap px-6 py-4">
                         <div className="flex items-center">
                           <div className="h-10 w-10 flex-shrink-0">
                             <Image
-                              src={
-                                application.user?.avatar ||
-                                "/placeholder.svg?height=40&width=40"
-                              }
+                              src={application.user?.avatar || "/placeholder.svg?height=40&width=40"}
                               alt={`${application.firstname} ${application.lastname}`}
                               width={40}
                               height={40}
@@ -363,19 +334,13 @@ export default function RecruiterApplications({
                             <div className="font-medium text-gray-900">
                               {application.firstname} {application.lastname}
                             </div>
-                            <div className="text-sm text-gray-500">
-                              {application.email}
-                            </div>
+                            <div className="text-sm text-gray-500">{application.email}</div>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <div className="text-sm font-medium text-gray-900">
-                          {application.offer?.title}
-                        </div>
-                        <div className="text-sm text-gray-500">
-                          {application.offer?.company_name}
-                        </div>
+                        <div className="text-sm font-medium text-gray-900">{application.offer?.title}</div>
+                        <div className="text-sm text-gray-500">{application.offer?.company_name}</div>
                       </td>
                       <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                         {formatDate(application.createdAt)}
@@ -393,23 +358,13 @@ export default function RecruiterApplications({
                         {application.status === Status.PENDING && (
                           <>
                             <button
-                              onClick={() =>
-                                handleStatusChange(
-                                  application.id,
-                                  Status.ACCEPTED,
-                                )
-                              }
+                              onClick={() => handleStatusChange(application.id, Status.ACCEPTED)}
                               className="mr-3 text-green-600 hover:text-green-800"
                             >
                               Accepter
                             </button>
                             <button
-                              onClick={() =>
-                                handleStatusChange(
-                                  application.id,
-                                  Status.REJECTED,
-                                )
-                              }
+                              onClick={() => handleStatusChange(application.id, Status.REJECTED)}
                               className="text-red-600 hover:text-red-800"
                             >
                               Refuser

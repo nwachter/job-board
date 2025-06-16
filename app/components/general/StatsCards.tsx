@@ -11,9 +11,14 @@ import {
   Briefcase,
   CheckCircle,
   XCircle,
+  Activity,
+  Equal,
+  ChartSpline,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import ApplicationsStackedAreaChart from "./charts/ApplicationsStackedAreaChart";
+import { Offer } from "@/app/types/offer";
+import { Status } from "@/app/types/application";
 
 interface Stats8Props {
   heading?: string;
@@ -27,8 +32,10 @@ interface Stats8Props {
     value: string;
     label: string;
     icon?: React.ReactNode;
+    trendingUp?: boolean;
   }>;
   userId: number;
+  offers: Offer[];
 }
 
 export const Stats8 = ({
@@ -41,24 +48,23 @@ export const Stats8 = ({
       value: "250%+",
       label: "average growth in user engagement",
       icon: <TrendingUp className="h-5 w-5" />,
+      trendingUp: true,
     },
     {
       id: "stat-2",
       value: "$2.5m",
       label: "annual savings per enterprise partner",
       icon: <TrendingUp className="h-5 w-5" />,
+      trendingUp: true,
     },
   ],
   userId,
+  offers,
 }: Stats8Props) => {
-  const [animatedStats, setAnimatedStats] = useState(
-    stats.map((stat) => ({ id: stat.id, value: 1 })),
-  );
+  const [animatedStats, setAnimatedStats] = useState(stats.map(stat => ({ id: stat.id, value: 1 })));
 
-  const {
-    data: applicationStatistics,
-    isLoading: isLoadingApplicationsStatistics,
-  } = useGetRecruiterApplicationsStatisticsForChart(userId);
+  const { data: applicationStatistics, isLoading: isLoadingApplicationsStatistics } =
+    useGetRecruiterApplicationsStatisticsForChart(userId);
 
   useEffect(() => {
     stats.forEach((stat, index) => {
@@ -66,7 +72,7 @@ export const Stats8 = ({
       let current = 1;
 
       const interval = setInterval(() => {
-        setAnimatedStats((prevStats) => {
+        setAnimatedStats(prevStats => {
           const updatedStats = [...prevStats];
           updatedStats[index] = { id: stat.id, value: current };
           return updatedStats;
@@ -83,15 +89,27 @@ export const Stats8 = ({
     });
   }, [stats]);
 
+  useEffect(() => {
+    console.warn(applicationStatistics);
+  }, [applicationStatistics]);
+
   const quadriStat = [
-    { label: "Candidats", value: 10, icon: <Users className="h-4 w-4" /> },
+    { label: "Candidats", value: applicationStatistics?.data?.length ?? 0, icon: <Users className="h-4 w-4" /> },
     {
       label: "Offres d'emploi",
-      value: 5,
+      value: offers?.length,
       icon: <Briefcase className="h-4 w-4" />,
     },
-    { label: "Acceptées", value: 2, icon: <CheckCircle className="h-4 w-4" /> },
-    { label: "Rejetées", value: 3, icon: <XCircle className="h-4 w-4" /> },
+    {
+      label: "Acceptées",
+      value: applicationStatistics?.data?.filter(app => app.status === Status.ACCEPTED).length ?? 0,
+      icon: <CheckCircle className="h-4 w-4" />,
+    },
+    {
+      label: "Rejetées",
+      value: applicationStatistics?.data?.filter(app => app.status === Status.ACCEPTED).length ?? 0,
+      icon: <XCircle className="h-4 w-4" />,
+    },
   ];
 
   return (
@@ -129,17 +147,20 @@ export const Stats8 = ({
                 <div className="absolute inset-0 z-50 bg-gradient-to-br from-cream/5 to-eggplant/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
                 <div className="flex items-center justify-between">
                   <div className="flex h-10 w-10 items-center justify-center rounded-full bg-electric-purple/10">
-                    {stat.icon || (
-                      <TrendingUp className="h-5 w-5 text-electric-purple" />
-                    )}
+                    {stat.icon || <Activity className="h-5 w-5 text-electric-purple" />}
                   </div>
                   <div className="flex h-8 w-8 items-center justify-center rounded-full">
-                    <ChevronUp className="h-4 w-4 text-electric-purple" />
+                    {stat.trendingUp ? (
+                      <TrendingUp className="h-5 w-5 text-electric-purple" />
+                    ) : stat.icon ? (
+                      stat.icon
+                    ) : (
+                      <Equal className="h-5 w-5 text-electric-purple" />
+                    )}
                   </div>
                 </div>
                 <div className="bg-gradient-to-r from-electric-purple to-eggplant bg-clip-text text-3xl font-bold leading-tight text-transparent opacity-80 md:text-4xl">
-                  {animatedStats[index]?.value.toLocaleString() +
-                    (stat.value.includes("%") ? "%" : "")}
+                  {animatedStats[index]?.value.toLocaleString() + (stat.value.includes("%") ? "%" : "")}
                 </div>
                 <p className="font-medium text-eggplant/70">{stat.label}</p>
               </div>
@@ -150,18 +171,14 @@ export const Stats8 = ({
           <div className="group relative flex flex-col gap-4 overflow-hidden rounded-2xl border border-eggplant/20 bg-gradient-to-br from-white/80 to-white/40 p-4 shadow-lg shadow-eggplant/5 backdrop-blur-sm transition-all hover:translate-y-[-2px] hover:shadow-eggplant/10 md:col-span-2">
             <div className="absolute inset-0 bg-gradient-to-br from-electric-purple/5 to-eggplant/5 opacity-0 transition-opacity group-hover:opacity-100"></div>
             <div className="mb-2 flex items-center justify-between">
-              <h3 className="font-semibold text-eggplant">
-                Candidatures dans le temps
-              </h3>
+              <h3 className="font-semibold text-eggplant">Candidatures dans le temps</h3>
               <div className="flex h-8 w-8 items-center justify-center rounded-full">
                 <TrendingUp className="h-4 w-4 text-electric-purple" />
               </div>
             </div>
             <div className="h-48 w-full">
               {applicationStatistics && (
-                <ApplicationsStackedAreaChart
-                  processedChartData={applicationStatistics ?? []}
-                />
+                <ApplicationsStackedAreaChart processedChartData={applicationStatistics ?? []} />
               )}
               {!applicationStatistics && (
                 <div className="flex h-full w-full items-center justify-center text-eggplant/50">
@@ -177,7 +194,7 @@ export const Stats8 = ({
             <div className="mb-2 flex items-center justify-between">
               <h3 className="font-semibold text-eggplant">Statistiques clés</h3>
               <div className="flex h-8 w-8 items-center justify-center rounded-full">
-                <Users className="h-4 w-4 text-electric-purple" />
+                <ChartSpline className="h-4 w-4 text-electric-purple" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -194,9 +211,7 @@ export const Stats8 = ({
                       {stat.value}
                     </span>
                   </div>
-                  <p className="text-xs font-medium text-eggplant/70">
-                    {stat.label}
-                  </p>
+                  <p className="text-xs font-medium text-eggplant/70">{stat.label}</p>
                 </div>
               ))}
             </div>

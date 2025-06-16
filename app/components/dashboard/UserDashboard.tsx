@@ -1,16 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import JobCard from "../general/JobCard";
-import {
-  Briefcase,
-  Calendar,
-  ChevronDown,
-  Filter,
-  Loader2,
-  MapPin,
-  Search,
-  X,
-} from "lucide-react";
+import { Briefcase, Calendar, ChevronDown, Filter, Loader2, MapPin, Search, X } from "lucide-react";
 import { Offer } from "@/app/types/offer";
 import { searchOffers } from "@/app/services/offers";
 import { Location } from "@/app/types/location";
@@ -57,32 +48,18 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     try {
-      const offersResults = await searchOffers(
-        searchQuery,
-        contractType,
-        locationId,
-      );
-      setOffersList(
-        offersResults &&
-          Array.isArray(offersResults) &&
-          offersResults.length > 0
-          ? offersResults
-          : offers,
-      );
+      const offersResults = await searchOffers(searchQuery, contractType, locationId);
+      setOffersList(offersResults && Array.isArray(offersResults) && offersResults.length > 0 ? offersResults : offers);
     } catch (e) {
       console.error("Error : ", e);
       // setError(error?.message ?? "Erreur lors de la recherche des offres");
-      error =
-        error ??
-        new Error("Erreur lors de la recherche des offres (userDashboard)");
+      error = error ?? new Error("Erreur lors de la recherche des offres (userDashboard)");
     }
   };
 
   useEffect(() => {
-    const updatedOffers =
-      offersList && offersList.length > 0 ? offersList : offers;
+    const updatedOffers = offersList && offersList.length > 0 ? offersList : offers;
     setOffersList(updatedOffers);
-    console.log("locations : ", locations);
   }, [offers, locations, offersList]);
 
   const containerVariants = {
@@ -116,9 +93,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   if (isError)
     return (
       <div className="mb-4 rounded-lg bg-red-50 p-4 text-sm text-red-800 transition-all dark:bg-gray-800 dark:text-red-400">
-        {error
-          ? error.message
-          : "Erreur lors de la recherche des localisations"}
+        {error ? error.message : "Erreur lors de la recherche des localisations"}
       </div>
     );
   if (isLoading)
@@ -167,17 +142,13 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
             </form>
           </div> */}
           {/* Header Section */}
-          <motion.header
-            className="mb-8 flex items-center justify-between"
-            variants={itemVariants}
-          >
+          <motion.header className="mb-8 flex items-center justify-between" variants={itemVariants}>
             <div>
               <h1 className="bg-gradient-to-r from-white to-indigo-100 bg-clip-text font-merriweather-sans text-4xl font-bold text-transparent">
                 Tableau de bord
               </h1>
               <p className="mt-2 font-dm-sans font-light text-electric-purple">
-                Découvrez {offersList.length} offres d'emploi correspondant à
-                vos critères
+                Découvrez {offersList.length} offres d'emploi correspondant à vos critères
               </p>
             </div>
 
@@ -203,14 +174,11 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="flex items-center gap-4">
                 <div className="relative flex-1">
-                  <Search
-                    className="absolute left-3 top-3 text-indigo-300"
-                    size={20}
-                  />
+                  <Search className="absolute left-3 top-3 text-indigo-300" size={20} />
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={e => setSearchQuery(e.target.value)}
                     placeholder="Rechercher par titre, compétence ou entreprise..."
                     className="w-full rounded-xl border border-indigo-100 bg-white/80 py-3 pl-10 pr-4 backdrop-blur-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
@@ -221,19 +189,14 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                   onClick={() => setIsFilterOpen(!isFilterOpen)}
                   className={cn(
                     "flex items-center gap-2 rounded-xl px-4 py-3 transition-all",
-                    isFilterOpen
-                      ? "bg-indigo-600 text-white"
-                      : "bg-white/80 text-indigo-600 hover:bg-indigo-50",
+                    isFilterOpen ? "bg-indigo-600 text-white" : "bg-white/80 text-indigo-600 hover:bg-indigo-50"
                   )}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
                   <Filter size={18} />
                   <span>Filtres</span>
-                  <ChevronDown
-                    size={16}
-                    className={`transition-transform ${isFilterOpen ? "rotate-180" : ""}`}
-                  />
+                  <ChevronDown size={16} className={`transition-transform ${isFilterOpen ? "rotate-180" : ""}`} />
                 </motion.button>
 
                 <motion.button
@@ -246,11 +209,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                   whileTap={{ scale: 0.98 }}
                   disabled={isSearching}
                 >
-                  {isSearching ? (
-                    <Loader2 className="animate-spin" size={20} />
-                  ) : (
-                    <Search size={20} />
-                  )}
+                  {isSearching ? <Loader2 className="animate-spin" size={20} /> : <Search size={20} />}
                   <span>{isSearching ? "Recherche..." : "Rechercher"}</span>
                 </motion.button>
               </div>
@@ -267,13 +226,10 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                   >
                     <div className="grid grid-cols-1 gap-4 border-t border-white/10 pt-4 md:grid-cols-3">
                       <div className="relative">
-                        <Briefcase
-                          className="absolute left-3 top-3 text-indigo-300"
-                          size={20}
-                        />
+                        <Briefcase className="absolute left-3 top-3 text-indigo-300" size={20} />
                         <select
                           value={contractType}
-                          onChange={(e) => setContractType(e.target.value)}
+                          onChange={e => setContractType(e.target.value)}
                           className="w-full appearance-none rounded-xl border border-indigo-100 bg-white/80 py-3 pl-10 pr-4 backdrop-blur-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         >
                           <option value="">Tous les types de contrat</option>
@@ -286,23 +242,14 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                       </div>
 
                       <div className="relative">
-                        <MapPin
-                          className="absolute left-3 top-3 text-indigo-300"
-                          size={20}
-                        />
+                        <MapPin className="absolute left-3 top-3 text-indigo-300" size={20} />
                         <select
                           value={locationId || ""}
-                          onChange={(e) =>
-                            setLocationId(
-                              e.target.value
-                                ? Number(e.target.value)
-                                : undefined,
-                            )
-                          }
+                          onChange={e => setLocationId(e.target.value ? Number(e.target.value) : undefined)}
                           className="w-full appearance-none rounded-xl border border-indigo-100 bg-white/80 py-3 pl-10 pr-4 backdrop-blur-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500"
                         >
                           <option value="">Toutes les localisations</option>
-                          {locations?.map((location) => (
+                          {locations?.map(location => (
                             <option key={location.id} value={location.id}>
                               {location.city}, {location.country}
                             </option>
@@ -311,10 +258,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
                       </div>
 
                       <div className="relative">
-                        <Calendar
-                          className="absolute left-3 top-3 text-indigo-300"
-                          size={20}
-                        />
+                        <Calendar className="absolute left-3 top-3 text-indigo-300" size={20} />
                         <select className="w-full appearance-none rounded-xl border border-indigo-100 bg-white/80 py-3 pl-10 pr-4 backdrop-blur-sm transition-all focus:outline-none focus:ring-2 focus:ring-indigo-500">
                           <option value="">Date de publication</option>
                           <option value="today">Aujourd'hui</option>
@@ -350,13 +294,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
               transition={{ duration: 0.3 }}
               className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3"
             >
-              {offersList?.map((offer) => (
-                <JobCard
-                  key={`offer-${offer.id}`}
-                  offer={offer}
-                  router={router}
-                />
-              ))}
+              {offersList?.map(offer => <JobCard key={`offer-${offer.id}`} offer={offer} router={router} />)}
             </motion.div>
           </AnimatePresence>
         </div>

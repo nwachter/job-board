@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { JwtPayload } from "jsonwebtoken";
-import { authMiddleware } from "@/app/middleware";
+import { authMiddleware } from "@/lib/middlewares/auth";
 
 const prisma = new PrismaClient();
 
@@ -17,11 +17,7 @@ export const GET = async () => {
       });
     }
     // Check if auth is an object and has an error property
-    if (
-      typeof userInfo === "object" &&
-      userInfo !== null &&
-      "error" in userInfo
-    ) {
+    if (typeof userInfo === "object" && userInfo !== null && "error" in userInfo) {
       return NextResponse.json({
         error: "Token invalide. Accès non autorisé",
         userInfo,
@@ -36,7 +32,7 @@ export const GET = async () => {
         status: 401,
       });
     }
-    console.log("RouteUserInfo : ", userInfo);
+    // console.log("RouteUserInfo : ", userInfo);
     const user = await prisma.user.findUnique({
       where: {
         id: (userInfo as JwtPayload)?.id,
@@ -67,15 +63,14 @@ export const GET = async () => {
   } catch (error) {
     if (error instanceof Error) {
       // Si l'erreur est une instance de l'objet Error
-      console.log(error.message);
+      console.warn(error.message);
     } else {
       // Si ce n'est pas une erreur standard, affiche l'erreur telle quelle
-      console.log(error);
+      console.warn(error);
     }
 
     return NextResponse.json({
-      error:
-        "Erreur lors de la récupération des informations de l'utilisateur courant",
+      error: "Erreur lors de la récupération des informations de l'utilisateur courant",
       status: 500,
     });
   }

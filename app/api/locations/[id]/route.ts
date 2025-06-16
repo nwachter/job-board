@@ -1,4 +1,4 @@
-import { authMiddleware } from "@/app/middleware";
+import { authMiddleware } from "@/lib/middlewares/auth";
 import { PrismaClient } from "@prisma/client";
 import { NextResponse } from "next/server";
 
@@ -8,10 +8,7 @@ const prisma = new PrismaClient();
 //     id: string;
 // };
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     if (!id) {

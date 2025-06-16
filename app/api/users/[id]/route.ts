@@ -11,10 +11,7 @@ const prisma = new PrismaClient();
 //   id: string,
 // }
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
     const userId = parseInt(id, 10);
@@ -40,10 +37,7 @@ export async function GET(
   }
 }
 
-export const PATCH = async (
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) => {
+export const PATCH = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   const { username, email, role } = await request.json();
 
@@ -78,10 +72,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
     }
 
-    const decodedToken: DecodedToken = jwt.verify(
-      token,
-      process.env.JWT_SECRET!,
-    ) as DecodedToken;
+    const decodedToken: DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
     if (decodedToken?.role !== "admin") {
       return NextResponse.json({ error: "Accès non autorisé", status: 401 });
     }
@@ -95,10 +86,7 @@ export async function DELETE(request: Request) {
       },
     });
     if (!existingUser) {
-      return NextResponse.json(
-        { error: "Utilisateur introuvable" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
 
     await prisma.user.delete({
@@ -116,24 +104,17 @@ export async function DELETE(request: Request) {
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   try {
     const cookiesData = await cookies();
     const token = cookiesData.get("token")?.value;
-    console.log("token : ", token);
 
     if (!token) {
       return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
     }
 
-    const decodedToken: DecodedToken = jwt.verify(
-      token,
-      process.env.JWT_SECRET!,
-    ) as DecodedToken;
+    const decodedToken: DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
     // if (decodedToken?.role !== "admin") {
     //   return NextResponse.json({ error: "Accès non autorisé", status: 401 });
     // }
@@ -150,16 +131,11 @@ export async function PUT(
       },
     });
     if (!existingUser) {
-      return NextResponse.json(
-        { error: "Utilisateur introuvable" },
-        { status: 404 },
-      );
+      return NextResponse.json({ error: "Utilisateur introuvable" }, { status: 404 });
     }
 
     // Hasher le mot de passe si nécessaire
-    const hashedPassword = password
-      ? await bcrypt.hash(password, 10)
-      : existingUser.password;
+    const hashedPassword = password ? await bcrypt.hash(password, 10) : existingUser.password;
 
     const updatedUser = await prisma.user.update({
       where: {

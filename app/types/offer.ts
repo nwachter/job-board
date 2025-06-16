@@ -14,8 +14,8 @@ export type Offer = {
   contract_type: string;
   recruiter_id: number;
   recruiter?: User;
-  createdAt?: Date;
+  createdAt: Date;
   updatedAt?: Date;
-  skills?: Skill[];
+  skills: Skill[]; //testerror
   applications?: Application[];
 };

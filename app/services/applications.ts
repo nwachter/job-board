@@ -40,10 +40,7 @@ export const getApplicationById = async (id: number) => {
     const response = await api.get(`/applications/${id}`);
     return response.data;
   } catch (error) {
-    console.error(
-      `Échec de la récupération de la candidature avec l'ID #${id} :`,
-      error,
-    );
+    console.error(`Échec de la récupération de la candidature avec l'ID #${id} :`, error);
     throw error;
   }
 };
@@ -53,10 +50,7 @@ export const getApplicationsByUserId = async (userId: number) => {
     const response = await api.get(`/applications/by-user/${userId}`);
     return response.data;
   } catch (error) {
-    console.error(
-      `Échec de la récupération de la candidature de l'utilisateur #${userId} :`,
-      error,
-    );
+    console.error(`Échec de la récupération de la candidature de l'utilisateur #${userId} :`, error);
     throw error;
   }
 };
@@ -81,18 +75,12 @@ export const createApplication = async (data: Omit<Application, "id">) => {
   }
 };
 
-export const updateApplication = async (
-  id: number,
-  data: Partial<Application>,
-) => {
+export const updateApplication = async (id: number, data: Partial<Application>) => {
   try {
     const response = await api.put(`/applications/${id}`, data);
     return response.data;
   } catch (error) {
-    console.error(
-      `Échec de la mise à jour de la candidature avec l'ID #${id} :`,
-      error,
-    );
+    console.error(`Échec de la mise à jour de la candidature avec l'ID #${id} :`, error);
     throw error;
   }
 };
@@ -102,27 +90,31 @@ export const deleteApplication = async (id: number) => {
     const response = await api.delete(`/applications/${id}`);
     return response.data;
   } catch (error) {
-    console.error(
-      `Échec de la suppression de la candidature avec l'ID #${id} :`,
-      error,
-    );
+    console.error(`Échec de la suppression de la candidature avec l'ID #${id} :`, error);
     throw error;
   }
 };
 
 export const getRecruiterApplicationsStatisticsForChart = async (
-  recruiterId: number,
-): Promise<{ chartData: ChartDataPoint[]; data: Application[] }> => {
+  recruiterId: number
+): Promise<{ chartData: ChartDataPoint[]; data: Application[]; message?: string }> => {
   try {
-    const response = await api.get(
-      `/applications/by-recruiter/${recruiterId}/chart`,
-    );
+    if (!recruiterId || recruiterId <= 0) {
+      throw new Error("Invalid recruiter ID");
+    }
+
+    console.log(`Fetching applications for recruiter ${recruiterId}`);
+
+    const response = await api.get(`/applications/by-recruiter/${recruiterId}/chart`);
+
+    console.log("API Response:", response.data);
     return response.data;
   } catch (error) {
-    console.error(
-      `Échec de la récupération des statistiques avec le recruiterId #${recruiterId} :`,
-      error,
-    );
-    throw error;
+    console.error(`Échec de la récupération des statistiques avec le recruiterId #${recruiterId} :`, error);
+
+    if (error instanceof Error) {
+      throw new Error(`Failed to fetch applications: ${error.message}`);
+    }
+    throw new Error("Failed to fetch applications: Unknown error");
   }
 };

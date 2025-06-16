@@ -22,20 +22,32 @@ model Application {
 type QueryParameters = {
   [key: string]:
     | { contains?: string }
-    | { city?: { contains?: string } }
+    // | { city?: { contains?: string } }
     | { location_id?: number }
-    | { contract_type?: string };
+    | { contract_type?: string }
+    | { company_name?: { contains?: string } }
+    | { location?: { city?: { contains?: string } } }
+    | { title?: { contains?: string } };
 };
 
 export async function POST(request: Request) {
   try {
     const { searchQuery } = await request.json();
 
+    // const queryParameters: QueryParameters[] = [
+    //   { title: { contains: searchQuery } },
+    //   { description: { contains: searchQuery } },
+    //   { company_name: { contains: searchQuery } },
+    //   { location: { city: { contains: searchQuery } } },
+    // ];
+
     const queryParameters: QueryParameters[] = [
-      { title: { contains: searchQuery } },
-      { description: { contains: searchQuery } },
-      { company_name: { contains: searchQuery } },
-      { location: { city: { contains: searchQuery } } },
+      { offer: { title: { contains: searchQuery } } },
+      { offer: { company_name: { contains: searchQuery } } },
+      { offer: { location: { city: { contains: searchQuery } } } },
+      { firstname: { contains: searchQuery } },
+      { lastname: { contains: searchQuery } },
+      { email: { contains: searchQuery } },
     ];
 
     const applications = await prisma.application.findMany({

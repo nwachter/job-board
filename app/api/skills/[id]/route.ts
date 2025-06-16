@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 import { cookies } from "next/headers";
 import { DecodedToken } from "@/app/types/misc";
 import jwt from "jsonwebtoken";
-import { authMiddleware } from "@/app/middleware";
+import { authMiddleware } from "@/lib/middlewares/auth";
 import { Role } from "@/app/types/user";
 
 const prisma = new PrismaClient();
@@ -12,10 +12,7 @@ const prisma = new PrismaClient();
 //   id: string;
 // };
 
-export async function GET(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
@@ -42,10 +39,7 @@ export async function GET(
   }
 }
 
-export const PUT = async (
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) => {
+export const PUT = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;
   const { name } = await request.json();
 
@@ -80,10 +74,7 @@ export const PUT = async (
   });
 };
 
-export const DELETE = async (
-  request: Request,
-  { params }: { params: Promise<{ id: string }> },
-) => {
+export const DELETE = async (request: Request, { params }: { params: Promise<{ id: string }> }) => {
   try {
     const { id } = await params;
 
@@ -98,19 +89,10 @@ export const DELETE = async (
       const cookiesData = cookies();
       const token = (await cookiesData).get("token")?.value;
       if (!token) {
-        return NextResponse.json(
-          { message: "Accès interdit" },
-          { status: 401 },
-        );
+        return NextResponse.json({ message: "Accès interdit" }, { status: 401 });
       }
-      const decodedToken: DecodedToken = jwt.verify(
-        token,
-        process.env.JWT_SECRET!,
-      ) as DecodedToken;
-      if (
-        decodedToken?.role !== Role.RECRUITER &&
-        decodedToken?.role !== Role.ADMIN
-      ) {
+      const decodedToken: DecodedToken = jwt.verify(token, process.env.JWT_SECRET!) as DecodedToken;
+      if (decodedToken?.role !== Role.RECRUITER && decodedToken?.role !== Role.ADMIN) {
         return NextResponse.json({ error: "Accès non autorisé", status: 401 });
       }
     } catch (error) {
@@ -139,7 +121,7 @@ export const DELETE = async (
         message: "Erreur lors de la suppression de la compétence...",
         data: null,
       },
-      { status: 404 },
+      { status: 404 }
     );
   }
 };

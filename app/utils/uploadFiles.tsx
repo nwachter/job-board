@@ -20,11 +20,11 @@ export const uploadFiles = async (
       files: FormData;
       // path: string
     }
-  >,
+  >
   //   filePath: string = API_PATH.PROPOSAL_DOCUMENT,
 ): Promise<string[] | undefined> => {
   if (!documents || documents.length === 0) {
-    console.log("Aucun document à envoyer.");
+    console.warn("Aucun document à envoyer.");
     return [];
   }
 
@@ -60,11 +60,11 @@ export const uploadImage = async (
       files: FormData;
       // path: string
     }
-  >,
+  >
   //   filePath: string = API_PATH.NEWS_IMAGE,
 ): Promise<string[] | undefined> => {
   if (!image || image.length === 0) {
-    console.log("Aucune image à envoyer.");
+    console.warn("Aucune image à envoyer.");
     return [];
   }
 
